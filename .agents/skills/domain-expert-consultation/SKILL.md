@@ -1,5 +1,5 @@
 ---
-name: ai-expert-consultation
+name: domain-expert-consultation
 description: Use when the user asks for a deep expert consultation, strategic analysis, decision memo, tradeoff evaluation, or step-by-step advisory deliverable with explicit evidence discipline. Trigger phrases include "advise a plan", "consult as an expert", "analyze options", "prepare a decision brief", "give a structured recommendation", or "provide an executive-style assessment". Do not use for quick Q&A, code review, debugging, or brief summaries.
 ---
 
