@@ -37,8 +37,9 @@ Battle-tested configuration for AI coding agents.
 | `/.agents/skills/agent-browser/SKILL.md` | Browser automation CLI workflows |
 | `/.agents/skills/web-design-guidelines/SKILL.md` | UI/UX review against Web Interface Guidelines |
 | `/.agents/skills/brainstorming/SKILL.md` | Required pre-design brainstorming workflow |
-| `/.agents/skills/reflexion-architect/SKILL.md` | Prompt architecture and reflexion-based optimization workflow |
 | `/.agents/skills/skill-creator/SKILL.md` | Skill authoring guidance |
+| `/.agents/skills/meta-prompting/SKILL.md` | Prompt architecture and meta-prompt optimization workflow |
+| `/.agents/skills/domain-expert-consultation/SKILL.md` | Strategic expert consultation and decision advisory |
 | `/.agents/skills/find-skills/SKILL.md` | Discover/install skills from skills.sh |
 | `/.agents/skills/seedance2.0-prompt-skill/SKILL.md` | Generate production-ready video prompts for ByteDance Seedance 2.0 (即梦) |
 | `/.agents/skills/context-compaction/SKILL.md` | Compact long sessions into a canonical state snapshot for handoff or continuation |
