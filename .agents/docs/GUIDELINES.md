@@ -441,6 +441,43 @@ Every component must:
 
 ---
 
+### DESIGN_TOKEN.md — Design Tokens & Brand System
+
+**Purpose:** Canonical design token definitions derived from brand discovery. Records design principles, color/spacing/typography/radius/shadow/motion tokens, and a validation report.
+
+```markdown
+# DESIGN_TOKEN.md
+
+> Brand: [Brand Name]
+> Version: 1.0
+
+## Brand Discovery Summary
+| Question | Answer |
+|---|---|
+| Q1 Purpose | [...] |
+| Q2 Persona | [...] |
+...
+
+## Design Principles
+| # | Principle | Source | Token Impact |
+...
+
+## Color Tokens
+--color-primary: [hex]; /* usage note */
+...
+
+## Validation Report
+- [ ] WCAG AA contrast verified
+- [ ] Principles traceable to tokens
+...
+```
+
+**When to create:** When generating a brand design system (use `generating-design-tokens` skill).
+**Template location:** `.agents/docs/DESIGN_TOKEN.md`
+**Key rule:** Every token rationale must cite its discovery source (Q1–Q6 or document name).
+
+---
+
 ### TECH_STACK.md — Technology Choices
 
 **Purpose:** What we use and why.
