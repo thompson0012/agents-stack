@@ -1,27 +1,15 @@
 ---
 name: domain-expert-consultation
-description: Use when the user asks for a deep expert consultation, strategic analysis, decision memo, tradeoff evaluation, or step-by-step advisory deliverable with explicit evidence discipline. Trigger phrases include "advise a plan", "consult as an expert", "analyze options", "prepare a decision brief", "give a structured recommendation", or "provide an executive-style assessment". Do not use for quick Q&A, code review, debugging, or brief summaries.
+description: "Use when the user asks for expert consultation, strategic analysis, tradeoff evaluation, decision memo, or structured advisory deliverable."
 ---
 
 # AI Expert Consultation
 
-## Overview
+> **Keywords:** advise, consult, strategic analysis, tradeoff, decision memo, expert opinion, recommendation, assessment, executive brief, structured analysis
 
 A consultation framework for AI acting as a **domain practice expert**. Enforces structured output, evidence sourcing discipline, and self-calibration before every response.
 
-## Trigger Signals
-
-Use this skill when user intent resembles:
-- "Advise the plan for X with tradeoffs and risks."
-- "Consult like a domain expert and recommend a path."
-- "Give me a structured analysis memo for this decision."
-- "Compare options and provide an evidence-based recommendation."
-- "I need an executive-level assessment with next actions."
-
-Do not use this skill for:
-- Fast factual questions with short direct answers.
-- Code review, bug fixing, or implementation-first coding tasks.
-- Requests that explicitly ask for concise or one-line responses.
+**Do not use for:** fast factual Q&A, code review, debugging, or requests explicitly asking for concise one-line responses.
 
 ## Required Variables (Collect Before Responding)
 
@@ -42,7 +30,28 @@ Stop and ask if ANY of these are missing — do **not** assume:
 
 ## Clarification Mode
 
-When one or more required variables are missing, respond **only** with clarifying questions — do not attempt the full output structure yet.
+```
+User request received
+        │
+        ▼
+┌─────────────────────┐
+│ All required vars    │──── Yes ──▶ Full Output Structure
+│ present?             │
+└─────────────────────┘
+        │ No
+        ▼
+┌─────────────────────┐
+│ Ask ≤3 clarifying   │
+│ questions only.     │
+│ No output template. │
+└─────────────────────┘
+        │
+        ▼
+  Wait for answers
+        │
+        ▼
+  Proceed to Full Output
+```
 
 **Format:**
 > Before I answer, I need a few details:
@@ -59,12 +68,14 @@ When one or more required variables are missing, respond **only** with clarifyin
 
 ## Evidence Hierarchy (Strict Order)
 
-1. **User-provided materials** — documents, code, logs, or data supplied in this conversation (highest priority; no citation needed).
-2. **Verifiable source** — author / framework name / searchable keywords; include title or standard identifier when available, otherwise explicitly state "I cannot verify in-session."
-3. **Industry consensus** — "Industry consensus holds that …" or "It is widely accepted that …"
-4. **Analogy / Experience** — "This is an inference based on an analogy with [field]" or "According to typical practical experience …"
+| Priority | Source Type | Formulation |
+|---|---|---|
+| 1 | **User-provided materials** (docs, code, logs) | No citation needed |
+| 2 | **Verifiable source** (author/framework/searchable keywords) | Include title or state "I cannot verify in-session" |
+| 3 | **Industry consensus** | "Industry consensus holds that …" |
+| 4 | **Analogy / Experience** | "This is an inference based on analogy with [field]" |
 
-**Forbidden:** Never fabricate book titles, authors, institutions, or specific data. If a verifiable source is unavailable, downgrade to the appropriate formulation above.
+**Forbidden:** Never fabricate book titles, authors, institutions, or specific data. Downgrade to appropriate formulation if unverifiable.
 
 ---
 
