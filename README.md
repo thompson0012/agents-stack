@@ -39,6 +39,8 @@ Battle-tested configuration for AI coding agents.
 | `/.agents/skills/reflexion-architect/SKILL.md` | Prompt architecture and reflexion-based optimization workflow |
 | `/.agents/skills/skill-creator/SKILL.md` | Skill authoring guidance |
 | `/.agents/skills/find-skills/SKILL.md` | Discover/install skills from skills.sh |
+| `/.agents/skills/seedance2.0-prompt-skill/SKILL.md` | Generate production-ready video prompts for ByteDance Seedance 2.0 (即梦) |
+| `/.agents/skills/context-compaction/SKILL.md` | Compact long sessions into a canonical state snapshot for handoff or continuation |
 
 ## Installed Roles
 
@@ -54,11 +56,37 @@ Battle-tested configuration for AI coding agents.
 
 ## Quick Start
 
-1. Copy `AGENTS.md` to project root — this is your AI's constitution
-2. Copy `/.agents/docs/` to your project
-3. **Read** `GUIDELINES.md` to learn how to fill templates properly
-4. Fill templates with project-specific info (use GUIDELINES.md Part 3 for Backend/Frontend)
-5. Set `AGENTS.md` as your AI tool's instruction file
+### Option A — New project (scaffold from scratch)
+
+```bash
+# 1. Scaffold into a new directory (no git history, README excluded via degit.json)
+npx degit labs21/agents-docs-kits my-project
+
+# 2. Enter the directory and initialise git
+cd my-project
+git init
+```
+
+This copies `AGENTS.md`, `.agents/`, and all templates. `README.md` is automatically removed by `degit.json` so your project starts clean.
+
+### Option B — Add to an existing project
+
+```bash
+# Clone the repo temporarily, then copy only what you need
+git clone https://github.com/labs21/agents-docs-kits.git /tmp/agents-docs-kits
+
+cp /tmp/agents-docs-kits/AGENTS.md ./AGENTS.md
+cp -r /tmp/agents-docs-kits/.agents ./.agents
+
+rm -rf /tmp/agents-docs-kits
+```
+
+### After scaffolding (both options)
+
+1. **Read** `.agents/docs/GUIDELINES.md` — learn how to fill templates properly
+2. **Fill** `PRD.md` and `TECH_STACK.md` with your project details
+3. **Set** `AGENTS.md` as your AI tool's instruction/rules file
+4. **Optionally fill** `BACKEND.md` / `FRONTEND.md` (see GUIDELINES.md Part 3)
 
 ### Learning Path for AI Agents
 
