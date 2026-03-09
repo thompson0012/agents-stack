@@ -1,8 +1,8 @@
-# Agents Docs Kit
+# Project Agent Guide
 
 ## Repo Purpose
 
-This repository is a minimal docs kit for agent recall, progressive disclosure, and reliable hand-off in a single worktree.
+This repository uses a minimal agent documentation structure for recall, progressive disclosure, and reliable hand-off in a single worktree.
 
 ## Injected Context Contract
 

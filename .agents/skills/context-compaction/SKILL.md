@@ -18,7 +18,7 @@ Transform a long conversation history into a **single canonical state snapshot**
 
 1. **Lossless Signal Preservation** — Verbatim accuracy for critical data: file paths, IDs, variable values, constraints, agreed definitions. Never approximate.
 2. **Single Canonical Representation** — If a decision evolved, record only the final state. Strip the history of changes, keep only the result.
-3. **Lazy Load via Document References** — Do NOT inline full file contents. Reference paths instead: `"re-read when needed: .agents/docs/PRD.md"`. This prevents bloating the compacted context.
+3. **Lazy Load via Document References** — Do NOT inline full file contents. Reference paths instead: `"re-read when needed: docs/reference/design.md"`. This prevents bloating the compacted context.
 4. **Agents.md Instructions are Sacred** — Always extract and preserve active behavioral rules from `AGENTS.md` and session-level overrides.
 5. **Objective Drift Awareness** — Record both the original objective AND the current focus objective separately if they have diverged.
 6. **Style Normalization** — Strip all emotional tone, hesitation, conversational filler. Output reads like a system log.
@@ -105,9 +105,9 @@ Do NOT inline file or memory contents. Reference them so the resuming session ca
 ### Project documents (repo files)
 
 ```markdown
-→ Re-read when needed: `.agents/docs/PRD.md`
-→ Re-read when needed: `.agents/docs/TECH_STACK.md`
-→ Re-read when needed: `.agents/docs/PROGRESS.md`
+→ Re-read when needed: `docs/reference/design.md`
+→ Re-read when needed: `docs/reference/implementation.md`
+→ Re-read when needed: `docs/live/progress.md`
 → Re-read when needed: `src/auth/middleware.ts` (modified this session)
 ```
 

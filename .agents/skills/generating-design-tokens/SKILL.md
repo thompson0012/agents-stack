@@ -1,15 +1,15 @@
 ---
 name: generating-design-tokens
-description: Use when generating design tokens, a brand design system, or DESIGN_TOKEN.md from brand identity inputs. Triggers include "generate design tokens", "create a design system", "build a brand spec", "generate DESIGN_TOKEN.md", or when brand discovery answers (purpose, audience, differentiator, personality, perception, visual references) are provided. Always checks existing project docs (PRD.md, MEMORY.md, product vision) before asking questions.
+description: Use when generating design tokens, a brand design system, or a brand spec from brand identity inputs. Triggers include "generate design tokens", "create a design system", "build a brand spec", or when brand discovery answers (purpose, audience, differentiator, personality, perception, visual references) are provided. Always checks existing project docs (for example `docs/reference/design.md`, `docs/reference/memory.md`, or product vision docs) before asking questions.
 ---
 
 # Generating Design Tokens
 
 ## Overview
 
-Transforms brand discovery inputs into a conflict-free, specification-ready `DESIGN_TOKEN.md`. Resolves input tensions (e.g., warm personality vs. restrained visual references), derives atomic design tokens, and records design principles — all traceable back to discovery sources.
+Transforms brand discovery inputs into a conflict-free, specification-ready design token spec. Resolves input tensions (e.g., warm personality vs. restrained visual references), derives atomic design tokens, and records design principles — all traceable back to discovery sources.
 
-**Primary output:** `DESIGN_TOKEN.md` (use `.agents/docs/DESIGN_TOKEN.md` as template)
+**Primary output:** a design token spec document (for example `docs/reference/design.md` or a project-specific brand spec)
 **Extended output:** `Brand_System_Architecture.md` (tokens + component inventory)
 
 ---
@@ -19,7 +19,7 @@ Transforms brand discovery inputs into a conflict-free, specification-ready `DES
 - Brand discovery answers exist (any of the 6 questions below)
 - Need atomic design tokens (color, spacing, radius, typography, shadow, motion)
 - Inputs contain potential conflicts (personality vs. visual references)
-- Output target: `DESIGN_TOKEN.md` or `Brand_System_Architecture.md`
+- Output target: a design token spec or `Brand_System_Architecture.md`
 
 **Do NOT use for:**
 - Pure copywriting with no visual output
@@ -34,8 +34,8 @@ Transforms brand discovery inputs into a conflict-free, specification-ready `DES
 
 ```
 Check in order:
-1. .agents/docs/PRD.md          → product vision, users, differentiators
-2. .agents/docs/MEMORY.md       → architectural decisions, brand notes
+1. docs/reference/design.md     → product intent, behavior, brand direction
+2. docs/reference/memory.md     → durable decisions, brand notes
 3. docs/ or product/ folders    → roadmap docs, vision docs, brand briefs
 4. README.md                    → project purpose, audience
 ```
@@ -139,9 +139,9 @@ Resolve all conflicts silently. Never output tokens before completing all 5 chec
 
 ---
 
-## Phase 2: Output — DESIGN_TOKEN.md
+## Phase 2: Output — Design Token Spec
 
-Use `.agents/docs/DESIGN_TOKEN.md` as the canonical template. Fill all `[placeholder]` values.
+Use the project's preferred docs location for the token spec. If the repo follows this kit, add the token guidance to `docs/reference/design.md` or create a clearly named brand spec alongside the reference docs.
 
 Key rules when filling:
 - Every **Rationale** block must cite its discovery source (Q1–Q6 or `【From: filename.md】`).
@@ -154,7 +154,7 @@ Key rules when filling:
 
 ## Phase 3: Extended Output — Brand_System_Architecture.md
 
-When a full spec (tokens + component inventory) is requested, extend the DESIGN_TOKEN.md output with:
+When a full spec (tokens + component inventory) is requested, extend the design token spec output with:
 
 ```csv
 ID,Priority,Name,Rationale

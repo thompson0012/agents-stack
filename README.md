@@ -1,178 +1,70 @@
-# AI Agents Setup
+# agents-docs-kits
 
-Battle-tested configuration for AI coding agents.
+Minimal agent docs kit for context injection, progressive disclosure, and reliable hand-off in a single worktree.
 
-## Documentation Structure
+## What this repo is
 
-| Path | Purpose | Start Here |
-|------|---------|------------|
-| `AGENTS.md` | **Constitution** — behavior rules and protocols | ✅ Always read first |
-| `/.agents/docs/GUIDELINES.md` | **Teaching Guide** — how to think and write docs | ✅ Read when writing docs |
-| `/.agents/docs/PRD.md` | Product requirements (template) | Fill per project |
-| `/.agents/docs/TECH_STACK.md` | Technology choices (template) | Fill per project |
-| `/.agents/docs/PROGRESS.md` | Session state (template) | Update each session |
-| `/.agents/docs/LESSONS.md` | Learned patterns (template) | Log corrections here |
-| `/.agents/docs/MEMORY.md` | Architectural decisions (template) | Fill per project |
-| `/.agents/docs/CODEMAP.md` | Architecture codemap — load at session start | Update after structural changes |
-| `/.agents/docs/CHANGELOG.md` | System change log — load last 5 entries | Add entry after system changes |
-| `/.agents/docs/OBJECTIVE_LEDGER.md` | Task objective schema and template | Create per non-trivial task |
-| `/.agents/docs/SESSION_BOOTSTRAP.md` | Session startup protocol | Follow at every session start |
-| `/.agents/docs/ledgers/` | Active task objective ledgers (one per task) | Create + update during tasks |
-| `/.agents/docs/DESIGN_TOKEN.md` | Design token template — brand identity tokens | Fill per project using `generating-design-tokens` skill |
+This repository is a template-first docs kit for projects that want a small, durable agent memory structure.
 
-**Domain-Specific** (fill based on GUIDELINES.md Part 3):
-- `/.agents/docs/BACKEND.md` — Backend patterns
-- `/.agents/docs/FRONTEND.md` — Frontend standards
+- `AGENTS.md` is the only always-injected index.
+- `docs/live/` stores the current execution state.
+- `docs/reference/` stores durable project context.
+- `templates/base/` contains the generic starter files used to initialize a new project.
 
-## Installed Skills
+## Generated project files
 
-| Path | Purpose |
-|------|---------|
-| `/.agents/skills/self-cognitive/SKILL.md` | Self-cognitive meta skill (verification, retrospectives, persistence) |
-| `/.agents/skills/tailwind-design-system/SKILL.md` | Tailwind v4 design system and UI standardization |
-| `/.agents/skills/remotion-best-practices/SKILL.md` | Remotion video creation best practices |
-| `/.agents/skills/better-auth-best-practices/SKILL.md` | Better Auth integration guidance |
-| `/.agents/skills/ui-ux-pro-max/SKILL.md` | UI/UX design intelligence and guidelines |
-| `/.agents/skills/agent-browser/SKILL.md` | Browser automation CLI workflows |
-| `/.agents/skills/web-design-guidelines/SKILL.md` | UI/UX review against Web Interface Guidelines |
-| `/.agents/skills/brainstorming/SKILL.md` | Required pre-design brainstorming workflow |
-| `/.agents/skills/skill-creator/SKILL.md` | Skill authoring guidance |
-| `/.agents/skills/meta-prompting/SKILL.md` | Prompt architecture and meta-prompt optimization workflow |
-| `/.agents/skills/domain-expert-consultation/SKILL.md` | Strategic expert consultation and decision advisory |
-| `/.agents/skills/find-skills/SKILL.md` | Discover/install skills from skills.sh |
-| `/.agents/skills/seedance2.0-prompt-skill/SKILL.md` | Generate production-ready video prompts for ByteDance Seedance 2.0 (即梦) |
-| `/.agents/skills/context-compaction/SKILL.md` | Compact long sessions into a canonical state snapshot for handoff or continuation |
-| `/.agents/skills/generating-design-tokens/SKILL.md` | Generate brand design tokens via structured discovery (v1.2 framework) |
+The base template generates this structure:
 
-## Quick Start
+```text
+.
+├── AGENTS.md
+└── docs/
+    ├── live/
+    │   ├── current-focus.md
+    │   ├── todo.md
+    │   └── progress.md
+    └── reference/
+        ├── implementation.md
+        ├── design.md
+        ├── architecture.md
+        ├── codemap.md
+        ├── memory.md
+        └── lessons.md
+```
 
-### Option A — New project (scaffold from scratch)
+This repository also includes:
+
+- `README.md` to explain the kit itself
+- `templates/base/` to hold the reusable scaffold
+- `degit.json` for a narrow repo-level cleanup case when scaffolding from the repository root
+
+## How progressive disclosure works
+
+Read only the smallest set of docs needed for the task:
+
+1. Start with `AGENTS.md`.
+2. Read `docs/live/current-focus.md` for the active objective.
+3. Read `docs/live/progress.md` for continuity and latest verification.
+4. Read `docs/live/todo.md` only when choosing the next action.
+5. Read `docs/reference/implementation.md` or `docs/reference/design.md` only when the work needs them.
+
+The goal is to keep the default context small while still making deeper project knowledge retrievable on demand.
+
+## Initialize a project from the template
+
+Primary and recommended path: scaffold from `templates/base` so the new project gets only the starter docs.
 
 ```bash
-# 1. Scaffold into a new directory (no git history, README excluded via degit.json)
-npx degit labs21/agents-docs-kits my-project
-
-# 2. Enter the directory and initialise git
-cd my-project
-git init
+npx degit <owner>/<repo>/templates/base my-project
 ```
 
-This copies `AGENTS.md`, `.agents/`, and all templates. `README.md` is automatically removed by `degit.json` so your project starts clean.
+Then fill in:
 
-### Option B — Add to an existing project
+- `AGENTS.md` with your project-specific retrieval contract
+- `docs/live/*` with current execution state
+- `docs/reference/*` with durable implementation and product context
 
-```bash
-# Clone the repo temporarily, then copy only what you need
-git clone https://github.com/labs21/agents-docs-kits.git /tmp/agents-docs-kits
+## Secondary root-scaffold cleanup note
 
-cp /tmp/agents-docs-kits/AGENTS.md ./AGENTS.md
-cp -r /tmp/agents-docs-kits/.agents ./.agents
-
-rm -rf /tmp/agents-docs-kits
-```
-
-### After scaffolding (both options)
-
-1. **Read** `.agents/docs/GUIDELINES.md` — learn how to fill templates properly
-2. **Fill** `PRD.md` and `TECH_STACK.md` with your project details
-3. **Set** `AGENTS.md` as your AI tool's instruction/rules file
-4. **Optionally fill** `BACKEND.md` / `FRONTEND.md` (see GUIDELINES.md Part 3)
-
-### Learning Path for AI Agents
-
-```
-First Session:
-AGENTS.md ──► Understand behavior rules
-     │
-     ▼
-GUIDELINES.md ──► Learn how to think & write
-     │
-     ▼
-Fill PRD.md, TECH_STACK.md ──► Establish project context
-
-Ongoing:
-PROGRESS.md ◄──► Update each session
-LESSONS.md ◄──► Log when corrected
-```
-
-## Agent Processing Flow
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                      SESSION START                          │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│  READ: AGENTS.md → PROGRESS.md → Risk-based tiered docs     │
-│  LOAD: CODEMAP.md + last 5 CHANGELOG entries (architecture)  │
-│  LOAD: Objective Ledger for current task                     │
-│  ├─ Low:   Target files only                                │
-│  ├─ Normal: + PRD.md, TECH_STACK.md                         │
-│  └─ High:   + SECURITY.md, all relevant docs                │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-                       ▼
-            ┌────────────────────┐
-            │   TASK CLASSIFY    │
-            │  ┌──────────────┐  │
-            │  │ ≤20 LOC,     │  │
-            │  │ 1 file,      │──┼──► TRIVIAL? ──Yes──► EXECUTE
-            │  │ no new       │  │                      │
-            │  │ behavior     │  │                      No
-            │  └──────────────┘  │                       │
-            └────────────────────┘                       ▼
-                                                ┌─────────────────┐
-                                                │   CREATE PLAN   │
-                                                │  - Goal/Scope   │
-                                                │  - Tasks        │
-                                                │  - Risks        │
-                                                └────────┬────────┘
-                                                         │
-                                                         ▼
-┌───────────────────────────────────────────────────────┴──────┐
-│                         EXECUTE                             │
-│  ┌─────────────┐    ┌─────────────┐    ┌─────────────────┐  │
-│  │  Implement  │───►│   Verify    │───►│   Document      │  │
-│  │  (atomic)   │    │  LSP/tests  │    │  PROGRESS.md    │  │
-│  └─────────────┘    └─────────────┘    └─────────────────┘  │
-└─────────────────────────────────────────────────────────────┘
-                       │
-          ┌────────────┼────────────┐
-          ▼            ▼            ▼
-    ┌──────────┐ ┌──────────┐ ┌──────────┐
-    │  Success │ │  Error   │ │ Security │
-    │   Done   │ │   ───►   │ │   Vuln   │
-    └──────────┘ │ Diagnose │ │   ───►   │
-                 │ Reproduce│ │   Stop   │
-                 │  Retry   │ │   Warn   │
-                 │          │ │Escalate  │
-                 └──────────┘ └──────────┘
-```
-
-## Reading Flow
-
-```
-AGENTS.md → PROGRESS.md → [Tier-based docs]
-```
-
-- **Low risk**: Targets only
-- **Normal risk**: + PRD.md, TECH_STACK.md
-- **High risk**: + All relevant docs
-
-## Key Concepts
-
-- **Lazy Reading**: Read only what you need (tier-based)
-- **Default Proceed**: Agent acts autonomously; asks only when constitution is unclear or action is safety-critical (security, destructive, production/billing)
-- **Template→Production**: Fill templates before relying on them
-- **AGENTS.md First**: Always check constitution before other docs
-- **GUIDELINES.md Teaches**: It's a tutorial, not just reference — explains HOW to think and write
-
-### For AI Agents: How to Use This System
-
-1. **Thinking**: See GUIDELINES.md Part 1 (The AI Mindset)
-2. **Writing**: See GUIDELINES.md Part 2 (The Writing Process)
-3. **Backend/Frontend**: See GUIDELINES.md Part 3 (Domain Guides)  
-4. **Templates**: See GUIDELINES.md Part 4 (Document Templates)
-
-See `AGENTS.md` for complete behavior rules.
+- The root `README.md` is repository documentation for this kit, not part of the recommended generated project.
+- If someone scaffolds from the repository root instead of `templates/base`, `degit.json` keeps that narrower flow from carrying the repo-level `README.md` into the generated project.
