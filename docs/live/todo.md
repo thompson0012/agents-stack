@@ -8,5 +8,4 @@ Use one row per work item. Prefer `High`, `Medium`, or `Low` for priority and `P
 
 | Task | Priority | Status |
 | --- | --- | --- |
-| Task 8: rewrite the future-catcher skill for scenario planning | High | Completed |
-| Task 9: evaluate future-catcher with representative prompts | Medium | Pending |
+| Task 10: turn the Liquid Glass CSS/SVG article into `skills.md` | High | Completed |

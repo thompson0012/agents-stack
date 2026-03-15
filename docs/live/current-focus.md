@@ -4,22 +4,23 @@ Read after `AGENTS.md` when starting or resuming work. Keep this file limited to
 
 ## Objective
 
-Rewrite the `future-catcher` skill so it operates as a direct war-game, tabletop exercise, and business scenario-planning framework rather than a philosophical futurism prompt.
+Create a root-level `skills.md` that distills the kube.io Liquid Glass CSS/SVG article into a reusable implementation note.
 
 ## Scope
 
-- Update `templates/base/.agents/skills/future-catcher/SKILL.md` to emphasize signal detection, strategic hinges, scenarios, actor reactions, higher-order effects, and decision support.
-- Keep the skill concise, trigger-friendly, and oriented toward real strategic analysis of new developments.
+- Create `skills.md` from <https://kube.io/blog/liquid-glass-css-svg/>.
+- Preserve the article's usable implementation details: optics assumptions, surface profiles, SVG displacement-map pipeline, component patterns, and browser caveats.
+- Keep the artifact practical and concise enough to reuse as a build note.
 
 ## Constraints
 
-- Keep the skill direct and operational; avoid manifesto-style or poetic framing.
-- Preserve the `future-catcher` identity while changing its method.
-- Limit work to the skill rewrite and the live-state docs for this objective.
+- Do not invent production guarantees the article does not claim.
+- Call out the Chromium-only `backdrop-filter: url(#svgFilterId)` limitation.
+- Limit work to `skills.md` and the live-state docs for this objective.
 - Do not commit from this task.
 
 ## Success Criteria
 
-- The skill description clearly triggers on scenario planning, war-gaming, and implication analysis requests.
-- The skill body gives a concrete analysis workflow with base/upside/failure scenarios, stakeholder reactions, risks, indicators, and strategic takeaways.
-- The live docs record the rewrite and its verification state.
+- `skills.md` exists at the repository root.
+- The file captures the article's refraction model, SVG displacement-map workflow, specular highlight step, and operational caveats.
+- The live docs record the completed work and verification state.

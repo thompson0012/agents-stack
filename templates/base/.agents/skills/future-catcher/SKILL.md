@@ -25,17 +25,19 @@ Treat each development as a live scenario-planning exercise, not a news summary.
 - Always include both acceleration paths and failure paths.
 - Tie claims to actors, incentives, bottlenecks, and observable indicators.
 - Name the human driver when it matters: convenience, status, fear, control, cost, speed, labor savings, or power.
+- Answer the user's actual question early; use the framework to sharpen the answer, not bury it.
 
 ## Analysis Workflow
 
 ### Step 1 — Define the Signal
 
-Identify the real change.
+Identify the real change or, for a hypothetical, the threshold that would make the change real.
 
 Answer these briefly:
-- What actually changed?
+- What actually changed, or what specific threshold must be crossed?
 - Is this primarily a **capability shift**, **cost shift**, **speed shift**, **interface shift**, **distribution shift**, **regulatory shift**, or **coordination shift**?
-- Why now? What threshold was crossed?
+- Why now? What technical, economic, behavioral, or regulatory condition unlocked it?
+- If this is a cost or hardware shift, what changes in **CapEx vs OpEx**?
 
 Do not describe the product at surface level. State the strategic signal underneath it.
 
@@ -63,27 +65,29 @@ For each scenario, cover:
 - 0-12 months
 - 1-3 years
 - 3-7 years, if the topic warrants it
+- A rough likelihood ranking when the evidence is strong enough to support one
 
-State what must be true for each scenario to happen.
+State what must be true for each scenario to happen, which constraint or dependency defines it, and what evidence would move it toward or away from the base case. Distinct scenarios must differ by assumptions or constraints, not just by speed.
 
 ### Step 4 — War-Game the Actors
 
-Map the likely reactions of the key players.
+Map the likely reactions of the key players, then classify each as a likely **winner**, **loser**, or **pivoter**.
 
 At minimum, consider:
 - Users / customers
 - Incumbents
 - New entrants / challengers
-- Infrastructure providers / tool vendors
+- Infrastructure providers / tool vendors / suppliers
 - Regulators / governments
-- Labor / professional groups, if relevant
+- Labor / professional groups for automation, cost, or workflow shifts
 
 Ask:
-- Who moves first?
+- Who moves first, and with what concrete move?
 - Who delays, denies, or defends the old model?
 - Who benefits quietly even if they are not the headline winner?
 - Who looks safe but is actually exposed?
 - What countermoves are likely?
+- Where do pricing power, margins, distribution control, or bargaining leverage move?
 
 ### Step 5 — Trace Higher-Order Effects
 
@@ -91,7 +95,7 @@ Go beyond the direct impact.
 
 - **First-order effects**: immediate operational or market changes
 - **Second-order effects**: shifts in behavior, pricing, margins, incentives, regulation, workflows, or market structure
-- **Third-order effects**: changes in institutions, culture, labor markets, geopolitics, supply chains, or power concentration
+- **Third-order effects**: changes in institutions, culture, labor markets, geopolitics, supply chains, or power concentration that follow clearly from the earlier shifts
 
 If useful, include a short historical rhyme:
 - What earlier transition has a similar shape?
@@ -104,7 +108,7 @@ Use analogy to clarify, not to force a false equivalence.
 Do not assume the future arrives cleanly.
 
 Check for:
-- Infrastructure bottlenecks
+- Infrastructure, physical, energy, or supply-chain bottlenecks
 - Economic friction
 - Human trust and adoption barriers
 - Regulatory intervention
@@ -113,7 +117,7 @@ Check for:
 - Incentive misalignment
 - Identity or status resistance from powerful groups
 
-Be explicit about what could kill the thesis.
+Be explicit about what could kill the thesis, not just slow it down.
 
 ### Step 7 — End With Decision Support
 
@@ -126,7 +130,7 @@ State:
 
 ## Output Format
 
-Use this structure:
+Use this structure by default. If the user asks a narrower question, answer it directly first and then compress or merge sections while preserving the logic.
 
 ```text
 [Signal]
@@ -145,7 +149,7 @@ What happens if the shift compounds faster than expected.
 What blocks it, stalls it, or reverses it.
 
 [Stakeholder Reactions]
-How users, incumbents, challengers, infrastructure providers, regulators, and labor groups react.
+Who wins, loses, or pivots, and how users, incumbents, challengers, infrastructure providers, regulators, and labor groups react.
 
 [Second-Order Effects]
 Behavioral, market, or regulatory changes caused by the first wave.
@@ -157,7 +161,7 @@ Structural shifts in institutions, culture, labor, geopolitics, or power.
 What could break the thesis or create serious unintended consequences.
 
 [Indicators to Watch]
-Concrete signals that confirm or disprove the scenarios.
+Observable, preferably quantifiable signals that confirm or disprove the scenarios.
 
 [Strategic Takeaway]
 The main implication in plain language.
@@ -169,6 +173,8 @@ The main implication in plain language.
 - Explain why each effect follows from incentives, constraints, or behavior.
 - Do not hide uncertainty; structure it.
 - Do not present all scenarios as equally likely if they are not.
+- Keep third-order effects tethered to structural consequences, not sci-fi flourish.
+- Front-load the user's direct question when the prompt is narrow, then support it with the framework.
 - If the evidence is thin, say what is unknown and what would resolve it.
 - If the user wants a narrower answer, compress the format but keep the logic.
 
@@ -179,6 +185,6 @@ Use this skill when the user says things like:
 - "War-game the impact of browser agents on SaaS."
 - "If humanoid robots fall below $20k, what happens next?"
 - "Run scenarios on AI doctors."
-- "Who benefits if on-device AI gets good enough?"
+- "Who wins and loses if on-device AI gets good enough to replace cloud copilots?"
 - "What second-order effects follow from this policy change?"
 - "Tabletop exercise: what happens if coding agents become reliable for SMBs?"
