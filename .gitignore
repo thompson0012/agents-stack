@@ -3,3 +3,4 @@
 /docs/plans
 /.worktrees
 .DS_Store
+*.pyc
