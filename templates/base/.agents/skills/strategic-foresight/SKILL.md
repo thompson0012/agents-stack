@@ -162,9 +162,9 @@ Be explicit about what could kill the thesis, not just slow it down.
 Finish with action, not atmosphere.
 
 State:
-- What to watch next
-- Which indicators confirm or falsify the thesis
 - What operators, investors, founders, or policymakers should do now, if applicable
+- Which indicators move probability toward or away from the base, upside, and failure cases
+- End on the indicator list; do not append a fresh conclusion after it
 
 ## Output Format
 
@@ -198,11 +198,11 @@ Structural shifts in institutions, culture, labor, geopolitics, or power.
 [Risks and Bottlenecks]
 What could break the thesis or create serious unintended consequences.
 
-[Indicators to Watch]
-Observable, preferably quantifiable signals that confirm or disprove the scenarios.
-
 [Strategic Takeaway]
 The main implication in plain language.
+
+[Indicators to Watch]
+Observable, preferably quantifiable signals mapped to base, upside, and failure cases, plus clear falsifiers when they exist. This is the final section.
 ```
 
 ## Quality Bar
@@ -214,6 +214,8 @@ The main implication in plain language.
 - Keep third-order effects tethered to structural consequences, not sci-fi flourish.
 - Front-load the user's direct question when the prompt is narrow, then support it with the framework.
 - If the evidence is thin, say what is unknown and what would resolve it.
+- Put any closing synthesis in `[Strategic Takeaway]`, then finish on `[Indicators to Watch]`.
+- Each major scenario should have at least one indicator that moves probability toward it and one signal that weakens it, when the evidence supports that distinction.
 - If the user wants a narrower answer, compress the format but keep the logic.
 
 ## Example Triggers

@@ -246,6 +246,7 @@ Return these sections:
 - tradeoff accepted
 - most dangerous assumption
 - first test
+- what not to do next
 - confidence level with reason
 
 ### If We Are Wrong

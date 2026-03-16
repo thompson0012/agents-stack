@@ -4,24 +4,24 @@ Read after `AGENTS.md` when starting or resuming work. Keep this file limited to
 
 ## Objective
 
-The packaging repair is complete for `strategic-foresight`, `startup-pressure-test`, and `liquid-glass-design`; preserve the repaired workflow, packaged artifacts, and evaluation records until a new task supersedes them.
+Optimize the five reasoning-suite skills from the iteration-1 benchmark findings, rerun a true `skill-creator`-style A/B comparison against iteration-1 skill snapshots, and preserve the iteration-2 benchmark plus static HTML review output.
 
 ## Scope
 
-- Keep the repaired packaging helper under `templates/base/.agents/skills/skill-creator/scripts/package_skill.py`.
-- Keep the repaired skill sources under `templates/base/.agents/skills/`, including the frontmatter now present in `liquid-glass-design/SKILL.md`.
-- Keep the updated evaluation artifacts under `templates/base/.agents/skills/evaluation-2026-03-16/`.
-- Keep the packaged `.skill` artifacts present in `dist/`.
+- Keep the optimized target skill sources under `templates/base/.agents/skills/`.
+- Keep the evaluation workspace under `templates/base/.agents/skills/reasoning-suite-workspace/`, including both `iteration-1/` and `iteration-2/`.
+- Keep the iteration-2 old-skill snapshots under `templates/base/.agents/skills/reasoning-suite-workspace/iteration-2/skill-snapshot/`.
+- Keep the static HTML review artifacts under `templates/base/.agents/skills/reasoning-suite-workspace/html/`.
+- Preserve the previously repaired packaging workflow and packaged artifacts in `dist/`.
 
 ## Constraints
 
-- Use the repository `skill-creator` workflow for future re-evaluation, not ad hoc checks.
-- Continue using `PYTHONPATH=.tmp-pyyaml-real` for local packaging; `PyYAML==6.0.3` is now installed there and required by `quick_validate.py`.
-- The packager now intentionally skips `.DS_Store` and `__pycache__` so packaged skills contain only real resources.
+- Use the `skill-creator` workflow for further iteration: rerun workspace executions, grading, benchmark aggregation, and viewer output rather than ad hoc prose-only checks.
+- The current benchmarks capture pass-rate structure only; no time, token, or tool-call metrics were collected for either iteration.
 - Do not commit from this task.
 
 ## Success Criteria
 
-- `dist/` contains `strategic-foresight.skill`, `startup-pressure-test.skill`, and `liquid-glass-design.skill`.
-- Zip inspection confirms each packaged skill contains only `SKILL.md` under its skill directory.
-- The evaluation records in `templates/base/.agents/skills/evaluation-2026-03-16/` reflect the successful rerun and the applied repairs.
+- `templates/base/.agents/skills/reasoning-suite-workspace/iteration-2/benchmark.json` and `benchmark.md` exist and summarize the rerun against `old_skill`.
+- Each iteration-2 run directory contains `outputs/analysis.md`, `transcript.md`, and `grading.json`.
+- `templates/base/.agents/skills/reasoning-suite-workspace/html/reasoning-suite-iteration-2-review.html` exists and loads as a static review artifact.

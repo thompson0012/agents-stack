@@ -174,6 +174,7 @@ Use one of these:
 - `Proceed to dynamic-problem-solving.`
 - `Stop here. More evidence is needed before the problem can be defined.`
 - `Stop here. This is not your problem to solve.`
+Stop after `Handoff`. Do not append solution categories, diagnostic action plans, or likely fixes.
 
 ## Failure Modes to Avoid
 
@@ -183,6 +184,7 @@ Use one of these:
 - Accepting a stakeholder's framing without asking who benefits
 - Confusing measurable consequence with root cause
 - Producing a polished sentence that still hides the real issue
+- Adding likely fixes after `Handoff` and calling it definition work
 
 ## Escalation Rules
 

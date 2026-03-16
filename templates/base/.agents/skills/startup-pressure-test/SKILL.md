@@ -37,10 +37,11 @@ Check claims such as:
 Use this process:
 1. List the concrete factual claims you found.
 2. Verify the highest-impact claims with web search.
-3. Cite the sources you relied on.
+3. Cite the sources you relied on and separate verified facts from disputed assumptions.
 4. Call out what appears wrong, overstated, outdated, or unverifiable.
-5. Ask the user to confirm or correct disputed facts.
-6. **Do not continue into the simulation until the disputed facts are resolved or explicitly bracketed as assumptions.**
+5. If a disputed claim cannot be resolved quickly, bracket it as an explicit assumption and carry it into the simulation math.
+6. Ask the user to confirm or correct disputed facts when interaction is possible.
+7. **Do not continue into the simulation until the disputed facts are resolved or explicitly bracketed as assumptions.**
 
 If the user has not described an idea yet, open with this English prompt:
 
@@ -297,6 +298,7 @@ Prefer concrete advice such as:
 - change pricing only after confirming the workflow pain is intense enough
 
 Offer a restart option so the user can re-run the simulation with revised assumptions.
+Do not add a motivational conclusion after the retrospective; end on the next experiment or restart decision.
 
 ## Response Style
 
@@ -315,7 +317,7 @@ Use this skeleton when it fits. Compress only if the user asks for a shorter ans
 [Fact Check Gate]
 - Restated idea
 - Extracted claims
-- Verified facts / disputed facts / sources
+- Verified facts / disputed facts / sources / bracketed assumptions
 - Questions that must be resolved before simulation
 
 [Day 1 - Idea Deconstruction]
@@ -367,3 +369,4 @@ Before sending, check that you have done all of the following:
 - allowed the user to choose or propose their own move
 - translated user choices into consequences instead of hand-waving them away
 - kept the focus on commercial truth rather than product wishful thinking
+- ended on the decision/postmortem/next-experiment sequence rather than a motivational wrap-up

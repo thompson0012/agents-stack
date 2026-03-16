@@ -4,11 +4,11 @@ Read after `docs/live/current-focus.md` to recover the latest state, continuity,
 
 ## Current State
 
-`skill-creator` packaging is repaired and passing again for `strategic-foresight`, `startup-pressure-test`, and `liquid-glass-design`. The repaired evaluation record lives under `templates/base/.agents/skills/evaluation-2026-03-16/`, and `dist/` now contains all three packaged artifacts.
+The reasoning-suite now has an optimized iteration-2 rerun under `templates/base/.agents/skills/reasoning-suite-workspace/`. Iteration 2 compares current optimized skills against reconstructed iteration-1 skill snapshots (`old_skill`) across five evals and produces a new benchmark plus static HTML review artifact.
 
 ## Latest Completed Work
 
-Reinstalled `PyYAML==6.0.3` into `.tmp-pyyaml-real`, added valid frontmatter to `templates/base/.agents/skills/liquid-glass-design/SKILL.md`, updated `templates/base/.agents/skills/skill-creator/scripts/package_skill.py` to skip `.DS_Store` and `__pycache__`, deleted the stray `templates/base/.agents/skills/startup-pressure-test/.DS_Store`, reran packaging for all three skills, and verified the final zip contents contain only `SKILL.md` for each skill.
+Edited `strategic-foresight`, `thinking-ground`, `problem-definition`, `dynamic-problem-solving`, and `startup-pressure-test` to tighten ending discipline, observable grounding, and output contracts; created `iteration-2/skill-snapshot/` copies that preserve the iteration-1 skill behavior; reran all five evals against `with_skill` and `old_skill`; graded all ten runs; aggregated `iteration-2/benchmark.json` and `benchmark.md`; generated analyzer notes; and produced `html/reasoning-suite-iteration-2-review.html`.
 
 ## In Progress
 
@@ -20,36 +20,31 @@ None.
 
 ## Next Recommended Action
 
-None.
+Open `templates/base/.agents/skills/reasoning-suite-workspace/html/reasoning-suite-iteration-2-review.html` and decide whether to strengthen the eval suite itself, because only `strategic-foresight` showed a measurable benchmark gain; the other four skills tied their iteration-1 snapshots on this sample.
 
 ## Touched Files
 
-- `.tmp-pyyaml-real/`
-- `templates/base/.agents/skills/liquid-glass-design/SKILL.md`
-- `templates/base/.agents/skills/skill-creator/scripts/package_skill.py`
-- `templates/base/.agents/skills/startup-pressure-test/.DS_Store`
-- `templates/base/.agents/skills/evaluation-2026-03-16/strategic-foresight.md`
-- `templates/base/.agents/skills/evaluation-2026-03-16/startup-pressure-test.md`
-- `templates/base/.agents/skills/evaluation-2026-03-16/liquid-glass-design.md`
-- `templates/base/.agents/skills/evaluation-2026-03-16/summary.md`
+- `templates/base/.agents/skills/strategic-foresight/SKILL.md`
+- `templates/base/.agents/skills/problem-definition/SKILL.md`
+- `templates/base/.agents/skills/thinking-ground/SKILL.md`
+- `templates/base/.agents/skills/dynamic-problem-solving/SKILL.md`
+- `templates/base/.agents/skills/startup-pressure-test/SKILL.md`
+- `templates/base/.agents/skills/reasoning-suite-workspace/iteration-2/`
+- `templates/base/.agents/skills/reasoning-suite-workspace/html/reasoning-suite-iteration-2-review.html`
+- `templates/base/.agents/skills/reasoning-suite-workspace/scripts/aggregate_suite_benchmark.py`
 - `docs/live/current-focus.md`
 - `docs/live/progress.md`
 - `docs/live/todo.md`
-- `dist/strategic-foresight.skill`
-- `dist/startup-pressure-test.skill`
-- `dist/liquid-glass-design.skill`
 
 ## Verification Status
 
 Ran and observed success for:
-- `PYTHONPATH=.tmp-pyyaml-real python3 templates/base/.agents/skills/skill-creator/scripts/package_skill.py templates/base/.agents/skills/strategic-foresight dist`
-- `PYTHONPATH=.tmp-pyyaml-real python3 templates/base/.agents/skills/skill-creator/scripts/package_skill.py templates/base/.agents/skills/startup-pressure-test dist`
-- `PYTHONPATH=.tmp-pyyaml-real python3 templates/base/.agents/skills/skill-creator/scripts/package_skill.py templates/base/.agents/skills/liquid-glass-design dist`
-Verified separately that `import yaml` now resolves to `.tmp-pyyaml-real/yaml/__init__.py` with working `safe_load` and `YAMLError`. Inspected the resulting `.skill` zip files and confirmed they contain only:
-- `strategic-foresight/SKILL.md`
-- `startup-pressure-test/SKILL.md`
-- `liquid-glass-design/SKILL.md`
+- ten iteration-2 execution runs (five `with_skill`, five `old_skill`) via the task tool
+- ten iteration-2 grading runs producing `grading.json` for every run
+- `python3 templates/base/.agents/skills/reasoning-suite-workspace/scripts/aggregate_suite_benchmark.py templates/base/.agents/skills/reasoning-suite-workspace/iteration-2 --skill-name reasoning-suite --baseline-config old_skill`
+- `python3 skill://skill-creator/eval-viewer/generate_review.py templates/base/.agents/skills/reasoning-suite-workspace/iteration-2 --skill-name reasoning-suite --benchmark templates/base/.agents/skills/reasoning-suite-workspace/iteration-2/benchmark.json --previous-workspace templates/base/.agents/skills/reasoning-suite-workspace/iteration-1 --static templates/base/.agents/skills/reasoning-suite-workspace/html/reasoning-suite-iteration-2-review.html`
+Verified separately that every iteration-2 `grading.json` parses as valid JSON, that the optimized current skill files remain in place, and that the new static HTML artifact exists and begins with the expected `<!DOCTYPE html>` header.
 
 ## Hand-off Note
 
-This repair is complete. If packaging regresses again, check `.tmp-pyyaml-real` first, then verify that the packager is still excluding local junk files before blaming the skills.
+Iteration 2 removed the previous regressions: `strategic-foresight` improved from 0.8 to 1.0 against its old-skill snapshot, and `thinking-ground` now ties its old snapshot at 1.0 instead of underperforming. The overall delta vs `old_skill` is +0.04 because four evals are ties, so the next bottleneck is benchmark sensitivity rather than obvious skill defects.

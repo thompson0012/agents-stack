@@ -15,3 +15,6 @@ Use one row per work item. Prefer `High`, `Medium`, or `Low` for priority and `P
 | Task 14: validate the three packaged reasoning skills with `skill-creator` | High | Completed |
 | Task 15: evaluate `strategic-foresight`, `startup-pressure-test`, and `liquid-glass-design` with `skill-creator` | High | Completed |
 | Task 16: repair `skill-creator` packaging and rerun the three targeted skills | High | Completed |
+
+| Task 17: run a true `skill-creator` A/B evaluation for the reasoning-suite and output static HTML | High | Completed |
+| Task 18: optimize the reasoning-suite skills and rerun the A/B benchmark against iteration-1 snapshots | High | Completed |

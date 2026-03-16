@@ -14,8 +14,10 @@ For a compact whole-system reminder, see `assets/system-pocket-card.md`.
 ## Core Contract
 
 - Use observable signals, not metaphysical claims.
-- Calibrate only enough to improve the next decision.
+- Quote or paraphrase the decisive language or behavior that supports the state assessment.
+- Treat motives, relief-seeking, and inner narratives as hypotheses only when the user stated them; otherwise leave them out.
 - Do not romanticize uncertainty, depth, or "presence."
+- Calibrate only enough to improve the next decision.
 - Route quickly back to the right next tool: action, experiment, `problem-definition`, or `dynamic-problem-solving`.
 - If the issue is better handled by direct experience, a real conversation, waiting, or human support, say so plainly.
 
@@ -37,6 +39,7 @@ Use this skill when one or more of these are present:
 - It cannot prove whether reasoning is authentic or performed.
 - It is not therapy, diagnosis, or existential guidance.
 - Its only honest success test is downstream: did the later reasoning and action improve?
+- If you cannot describe the pressure without inventing an inner motive, stay at the level of observable urgency and route to the next action.
 
 ## State Scan
 
@@ -100,7 +103,7 @@ Choose the active distortion. Do not run all protocols.
 ### For Anxious reasoning — Deceleration
 
 1. Name the feared outcome precisely.
-2. Separate real deadline from emotional deadline.
+2. Separate the real deadline from the emotional pressure. Describe the pressure in behavioral terms; do not infer why the user wants relief unless they already said it.
 3. Ask: "If the feared outcome happened, what would we actually do next?"
 4. Reclassify the choice as reversible or irreversible.
 
@@ -139,11 +142,11 @@ Return these sections:
 - defended, anxious, performing, or open enough to proceed
 
 ### Observable Signals
-- 2-5 bullets tied to what was actually said or shown
+- 2-5 bullets tied to what was actually said or shown; quote or paraphrase the decisive language when possible
 
 ### Correction Applied
 - the specific protocol used
-- what changed after applying it
+- what changed after applying it, staying at the level of observable pressure rather than invented motive
 
 ### Next Step
 - route to `problem-definition`
@@ -158,6 +161,7 @@ Return these sections:
 ## Failure Modes to Avoid
 
 - claiming to know the user's inner state
+- smuggling motive attributions into a grounded-looking answer
 - confusing poetic language with truth
 - using the skill to delay action indefinitely
 - treating calm tone as evidence of good reasoning
