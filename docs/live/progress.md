@@ -4,11 +4,11 @@ Read after `docs/live/current-focus.md` to recover the latest state, continuity,
 
 ## Current State
 
-The first-party skill suite now has an owned routing layer. `using-agent-practices` routes across the whole suite, `using-reasoning` routes the overlapping reasoning skills, and `using-agent-practices/references/category-map.md` records the current category abstraction for the 11 live leaf skills.
+`templates/base/.agents/skills/create-skill/` is now a portable skill-authoring package instead of a thin wrapper around vendor-specific guidance. The package has a rewritten `SKILL.md`, a focused references set, starter templates, and local scaffold/validate scripts.
 
 ## Latest Completed Work
 
-Created `templates/base/.agents/skills/using-agent-practices/SKILL.md`, `templates/base/.agents/skills/using-reasoning/SKILL.md`, a shared category map reference under `using-agent-practices/references/`, and starter `evals/evals.json` fixtures for both routers. The suite is now abstracted into Orchestration and Continuity, Reasoning and Strategy, Prompt Artifact Creation, Commercial Reality Testing, and Design Systems and Visual Prototyping, with only the reasoning cluster routed through a family router.
+Rewrote `templates/base/.agents/skills/create-skill/SKILL.md` around LLM-agnostic skill design, moved the stale `reference/src.md` content into a proper `references/` set, added `scripts/scaffold.py` and `scripts/validate.py`, and added `assets/skill-template.md` plus `assets/eval-template.md`. Removed the empty legacy `reference/` directory.
 
 ## In Progress
 
@@ -20,24 +20,31 @@ None.
 
 ## Next Recommended Action
 
-If these routers will become stable entry points, run a true `skill-creator` eval loop against the new router skills next so the category ordering and descriptions can be pressure-tested on ambiguous prompts instead of only structurally validated.
+Run a real ambiguous-prompt eval loop against `create-skill` itself, then use it on one existing first-party skill to see whether the new portability and evaluation guidance produces cleaner packages in practice.
 
 ## Touched Files
 
-- `templates/base/.agents/skills/using-agent-practices/SKILL.md`
-- `templates/base/.agents/skills/using-agent-practices/references/category-map.md`
-- `templates/base/.agents/skills/using-agent-practices/evals/evals.json`
-- `templates/base/.agents/skills/using-reasoning/SKILL.md`
-- `templates/base/.agents/skills/using-reasoning/evals/evals.json`
+- `templates/base/.agents/skills/create-skill/SKILL.md`
+- `templates/base/.agents/skills/create-skill/scripts/scaffold.py`
+- `templates/base/.agents/skills/create-skill/scripts/validate.py`
+- `templates/base/.agents/skills/create-skill/references/patterns.md`
+- `templates/base/.agents/skills/create-skill/references/portability.md`
+- `templates/base/.agents/skills/create-skill/references/security.md`
+- `templates/base/.agents/skills/create-skill/references/anti-patterns.md`
+- `templates/base/.agents/skills/create-skill/assets/skill-template.md`
+- `templates/base/.agents/skills/create-skill/assets/eval-template.md`
 - `docs/live/current-focus.md`
 - `docs/live/progress.md`
 - `docs/live/todo.md`
 
 ## Verification Status
 
-Read back both new SKILL files plus the new category map and eval fixtures. Ran and observed success for:
-- `python3` frontmatter/JSON validation covering `templates/base/.agents/skills/using-agent-practices/SKILL.md`, `templates/base/.agents/skills/using-reasoning/SKILL.md`, both router `evals/evals.json` files, and the required sections in `using-agent-practices/references/category-map.md`.
+Read back the rewritten `SKILL.md` plus both new Python scripts. Ran and observed success for:
+
+- `python3 templates/base/.agents/skills/create-skill/scripts/validate.py templates/base/.agents/skills/create-skill --strict`
+- a temporary happy-path scaffold + validate flow using `scripts/scaffold.py` followed by `scripts/validate.py --strict`
+- a temporary negative validation case showing `validate.py` rejects an extra frontmatter field and a description that does not start with `Use when`
 
 ## Hand-off Note
 
-The suite abstraction is now documented without renaming the existing leaf skills. The next leverage point is evaluation quality, not more taxonomy: the owned routers exist, but their category order and trigger wording still need real ambiguous-prompt testing if you want them to become default entry points.
+The package now teaches a conservative portable core first, with runtime overlays separated into a portability reference. The next leverage point is not more structure; it is prompt-pressure evaluation to confirm the new trigger wording and checklists actually guide another agent under ambiguity.

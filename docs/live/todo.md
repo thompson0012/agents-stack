@@ -8,5 +8,5 @@ Use one row per work item. Prefer `High`, `Medium`, or `Low` for priority and `P
 
 | Task | Priority | Status |
 | --- | --- | --- |
-| Task 19: add owned suite routers and category map for the first-party skills | High | Completed |
-| Task 20: run `skill-creator` evaluations for `using-agent-practices` and `using-reasoning` on ambiguous prompts | Medium | Pending |
+| Task 21: upgrade `create-skill` into a portable LLM-agnostic skill-authoring package | High | Completed |
+| Task 22: run prompt-pressure evaluations against `create-skill` and one adopted skill package | Medium | Pending |
