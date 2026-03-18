@@ -17,16 +17,18 @@ Build the portable core first. Add runtime-specific metadata, packaging, or tool
 - Keep `SKILL.md` lean. Move heavy or conditional detail into `references/`, deterministic code into `scripts/`, and copyable starter files into `assets/`.
 - Validate structure before claiming the package is usable.
 - Pressure-test the skill with real prompts before calling it done.
+- When evaluation matters, compare the current candidate against an honest baseline instead of grading by vibes.
 
 ## Entry Gate
 
-Before writing files, answer these five questions:
+Before writing files, answer these six questions:
 
 1. What is the single responsibility of the skill?
 2. What concrete task fails, repeats, or degrades without it?
 3. What runtime capabilities matter: filesystem, shell, network, package install, archive format, sharing model?
 4. What does the user provide, and what should the skill produce?
-5. How fragile is the workflow: low, medium, or high?
+5. What would a believable baseline be: no skill, old skill, or another workflow?
+6. How fragile is the workflow: low, medium, or high?
 
 If you cannot answer these from the request and repo context, ask the smallest focused question needed.
 
@@ -42,12 +44,16 @@ If you cannot answer these from the request and repo context, ask the smallest f
 | Heavy detail | move to `references/` |
 | Deterministic repeated logic | move to `scripts/` |
 | Starter artifacts | place in `assets/` |
-| Validation | run `python3 scripts/validate.py <skill-dir>`; see [validate.py](scripts/validate.py) |
-| Evaluation | run at least 3 scenario prompts using [eval-template.md](assets/eval-template.md) |
+| Task evals | record them in `evals/evals.json` |
+| Trigger evals | record them in `evals/trigger-evals.json` when discovery precision matters |
+| Validation | run `python3 scripts/validate.py <skill-dir>` |
+| Packaging | run `python3 scripts/package_skill.py <skill-dir>` |
 
 For deeper guidance, read:
 
 - [patterns](references/patterns.md)
+- [evaluation](references/evaluation.md)
+- [eval schemas](references/eval-schemas.md)
 - [portability](references/portability.md)
 - [security](references/security.md)
 - [anti-patterns](references/anti-patterns.md)
@@ -80,6 +86,7 @@ SKILL.md only                 -> simple, stable workflow
 SKILL.md + references/        -> heavy or conditional reference detail
 SKILL.md + scripts/           -> repeated deterministic code or fragile execution
 SKILL.md + assets/            -> templates, starter files, or reusable output inputs
+SKILL.md + evals/             -> structured evaluation or baseline comparison matters
 ```
 
 Use [scaffold.py](scripts/scaffold.py) when creating a new package from scratch: `python3 scripts/scaffold.py <skill-name>`.
@@ -103,7 +110,7 @@ Rules:
 - Prefer short action-oriented hyphenated names.
 - Keep the description about discovery: when this skill applies, what requests or symptoms should trigger it.
 - Do not summarize the workflow in the description.
-- Add runtime-specific metadata only when the target environment explicitly requires it.
+- Add extra metadata only when the target environment explicitly requires it.
 
 #### Body
 
@@ -118,7 +125,7 @@ Recommended section order:
 5. references to bundled files when needed
 6. final checklist or failure modes
 
-Use the instruction style that matches workflow fragility. See [patterns](references/patterns.md) for the exact decision table.
+Use the instruction style that matches workflow fragility. See [patterns](references/patterns.md) for the decision table.
 
 ### Phase 4 — Add Bundled Resources
 
@@ -131,8 +138,9 @@ Use for information another agent may need to read while working:
 - domain schemas
 - platform notes
 - security checklists
+- evaluation design and review methods
 
-Keep references one hop deep from `SKILL.md`. A direct link like [patterns](references/patterns.md) is good. Nested chains are not.
+Keep references one hop deep from `SKILL.md`. A direct link like [evaluation](references/evaluation.md) is good. Nested chains are not.
 
 #### `scripts/`
 
@@ -150,6 +158,14 @@ Script rules:
 
 Use for starter templates or files meant to be copied into output, not read as core instructions.
 
+#### `evals/`
+
+Use for structured prompt sets that let you compare the candidate skill against a baseline.
+
+- `evals/evals.json` stores task-level eval prompts
+- `evals/trigger-evals.json` stores should-trigger and should-not-trigger discovery checks
+- keep generated run outputs outside the skill package; use a sibling workspace or temp directory instead
+
 ### Phase 5 — Validate the Package
 
 Run:
@@ -162,26 +178,46 @@ Fix every reported error before moving on.
 
 Use `--strict` when you want warnings to fail the run.
 
-### Phase 6 — Evaluate the Skill
+### Phase 6 — Design the Evaluation Set
 
 Do not stop at structural validation. Test whether the skill is actually discoverable and useful.
 
-Create at least three prompt scenarios using [the evaluation template](assets/eval-template.md):
+Start with [evals-template.json](assets/evals-template.json) and, when discovery precision matters, [trigger-evals-template.json](assets/trigger-evals-template.json).
 
-1. direct match — obvious trigger
-2. ambiguous near miss — decide whether the skill should trigger
-3. noisy or adversarial request — confirm the skill still routes and behaves correctly
+For task evals, record at least three realistic prompts in `evals/evals.json`:
 
-For each scenario, capture:
+1. direct match — obvious trigger and expected workflow
+2. ambiguous near miss — adjacent request that may or may not belong to the skill
+3. noisy or adversarial case — extra context, distractions, or misleading keywords
 
-- should the skill trigger
-- what output or behavior should happen
-- what failed or drifted
-- what minimal change fixed the gap
+If you are upgrading an existing skill, compare the candidate against the previous version. If you are creating a brand-new skill, compare against doing the task without the skill or with the default workflow.
+
+### Phase 7 — Run, Review, and Compare
+
+See [evaluation](references/evaluation.md) and [eval schemas](references/eval-schemas.md) for the full loop.
+
+At minimum:
+
+- run the same prompts against the candidate and the baseline
+- capture outputs separately
+- record what succeeded, what drifted, and what cost more time or effort
+- if the output is subjective, use [review-template.md](assets/review-template.md) for blind comparison notes before editing the skill again
 
 Patch only the missing instruction, example, or resource. Do not bloat the skill with speculative rules.
 
-### Phase 7 — Runtime-Specific Layering
+### Phase 8 — Tune Discovery and Packaging
+
+If the skill is structurally sound but triggers poorly, use `evals/trigger-evals.json` and the guidance in [evaluation](references/evaluation.md) to refine `description` without stuffing keywords.
+
+When you need to transfer or archive the package, create a generic ZIP archive with [package_skill.py](scripts/package_skill.py):
+
+```bash
+python3 scripts/package_skill.py <skill-dir>
+```
+
+This packages the folder without making one runtime's archive extension the canonical truth.
+
+### Phase 9 — Runtime-Specific Layering
 
 Only after the portable core is solid, add any target-runtime requirements the deployment surface needs.
 
@@ -195,7 +231,7 @@ Use [portability](references/portability.md) to check:
 
 The portable core should remain readable even if those runtime overlays are removed.
 
-### Phase 8 — Security Review
+### Phase 10 — Security Review
 
 Before shipping a skill with scripts or external access, review [security](references/security.md).
 
@@ -205,6 +241,7 @@ At minimum verify:
 - no script writes outside intended paths
 - no hidden network calls or background fetches exist
 - remote content is treated as untrusted input
+- generated run artifacts are not accidentally bundled into the archive you ship
 
 ## Final Checklist
 
@@ -213,10 +250,11 @@ At minimum verify:
 - [ ] `description` starts with `Use when`
 - [ ] `description` explains triggers, not the workflow
 - [ ] `SKILL.md` stays focused on execution
-- [ ] Heavy detail lives in `references/`, `scripts/`, or `assets/` only when justified
+- [ ] Heavy detail lives in `references/`, `scripts/`, `assets/`, or `evals/` only when justified
 - [ ] All linked local files exist
 - [ ] `python3 scripts/validate.py <skill-dir>` passes
-- [ ] At least 3 evaluation prompts were written and reviewed
+- [ ] `evals/evals.json` contains realistic task cases when evaluation matters
+- [ ] Candidate vs baseline comparison was recorded for meaningful changes
 - [ ] Runtime-specific details are layered on top of the portable core, not baked into it
 - [ ] Security review completed for any executable or external-accessing package
 
@@ -227,4 +265,5 @@ At minimum verify:
 - hard-coding one vendor's runtime assumptions into the core package
 - bloating `SKILL.md` with large reference dumps
 - adding scripts without validating them
+- tweaking the description against a few keywords instead of measuring real trigger behavior
 - calling a skill complete after linting structure but before prompt evaluation

@@ -10,3 +10,4 @@ Use one row per work item. Prefer `High`, `Medium`, or `Low` for priority and `P
 | --- | --- | --- |
 | Task 21: upgrade `create-skill` into a portable LLM-agnostic skill-authoring package | High | Completed |
 | Task 22: run prompt-pressure evaluations against `create-skill` and one adopted skill package | Medium | Pending |
+| Task 23: decide whether benchmark aggregation and blind-comparison tooling should become a separate specialist skill | Medium | Pending |

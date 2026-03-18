@@ -4,11 +4,11 @@ Read after `docs/live/current-focus.md` to recover the latest state, continuity,
 
 ## Current State
 
-`templates/base/.agents/skills/create-skill/` is now a portable skill-authoring package instead of a thin wrapper around vendor-specific guidance. The package has a rewritten `SKILL.md`, a focused references set, starter templates, and local scaffold/validate scripts.
+`templates/base/.agents/skills/create-skill/` is now a stronger portable skill-authoring package: it still teaches LLM-agnostic skill design, and now also includes structured eval guidance, eval schemas/templates, a generic packager, and validator support for optional eval files and runtime-overlay metadata.
 
 ## Latest Completed Work
 
-Rewrote `templates/base/.agents/skills/create-skill/SKILL.md` around LLM-agnostic skill design, moved the stale `reference/src.md` content into a proper `references/` set, added `scripts/scaffold.py` and `scripts/validate.py`, and added `assets/skill-template.md` plus `assets/eval-template.md`. Removed the empty legacy `reference/` directory.
+Extended `create-skill` with specialist capabilities extracted from `skill-creator` without importing its Claude-specific assumptions. Rewrote `SKILL.md` to add baseline-oriented evaluation and packaging phases, added `references/evaluation.md` plus `references/eval-schemas.md`, added starter eval/review assets, upgraded `scripts/scaffold.py` to create `evals/`, upgraded `scripts/validate.py` to parse optional nested metadata and validate `evals/*.json`, and added `scripts/package_skill.py` for generic ZIP packaging.
 
 ## In Progress
 
@@ -20,31 +20,36 @@ None.
 
 ## Next Recommended Action
 
-Run a real ambiguous-prompt eval loop against `create-skill` itself, then use it on one existing first-party skill to see whether the new portability and evaluation guidance produces cleaner packages in practice.
+Run a real prompt-pressure loop against `create-skill` using the new `evals/` structure, then decide whether the next extraction should be a separate specialist skill for benchmark aggregation or blind comparison rather than adding more weight to the canonical authoring skill.
 
 ## Touched Files
 
 - `templates/base/.agents/skills/create-skill/SKILL.md`
-- `templates/base/.agents/skills/create-skill/scripts/scaffold.py`
-- `templates/base/.agents/skills/create-skill/scripts/validate.py`
-- `templates/base/.agents/skills/create-skill/references/patterns.md`
-- `templates/base/.agents/skills/create-skill/references/portability.md`
-- `templates/base/.agents/skills/create-skill/references/security.md`
+- `templates/base/.agents/skills/create-skill/references/evaluation.md`
+- `templates/base/.agents/skills/create-skill/references/eval-schemas.md`
 - `templates/base/.agents/skills/create-skill/references/anti-patterns.md`
 - `templates/base/.agents/skills/create-skill/assets/skill-template.md`
-- `templates/base/.agents/skills/create-skill/assets/eval-template.md`
+- `templates/base/.agents/skills/create-skill/assets/evals-template.json`
+- `templates/base/.agents/skills/create-skill/assets/trigger-evals-template.json`
+- `templates/base/.agents/skills/create-skill/assets/review-template.md`
+- `templates/base/.agents/skills/create-skill/scripts/scaffold.py`
+- `templates/base/.agents/skills/create-skill/scripts/validate.py`
+- `templates/base/.agents/skills/create-skill/scripts/package_skill.py`
 - `docs/live/current-focus.md`
 - `docs/live/progress.md`
 - `docs/live/todo.md`
 
 ## Verification Status
 
-Read back the rewritten `SKILL.md` plus both new Python scripts. Ran and observed success for:
+Read back the rewritten `SKILL.md`, validator, and packager. Ran and observed success for:
 
 - `python3 templates/base/.agents/skills/create-skill/scripts/validate.py templates/base/.agents/skills/create-skill --strict`
-- a temporary happy-path scaffold + validate flow using `scripts/scaffold.py` followed by `scripts/validate.py --strict`
-- a temporary negative validation case showing `validate.py` rejects an extra frontmatter field and a description that does not start with `Use when`
+- a temporary scaffold + strict validate happy path using the upgraded `scripts/scaffold.py`
+- a temporary negative case showing `validate.py` now rejects malformed `evals/evals.json` content
+- a temporary positive case showing `validate.py` accepts optional overlay-style frontmatter and warns, rather than errors, on a non-portable extra field
+- a temporary package flow showing `scripts/package_skill.py` creates a ZIP archive after validation
+- a vendor-name grep over `templates/base/.agents/skills/create-skill/` showing no vendor-branded core guidance remains
 
 ## Hand-off Note
 
-The package now teaches a conservative portable core first, with runtime overlays separated into a portability reference. The next leverage point is not more structure; it is prompt-pressure evaluation to confirm the new trigger wording and checklists actually guide another agent under ambiguity.
+`create-skill` is now the canonical portable authoring skill plus a light specialist layer for eval design and packaging. The next design decision should be about boundaries: benchmark aggregation and richer blind-comparison tooling likely belong in a separate optional specialist skill, not in the canonical portable core.

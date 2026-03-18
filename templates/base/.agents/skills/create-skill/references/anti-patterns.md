@@ -83,3 +83,28 @@ Why it fails:
 
 Fix:
 - use explicit prompt scenarios and record what failed
+
+## 8. Overfitting to the Eval Keywords
+
+Bad:
+- editing the description by stuffing in every missed phrase from a small trigger set
+
+Why it fails:
+- the description becomes brittle keyword bait
+- it may score better on the tiny eval set while routing worse in real use
+
+Fix:
+- generalize from user intent and competing task boundaries, then rerun both positive and negative cases
+
+## 9. Shipping the Workspace by Accident
+
+Bad:
+- bundling benchmark output, review logs, temporary runs, or local artifacts into the archive you share
+
+Why it fails:
+- the package gets noisy
+- stale outputs confuse the next user
+- transient data can leak more than intended
+
+Fix:
+- keep run artifacts in a sibling workspace and package only the reusable skill files

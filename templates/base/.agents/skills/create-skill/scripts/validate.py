@@ -4,12 +4,15 @@
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
-ALLOWED_FIELDS = {"name", "description"}
+REQUIRED_FIELDS = {"name", "description"}
+OPTIONAL_PORTABLE_FIELDS = {"license", "compatibility", "allowed-tools", "metadata"}
 NAME_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 TAG_PATTERN = re.compile(r"<[A-Za-z/!][^>]*>")
 LINK_PATTERN = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
@@ -56,8 +59,15 @@ def extract_frontmatter(text: str) -> tuple[str, str]:
     return frontmatter, body
 
 
-def parse_frontmatter(block: str) -> dict[str, str]:
-    result: dict[str, str] = {}
+def parse_scalar(value: str) -> str:
+    value = value.strip()
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in {'\"', "'"}:
+        return value[1:-1]
+    return value
+
+
+def parse_frontmatter(block: str) -> dict[str, Any]:
+    result: dict[str, Any] = {}
     lines = block.split("\n")
     index = 0
 
@@ -67,6 +77,9 @@ def parse_frontmatter(block: str) -> dict[str, str]:
             index += 1
             continue
 
+        indent = len(raw_line) - len(raw_line.lstrip(" "))
+        if indent != 0:
+            raise ValueError(f"unexpected indentation in frontmatter: {raw_line}")
         if ":" not in raw_line:
             raise ValueError(f"invalid frontmatter line: {raw_line}")
 
@@ -84,21 +97,44 @@ def parse_frontmatter(block: str) -> dict[str, str]:
             collected: list[str] = []
             while index < len(lines):
                 candidate = lines[index]
-                if candidate.startswith((" ", "\t")):
+                candidate_indent = len(candidate) - len(candidate.lstrip(" "))
+                if candidate.startswith((" ", "\t")) or not candidate.strip():
                     collected.append(candidate.lstrip())
                     index += 1
                     continue
-                if not candidate.strip():
-                    collected.append("")
-                    index += 1
-                    continue
-                break
+                if candidate_indent == 0:
+                    break
             result[key] = "\n".join(collected).strip()
             continue
 
-        if len(value) >= 2 and value[0] == value[-1] and value[0] in {'\"', "'"}:
-            value = value[1:-1]
-        result[key] = value
+        if value == "":
+            index += 1
+            nested: dict[str, str] = {}
+            while index < len(lines):
+                candidate = lines[index]
+                if not candidate.strip():
+                    index += 1
+                    continue
+                candidate_indent = len(candidate) - len(candidate.lstrip(" "))
+                if candidate_indent == 0:
+                    break
+                if candidate_indent < 2:
+                    raise ValueError(f"invalid nested indentation for {key}: {candidate}")
+                nested_line = candidate[2:]
+                if ":" not in nested_line:
+                    raise ValueError(f"invalid nested frontmatter line: {candidate}")
+                nested_key, nested_raw = nested_line.split(":", 1)
+                nested_key = nested_key.strip()
+                if not nested_key:
+                    raise ValueError(f"invalid nested key in line: {candidate}")
+                if nested_key in nested:
+                    raise ValueError(f"duplicate nested key under {key}: {nested_key}")
+                nested[nested_key] = parse_scalar(nested_raw)
+                index += 1
+            result[key] = nested
+            continue
+
+        result[key] = parse_scalar(value)
         index += 1
 
     return result
@@ -141,6 +177,192 @@ def validate_links(skill_dir: Path, body: str) -> list[Issue]:
     return issues
 
 
+def read_json(path: Path) -> Any:
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        raise
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"invalid JSON in {path.name}: {exc.msg}") from exc
+
+
+def validate_evals_file(path: Path, skill_name: str) -> list[Issue]:
+    issues: list[Issue] = []
+    try:
+        data = read_json(path)
+    except (FileNotFoundError, ValueError) as exc:
+        return [Issue("error", str(exc))]
+
+    if not isinstance(data, dict):
+        return [Issue("error", f"{path.name} must contain a JSON object")]
+
+    if data.get("skill_name") != skill_name:
+        issues.append(Issue("error", f"{path.name} skill_name must match frontmatter name: {skill_name}"))
+
+    evals = data.get("evals")
+    if not isinstance(evals, list) or not evals:
+        issues.append(Issue("error", f"{path.name} must contain a non-empty evals array"))
+        return issues
+
+    seen_ids: set[str] = set()
+    for index, entry in enumerate(evals, start=1):
+        label = f"{path.name} eval #{index}"
+        if not isinstance(entry, dict):
+            issues.append(Issue("error", f"{label} must be an object"))
+            continue
+
+        entry_id = entry.get("id")
+        prompt = entry.get("prompt")
+        expected_output = entry.get("expected_output")
+        files = entry.get("files", [])
+        notes = entry.get("notes")
+
+        if not isinstance(entry_id, str) or not entry_id.strip():
+            issues.append(Issue("error", f"{label} id must be a non-empty string"))
+        elif entry_id in seen_ids:
+            issues.append(Issue("error", f"{path.name} contains duplicate eval id: {entry_id}"))
+        else:
+            seen_ids.add(entry_id)
+
+        if not isinstance(prompt, str) or not prompt.strip():
+            issues.append(Issue("error", f"{label} prompt must be a non-empty string"))
+        if not isinstance(expected_output, str) or not expected_output.strip():
+            issues.append(Issue("error", f"{label} expected_output must be a non-empty string"))
+        if not isinstance(files, list) or any(not isinstance(item, str) or not item.strip() for item in files):
+            issues.append(Issue("error", f"{label} files must be an array of non-empty strings"))
+        if notes is not None and (not isinstance(notes, str) or not notes.strip()):
+            issues.append(Issue("error", f"{label} notes must be a non-empty string when present"))
+
+        extra_keys = set(entry) - {"id", "prompt", "expected_output", "files", "notes"}
+        for extra_key in sorted(extra_keys):
+            issues.append(Issue("warning", f"{label} uses non-standard field: {extra_key}"))
+
+    return issues
+
+
+def validate_trigger_evals_file(path: Path) -> list[Issue]:
+    issues: list[Issue] = []
+    try:
+        data = read_json(path)
+    except (FileNotFoundError, ValueError) as exc:
+        return [Issue("error", str(exc))]
+
+    if not isinstance(data, list) or not data:
+        return [Issue("error", f"{path.name} must contain a non-empty JSON array")]
+
+    seen_ids: set[str] = set()
+    for index, entry in enumerate(data, start=1):
+        label = f"{path.name} entry #{index}"
+        if not isinstance(entry, dict):
+            issues.append(Issue("error", f"{label} must be an object"))
+            continue
+
+        entry_id = entry.get("id")
+        query = entry.get("query")
+        should_trigger = entry.get("should_trigger")
+        why = entry.get("why")
+
+        if not isinstance(entry_id, str) or not entry_id.strip():
+            issues.append(Issue("error", f"{label} id must be a non-empty string"))
+        elif entry_id in seen_ids:
+            issues.append(Issue("error", f"{path.name} contains duplicate trigger id: {entry_id}"))
+        else:
+            seen_ids.add(entry_id)
+
+        if not isinstance(query, str) or not query.strip():
+            issues.append(Issue("error", f"{label} query must be a non-empty string"))
+        if not isinstance(should_trigger, bool):
+            issues.append(Issue("error", f"{label} should_trigger must be true or false"))
+        if why is not None and (not isinstance(why, str) or not why.strip()):
+            issues.append(Issue("error", f"{label} why must be a non-empty string when present"))
+
+        extra_keys = set(entry) - {"id", "query", "should_trigger", "why"}
+        for extra_key in sorted(extra_keys):
+            issues.append(Issue("warning", f"{label} uses non-standard field: {extra_key}"))
+
+    return issues
+
+
+def validate_optional_eval_files(skill_dir: Path, skill_name: str) -> list[Issue]:
+    issues: list[Issue] = []
+    evals_dir = skill_dir / "evals"
+    if not evals_dir.exists():
+        return issues
+    if not evals_dir.is_dir():
+        return [Issue("error", "evals exists but is not a directory")]
+
+    evals_path = evals_dir / "evals.json"
+    trigger_path = evals_dir / "trigger-evals.json"
+
+    if evals_path.exists():
+        issues.extend(validate_evals_file(evals_path, skill_name))
+    if trigger_path.exists():
+        issues.extend(validate_trigger_evals_file(trigger_path))
+
+    return issues
+
+
+def validate_frontmatter(frontmatter: dict[str, Any], skill_dir_name: str) -> list[Issue]:
+    issues: list[Issue] = []
+
+    missing_fields = REQUIRED_FIELDS - set(frontmatter)
+    for key in sorted(missing_fields):
+        issues.append(Issue("error", f"missing frontmatter field: {key}"))
+
+    unknown_fields = set(frontmatter) - REQUIRED_FIELDS - OPTIONAL_PORTABLE_FIELDS
+    for key in sorted(unknown_fields):
+        issues.append(Issue("warning", f"non-portable frontmatter field: {key}"))
+
+    name = frontmatter.get("name", "")
+    description = frontmatter.get("description", "")
+
+    if name:
+        if not isinstance(name, str):
+            issues.append(Issue("error", "name must be a string"))
+        else:
+            if len(name) > 64:
+                issues.append(Issue("error", "name must be 64 characters or fewer"))
+            if not NAME_PATTERN.fullmatch(name):
+                issues.append(
+                    Issue(
+                        "error",
+                        "name must use lowercase letters, numbers, and single hyphens only",
+                    )
+                )
+            if skill_dir_name != name:
+                issues.append(
+                    Issue(
+                        "error",
+                        f"name must match directory name exactly: expected {skill_dir_name}",
+                    )
+                )
+
+    if description:
+        if not isinstance(description, str):
+            issues.append(Issue("error", "description must be a string"))
+        else:
+            if not description.startswith("Use when"):
+                issues.append(Issue("error", "description must start with 'Use when'"))
+            if TAG_PATTERN.search(description):
+                issues.append(Issue("error", "description must not contain XML or HTML-like tags"))
+            if len(description) > RECOMMENDED_MAX_DESCRIPTION_CHARS:
+                issues.append(
+                    Issue(
+                        "warning",
+                        f"description is long ({len(description)} chars); portability drops as discovery text grows",
+                    )
+                )
+
+    for scalar_key in ("license", "compatibility", "allowed-tools"):
+        if scalar_key in frontmatter and not isinstance(frontmatter[scalar_key], str):
+            issues.append(Issue("error", f"{scalar_key} must be a string when present"))
+
+    if "metadata" in frontmatter and not isinstance(frontmatter["metadata"], dict):
+        issues.append(Issue("error", "metadata must be a nested mapping when present"))
+
+    return issues
+
+
 def validate_skill(skill_dir: Path) -> list[Issue]:
     issues: list[Issue] = []
 
@@ -151,47 +373,7 @@ def validate_skill(skill_dir: Path) -> list[Issue]:
     except (FileNotFoundError, OSError, ValueError) as exc:
         return [Issue("error", str(exc))]
 
-    extra_fields = set(frontmatter) - ALLOWED_FIELDS
-    missing_fields = ALLOWED_FIELDS - set(frontmatter)
-
-    for key in sorted(extra_fields):
-        issues.append(Issue("error", f"unsupported frontmatter field: {key}"))
-    for key in sorted(missing_fields):
-        issues.append(Issue("error", f"missing frontmatter field: {key}"))
-
-    name = frontmatter.get("name", "")
-    description = frontmatter.get("description", "")
-
-    if name:
-        if len(name) > 64:
-            issues.append(Issue("error", "name must be 64 characters or fewer"))
-        if not NAME_PATTERN.fullmatch(name):
-            issues.append(
-                Issue(
-                    "error",
-                    "name must use lowercase letters, numbers, and single hyphens only",
-                )
-            )
-        if skill_dir.name != name:
-            issues.append(
-                Issue(
-                    "error",
-                    f"name must match directory name exactly: expected {skill_dir.name}",
-                )
-            )
-
-    if description:
-        if not description.startswith("Use when"):
-            issues.append(Issue("error", "description must start with 'Use when'"))
-        if TAG_PATTERN.search(description):
-            issues.append(Issue("error", "description must not contain XML or HTML-like tags"))
-        if len(description) > RECOMMENDED_MAX_DESCRIPTION_CHARS:
-            issues.append(
-                Issue(
-                    "warning",
-                    f"description is long ({len(description)} chars); portability drops as discovery text grows",
-                )
-            )
+    issues.extend(validate_frontmatter(frontmatter, skill_dir.name))
 
     if not body.strip():
         issues.append(Issue("error", "SKILL.md body must not be empty"))
@@ -208,6 +390,11 @@ def validate_skill(skill_dir: Path) -> list[Issue]:
             issues.append(Issue("warning", "SKILL.md body has no secondary headings"))
 
     issues.extend(validate_links(skill_dir, body))
+
+    name = frontmatter.get("name")
+    if isinstance(name, str) and name:
+        issues.extend(validate_optional_eval_files(skill_dir, name))
+
     return issues
 
 

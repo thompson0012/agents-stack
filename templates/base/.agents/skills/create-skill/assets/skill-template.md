@@ -20,6 +20,11 @@ __OVERVIEW__
 ## References
 - Add `references/...` links only for detail that does not belong inline.
 
+## Evaluation
+- Add at least 3 realistic prompts to `evals/evals.json`.
+- Add `evals/trigger-evals.json` if discovery precision matters.
+- Compare the candidate against an honest baseline when behavior changed.
+
 ## Final Checklist
 - [ ] Trigger conditions are clear in `description`
 - [ ] Body explains execution, not discovery
