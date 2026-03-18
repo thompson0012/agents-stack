@@ -108,3 +108,18 @@ Why it fails:
 
 Fix:
 - keep run artifacts in a sibling workspace and package only the reusable skill files
+
+## 10. Hidden Family With No Router
+
+Bad:
+- burying related child skills in nested folders and assuming the runtime will discover or choose them correctly without a router entrypoint
+
+Why it fails:
+- nested children can become effectively invisible
+- the folder tree cannot explain install behavior, fallbacks, or typed relationships
+- agents end up guessing which child to load, or never loading one at all
+
+Fix:
+- add a discoverable top-level router skill
+- keep child metadata explicit instead of relying on the directory tree alone
+- use a router-specific package when the main job is selection and handoff

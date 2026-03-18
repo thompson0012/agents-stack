@@ -9,6 +9,8 @@ Use this skill to create or upgrade a reusable skill package that another agent 
 
 Build the portable core first. Add runtime-specific metadata, packaging, or tooling only after the core package works without vendor assumptions.
 
+If the package's main job is routing across a skill family, preserving discoverability for nested children, or carrying child-selection metadata, do not force that into a leaf skill. Use `create-router-skill` instead.
+
 ## Core Contract
 
 - Solve one repeatable job. If the work is project-specific or one-off, put it in repo docs instead.
@@ -18,6 +20,7 @@ Build the portable core first. Add runtime-specific metadata, packaging, or tool
 - Validate structure before claiming the package is usable.
 - Pressure-test the skill with real prompts before calling it done.
 - When evaluation matters, compare the current candidate against an honest baseline instead of grading by vibes.
+- Do not overload a leaf skill with family-routing responsibilities. A router is a different job from execution guidance.
 
 ## Entry Gate
 
@@ -76,6 +79,7 @@ Do not create a skill for:
 - a one-off task summary
 - repo-local instructions better kept in `AGENTS.md` or project docs
 - obvious best practices with no special context
+- a family router whose main job is selecting among child skills and handling install-or-fallback behavior; use `create-router-skill` instead
 
 ### Phase 2 — Choose the Smallest Useful Package
 
