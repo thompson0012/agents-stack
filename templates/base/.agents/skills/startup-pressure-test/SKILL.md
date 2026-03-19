@@ -1,372 +1,362 @@
 ---
 name: startup-pressure-test
-description: Use when pressure-testing a concrete startup idea, launch plan, or early unit economics with pessimistic but credible market, acquisition, retention, monetization, and runway assumptions.
+description: Use when pressure-testing a startup, launch plan, GTM thesis, or early unit economics with pessimistic but credible assumptions about acquisition, retention, monetization, burn, and runway.
 ---
 
 # Startup Pressure Test
 
-Use this skill to run a reality-based startup simulation that exposes how ideas fail in the market before founders spend too much time or money.
+Use this skill to run a cold-eyed startup viability teardown. The goal is not encouragement. The goal is to discover whether the business survives contact with the market, and what evidence would be required to change the answer.
 
-Adopt the posture of a **startup pressure tester**: professional, calm, data-driven, and blunt. Do not give cheap encouragement. State the business risk clearly, then show what evidence would change the conclusion.
+Adopt the posture of a professional startup pressure tester: calm, skeptical, data-backed, commercially literate, and blunt without being theatrical.
 
-## Core Discipline
+## When This Skill Fits
+
+Route here when the user wants things like:
+- a startup sanity check
+- a brutal business-model teardown
+- a launch or GTM stress test
+- a CAC / churn / runway reality check
+- an investor-style critique of whether a new startup survives
+- a pre-seed viability assessment before building further
+
+Do **not** use this skill for generic market research, standard financial modeling, or product brainstorming without a concrete commercial thesis to test.
+
+## Core Contract
 
 - Treat optimistic claims as unproven until checked.
-- Preserve the full commercial arc: **value proposition analysis -> user segmentation -> launch simulation -> user behavior -> financial assessment**.
-- Run the narrative on a **day-based timeline**.
-- Prefer **median-to-worse** benchmark assumptions unless current evidence supports a better number.
-- Assume the product can be built, but count build time, contractor cost, and founder time into the burn.
-- Focus on market truth, not technical elegance.
-- Never choose for the user at decision points.
-- If the simulated result contradicts a template heading, rename the heading to match the actual outcome.
+- Preserve the full commercial arc: **fact check -> archetype pressure branch -> segment choice -> launch simulation -> user behavior -> unit economics -> verdict**.
+- Default to a **complete one-pass teardown**. Do not stop at staged checkpoints unless the user explicitly asks to intervene.
+- Keep the timeline concrete. Use a short day-based narrative when it sharpens consequences, but do not roleplay for its own sake.
+- Prefer median-to-worse assumptions unless the evidence supports better numbers.
+- Assume the product can be built, but count build time, founder time, contractor cost, and distribution cost into burn.
+- Identify the dominant startup archetype and let its failure mechanics dominate the analysis instead of forcing every company through the same generic funnel.
+- Focus on market truth, not product elegance.
+- End with a verdict and the smallest next experiment that could overturn it.
 
-## Fact-Check Gate
+## Operating Modes
 
-Before running the simulation, extract factual claims from the user's idea and verify them with available search tools.
+### Default mode — one-pass teardown
+If the user gives a concrete idea, launch plan, or business model, run the full pressure test in one response.
 
-Check claims such as:
-- market size or market growth
-- existence or absence of competitors
-- customer behavior assumptions
-- ad cost assumptions
-- pricing norms
-- regulatory constraints
-- channel access assumptions
-- buyer willingness to pay
+### Optional fork mode — user-requested intervention
+Pause only when the user explicitly asks to:
+- choose the best early segment before continuing
+- compare alternative pricing, channels, or ICPs
+- intervene after seeing the first simulation outcome
+- rerun the model with revised assumptions
 
-Use this process:
-1. List the concrete factual claims you found.
-2. Verify the highest-impact claims with web search.
-3. Cite the sources you relied on and separate verified facts from disputed assumptions.
-4. Call out what appears wrong, overstated, outdated, or unverifiable.
-5. If a disputed claim cannot be resolved quickly, bracket it as an explicit assumption and carry it into the simulation math.
-6. Ask the user to confirm or correct disputed facts when interaction is possible.
-7. **Do not continue into the simulation until the disputed facts are resolved or explicitly bracketed as assumptions.**
+If the user does not ask to intervene, do not invent pauses.
 
-If the user has not described an idea yet, open with this English prompt:
+## Intake
 
-> Startup pressure-test mode activated. Over the next 180 days, we will throw your idea into a realistic market and see whether it survives. Forget the mythology of overnight success. Prepare for unpleasant numbers. Now describe your startup idea in detail.
+If the user has not described the startup yet, open with a concise prompt such as:
 
-## Default Benchmark Assumptions
-
-Use current sector-specific benchmarks when you can verify them quickly. If not, default to the following pessimistic but credible ranges.
-
-| Area | Default assumption |
-| --- | --- |
-| Cold-start community CTR | `0.5% - 2%` |
-| Website visit -> signup conversion | `1% - 3%` |
-| Free -> paid conversion for SaaS/content | `0.5% - 2%` |
-| Early monthly churn | `10% - 20%` |
-| Paid CAC | Localize by market and business type; assume it is uncomfortably high, not founder-fantasy cheap |
-
-### CAC guidance
-
-Localize CAC to the user's geography and business model. If the user does not specify geography, pick one currency, state it clearly, and do not mix units.
-
-Use reality-based bands such as:
-- low-ticket B2C: tens to low hundreds of local currency per acquired user
-- prosumer or niche SaaS: high tens to several hundreds
-- SMB B2B: high hundreds to low thousands
-- enterprise pilot sales: thousands to tens of thousands
-
-If you lack reliable current data, say so and choose a conservative number inside a credible range.
-
-## State Ledger
-
-Maintain and update a simple operating ledger at major milestones.
-
-Always track:
-- **Initial funding**
-- **Cash balance**
-- **Monthly burn**
-- **Runway**
-- **MRR** once revenue exists
-- **Morale** as `High / Strained / Fragile`
-- **Market credibility** as `Unknown / Improving / Weak / Damaged`
-
-Use these rules:
-- `net burn = monthly operating cost + acquisition spend - monthly recurring revenue`
-- `runway = cash balance / net burn`
-- If revenue is too small to matter, say so directly.
-- If net burn is zero or negative, do not celebrate automatically; check whether demand is still weak.
-
-## Workflow
-
-### Stage 0 - Intake and Fact Check
+> Describe the startup in one paragraph: who the customer is, what the product does, how you expect to acquire users, how you expect to make money, and how much runway you have.
 
 If the user already supplied the idea, do not ask them to repeat it.
 
-Output:
-- a concise restatement of the idea
-- a list of extracted factual claims
-- a fact-check table with source-backed corrections or confidence notes
-- the exact follow-up questions needed to resolve disputed claims
+## Stage 1 — Fact-Check Gate
 
-Do not simulate beyond this stage until the fact base is good enough.
+Before simulating, extract the factual claims that could meaningfully change the conclusion.
 
-### Stage 1 - Harsh Market Scrutiny (Days 1-5)
+Typical claims to check:
+- market size or growth
+- whether competitors already exist
+- channel access assumptions
+- pricing norms
+- buyer willingness to pay
+- ad-cost assumptions
+- regulatory constraints
+- sales-cycle assumptions
 
-#### Day 1 - Deconstruct the idea and scan the market
+Use available search tools to verify the highest-impact claims quickly.
 
-Required output:
-- restate the startup idea in plain language
-- isolate the core value proposition
-- identify the riskiest commercial assumptions
-- state why "people have the problem" is not the same as "people will pay"
-- name the likely substitutes, including manual workflows and free tools
+### Fact-check process
+1. List the concrete factual claims.
+2. Verify the highest-impact claims with source-backed search.
+3. Separate **verified facts**, **disputed claims**, and **unverified assumptions**.
+4. Call out what appears wrong, overstated, outdated, or too weakly evidenced.
+5. If a disputed claim cannot be resolved quickly, carry it into the model as an explicit assumption.
+6. If interaction is available and the claim matters materially, ask for correction or confirmation.
+7. Do not quietly rely on fantasy inputs.
 
-Use wording like this when appropriate:
-- "This value proposition is still a hypothesis."
-- "Demand is not the same thing as willingness to pay."
-- "The real issue is not whether this problem exists, but whether users will switch behavior for this solution."
+## Stage 2 — Commercial Assumption Map
 
-#### Day 2 - Build eight value proposition canvases
+State what must be true for the startup to work.
 
-Create **8 candidate user groups**.
+Always assess:
+- problem intensity
+- switching friction
+- willingness to pay
+- acquisition path realism
+- retention risk
+- implementation burden on the buyer
+- founder execution burden
+- sales-cycle or trust barrier
 
-For each group, cover:
+Use plain language. Examples:
+- "Pain exists, but willingness to pay is still unproven."
+- "This looks like a feature people might try, not a workflow they will pay to keep."
+- "The hidden problem is not product demand, but distribution cost."
+
+## Stage 3 — Archetype Detection and Dominant Failure Mechanics
+
+Before ranking segments or simulating launch, identify which startup archetype most strongly determines failure.
+
+Common archetypes:
+- **B2B long-sales-cycle** — enterprise, compliance, workflow, procurement, or multi-stakeholder deals
+- **Consumer subscription** — habit-dependent products with low price points and high curiosity traffic
+- **Marketplace** — two-sided or multi-sided liquidity businesses
+- **Regulated or trust-gated startup** — healthcare, fintech, insurance, legal, education, or anything that depends on approval, compliance, or deep buyer trust
+- **Fallback generic software / service** — only when none of the above clearly dominates
+
+### Archetype rules
+
+#### B2B long-sales-cycle
+Make these questions dominate the model:
+- How long is the path from first call to paid contract?
+- How many stakeholders, pilots, security reviews, or procurement steps stand between interest and revenue?
+- Does founder-led sales become the real bottleneck before product learning catches up?
+- How much runway is consumed before enough closed-loop customer evidence exists?
+
+#### Consumer subscription
+Make these questions dominate the model:
+- Is the user problem frequent enough to become a habit rather than a brief curiosity?
+- Does willingness to pay survive once the novelty fades?
+- Does churn erase acquired users before CAC payback works?
+- Is growth dependent on cheap attention that rarely compounds into retention?
+
+#### Marketplace
+Make these questions dominate the model:
+- Which side is harder to attract first, and what happens if the other side arrives before liquidity exists?
+- What level of density is required before the marketplace feels alive?
+- How expensive is trust, vetting, fulfillment, support, or dispute resolution?
+- Does the take rate support the operating burden before liquidity is real?
+
+#### Regulated or trust-gated startup
+Make these questions dominate the model:
+- What must be approved, reviewed, or proven before real usage can occur?
+- How much time and cash disappear into compliance, legal review, implementation, and trust-building?
+- Can the buyer act quickly, or does the process itself destroy the startup timeline?
+- Does the product need evidence, accreditation, or integration depth before anyone meaningful will adopt it?
+
+If more than one archetype fits, choose the dominant one and name the secondary drag explicitly.
+## Stage 4 — Segment Ranking
+
+Rank **3-5 plausible early customer segments**.
+
+For each segment, assess:
 - job to be done
 - pain level
 - current workaround
+- urgency
 - willingness to pay
 - acquisition difficulty
 - switching friction
 - likely objection
-- short verdict on commercial attractiveness
+- short verdict
 
-Bias the evaluation toward **monetization difficulty** and **acquisition barriers**.
+If the user did not specify an exact beachhead, choose the best early segment yourself and explain why the others are worse.
 
-Use blunt judgments such as:
-- "Pain is real, but this segment is notorious for refusing to pay when free substitutes exist."
-- "The market looks open, but distribution is effectively controlled by larger platforms, so your starting budget will not register."
-- "The buyer has money, but the sales cycle is long enough to threaten runway before proof arrives."
+If the user explicitly asks to choose the segment before continuing, pause here and offer:
+- A / B / C segment options
+- an open-text alternative
 
-End with a **Decision Point**. Offer 3 imperfect options plus an open-text alternative.
+Otherwise continue directly into the simulation.
 
-Template:
+## Stage 5 — Launch Simulation
 
-```text
-[Decision Point]
-Choose where to go deeper:
-A. [Segment option]
-B. [Segment option]
-C. [Segment option]
-Or reply with your own segment and thesis.
-```
+Simulate the first realistic launch window using pessimistic but defensible funnel math.
 
-Wait for the user's choice.
-
-#### Day 5 - Create three user personas
-
-Based on the user's chosen segment, create **3 realistic personas**.
-
-Each persona must include:
-- role and context
-- buying trigger
-- urgency level
-- price sensitivity
-- loyalty to current tools
-- skepticism toward new products
-- likely reason to churn
-- likely reason to refuse payment
-
-Make the personas useful for later behavior simulation, not decorative.
-
-### Stage 2 - Launch Shock (Days 60-90)
-
-#### Day 90 - MVP launch and cold-start data
-
-Fast-forward to launch.
-
-Required output:
-- estimated build cost to reach MVP
-- current cash balance
+Default coverage:
+- realistic build cost to reach MVP
+- cash remaining at launch
 - monthly burn
-- remaining runway
-- one realistic cold-start distribution attempt
+- runway at launch
+- one plausible acquisition attempt
+- impressions, clicks, visits, signups, activations, and early retained users
 
-Then simulate a first-week launch using pessimistic funnel math.
+### Default benchmark ranges
+Use current source-backed benchmarks when available. If not, default to conservative ranges like these:
 
-Default pattern:
-- 3 relevant niche communities
-- roughly `30,000` total impressions unless the niche clearly supports less or more
-- CTR inside the defined pessimistic range
-- a smaller number of actual site visitors than clicks
-- signup conversion inside the defined pessimistic range
+| Area | Default range |
+| --- | --- |
+| Cold-start CTR | `0.5% - 2%` |
+| Visit -> signup | `1% - 3%` |
+| Free -> paid | `0.5% - 2%` |
+| Early monthly churn | `10% - 20%` |
+| Paid CAC | uncomfortable, localized, and explicitly justified |
 
-Then state the result plainly, for example:
-- total impressions
-- total clicks
-- site visitors
-- signups
-- signup conversion rate
-- how many real users the startup actually has
+### CAC guidance
+State geography and currency clearly. Localize by business type:
+- low-ticket B2C: tens to low hundreds of local currency per acquired user
+- prosumer / niche SaaS: high tens to several hundreds
+- SMB B2B: high hundreds to low thousands
+- enterprise pilot sales: thousands to tens of thousands
+
+If you lack a reliable benchmark, say so and choose a conservative number in a credible range.
 
 Do not inflate traction to protect the founder's feelings.
 
-### Stage 3 - Real User Behavior (Days 91-180)
+## Stage 6 — User Behavior and Retention Stress
 
-#### Early post-launch behavior
+Narrate what the earliest users actually do, then translate that into business meaning.
 
-Narrate what the earliest users actually do.
-
-When the user count is small, describe them individually as User A, User B, and so on. Typical outcomes to simulate:
+Typical outcomes:
 - curiosity click, then no return
-- brief product exploration with no emotional reaction
-- engagement blocked by a missing feature or workflow mismatch
+- brief exploration with no emotional reaction
+- activation blocked by a workflow mismatch
 - value seen, but not enough to justify price
-- activation without retention
+- retention too weak to support paid acquisition
 
-After the behavior narrative, state:
-- retention rate
+Then state:
 - activation quality
+- retention rate
 - paid conversion rate
 - what this implies about product-market fit
 
-Do not confuse product usage with business viability.
+Do not confuse usage with viability.
 
-#### Interactive intervention points
+## Stage 7 — Unit Economics and Runway
 
-When the founder wants to react, stop and let them choose.
+Maintain a simple operating ledger.
 
-Always provide:
-- A / B / C options
-- permission for an open-text response
-
-Then evaluate the user's chosen response on:
-- feasibility
-- time cost
-- cash cost
-- people cost
-- downside risk
-- rough success probability
-
-Update the ledger to reflect the choice, especially:
-- cash
-- morale
-- market credibility
-- runway
-
-If the user's plan depends on fantasy outcomes, say so and assign a low success probability.
-
-### Stage 4 - Financial Reckoning (Day 180)
-
-By Day 180, deliver a business health dashboard.
-
-Required fields:
-- ad-driven acquired users
-- total users
-- paid users
-- free -> paid conversion
-- MRR
-- churn
+Always track:
+- initial funding
 - cash balance
 - monthly burn
 - runway
+- MRR once revenue exists
+- morale as `High / Strained / Fragile`
+- market credibility as `Unknown / Improving / Weak / Damaged`
 
-If the founder used paid acquisition, compute the spend and show why CAC crushes the model when conversion is weak.
+Use these rules:
+- `net burn = operating cost + acquisition spend - recurring revenue`
+- `runway = cash balance / net burn`
+- if revenue is too small to matter, say so directly
+- if net burn improves, verify whether demand is real before treating that as success
 
-State the verdict directly:
-- viable but fragile
-- not yet a business
-- runway crisis
-- structurally broken economics
+If the founder used paid acquisition, show why weak conversion causes CAC to crush the model.
 
-Then present a **Decision Point** with three hard paths such as:
-- keep pushing with a narrow thesis
-- pivot to a different segment, pricing model, or distribution path
-- shut it down before more capital is destroyed
+## Stage 8 — Verdict and Next Experiment
 
-Allow the user to reject all three and propose a different move.
+Every completed run must end with a verdict.
 
-### Stage 5 - Postmortem and Next Experiment
+Allowed verdicts:
+- **Proceed, but narrowly**
+- **Narrow and retest**
+- **Not yet a business**
+- **Runway crisis**
+- **Structurally broken economics**
 
-Always end a completed run with a retrospective.
+Then state:
+- the main reason the business breaks
+- the strongest remaining reason it might still work
+- what evidence would change your mind
+- the smallest next experiment that would generate that evidence
 
-Cover:
-- the main reason traffic was harder than expected
-- the main reason conversion was weaker than expected
-- the main reason retention or willingness to pay broke down
-- the key hidden assumption that failed
-- the smallest next experiment that would produce real evidence
-
-Prefer concrete advice such as:
-- test a pre-sell page before building further
-- ask for a deposit, not compliments
-- recruit the first 10 users manually instead of waiting for community posts to work
+Prefer concrete next experiments such as:
+- pre-sell before building further
+- ask for deposits, not compliments
+- recruit the first 10 users manually
 - narrow the ICP before writing more code
-- change pricing only after confirming the workflow pain is intense enough
+- test one acquisition channel with real spend and real conversion tracking
 
-Offer a restart option so the user can re-run the simulation with revised assumptions.
-Do not add a motivational conclusion after the retrospective; end on the next experiment or restart decision.
+Do not end with motivation. End with the verdict and next experiment.
+
+## Required Output Contract
+
+Use this structure unless the user asks for a shorter answer:
+
+```text
+[Verdict]
+- one-line judgment
+
+[Business in One Sentence]
+- what the company does, who pays, and why they might buy
+
+[What Must Be True]
+- the core assumptions the business depends on
+
+[Dominant Pressure Branch]
+- the startup archetype that governs failure risk and the mechanics it introduces
+
+[Fact-Checked Claims vs Assumptions]
+- verified facts
+- disputed claims
+- bracketed assumptions
+- sources used
+
+[Best Early Segment]
+- ranked segment choice and why it wins
+
+[Launch Simulation]
+- build cost
+- cash balance
+- burn
+- runway
+- funnel math
+
+[Behavior and Retention Stress]
+- what early users actually do
+- retention / conversion implications
+
+[Unit Economics Snapshot]
+- CAC, conversion, churn, MRR, runway, and economic breakpoints
+
+[180-Day Outcome]
+- what the business looks like after realistic market contact
+
+[What Would Change My Mind]
+- the evidence required to overturn the verdict
+
+[Next Experiment]
+- the smallest concrete test worth running next
+```
+
+## Optional Intervention Contract
+
+If the user explicitly asks to intervene midstream, pause only at a real commercial fork and offer:
+- A / B / C options
+- an open-text alternative
+- expected time cost
+- cash cost
+- downside risk
+- rough success probability
+
+Then update the ledger based on the chosen move.
 
 ## Response Style
 
 - Write in direct, plain English.
 - Be cold-eyed, not theatrical.
 - Use numbers whenever possible.
-- Explain why the business fails, not just that it fails.
-- Keep the narrative moving by day and by consequence.
-- Prefer a sharp sentence over a motivational paragraph.
+- Explain **why** the business fails or survives.
+- Prefer sharp sentences over motivational paragraphs.
+- Narrow claims when evidence is weak.
 
-## Output Skeleton
+## Common Failure Modes
 
-Use this skeleton when it fits. Compress only if the user asks for a shorter answer.
+- treating demand as willingness to pay
+- using generous benchmark assumptions without evidence
+- stopping at segmentation instead of giving a full verdict
+- confusing product engagement with business viability
+- ignoring founder time and build cost in burn
+- using one generic stress model when the startup archetype clearly changes the real failure mechanism
+- hiding uncertainty instead of bracketing assumptions
+- giving strategy theater instead of a commercial conclusion
 
-```text
-[Fact Check Gate]
-- Restated idea
-- Extracted claims
-- Verified facts / disputed facts / sources / bracketed assumptions
-- Questions that must be resolved before simulation
+## References
 
-[Day 1 - Idea Deconstruction]
-...
+- Add trigger and behavior examples to `evals/evals.json` and `evals/trigger-evals.json`.
+- Use current source-backed benchmarks when available; otherwise state the assumption band clearly.
 
-[Day 2 - Value Proposition Canvases]
-...
+## Final Checklist
 
-[Decision Point]
-A. ...
-B. ...
-C. ...
-Or reply with your own plan.
-
-[Day 5 - User Personas]
-...
-
-[Day 90 - MVP Launch]
-- Cash balance
-- Monthly burn
-- Runway
-- Launch funnel
-
-[Day 91+ - User Behavior]
-...
-
-[Day 180 - Business Health Dashboard]
-...
-
-[Decision Point]
-A. Persist
-B. Pivot
-C. Shut down
-Or reply with your own plan.
-
-[Postmortem]
-...
-```
-
-## Quality Bar
-
-Before sending, check that you have done all of the following:
-- verified factual claims before simulating
-- kept the timeline structure intact
-- used pessimistic but defensible assumptions
-- shown the funnel numerically
-- shown cash, burn, and runway clearly
-- paused at real decision points
-- allowed the user to choose or propose their own move
-- translated user choices into consequences instead of hand-waving them away
-- kept the focus on commercial truth rather than product wishful thinking
-- ended on the decision/postmortem/next-experiment sequence rather than a motivational wrap-up
+- [ ] Highest-impact factual claims were checked or explicitly bracketed
+- [ ] Best early segment was chosen or compared
+- [ ] Launch math is numerical, not hand-wavy
+- [ ] Retention and monetization failure modes are explicit
+- [ ] Cash, burn, and runway are visible
+- [ ] The answer ends with a verdict and next experiment
+- [ ] The skill paused only if the user explicitly asked to intervene

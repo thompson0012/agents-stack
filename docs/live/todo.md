@@ -18,3 +18,5 @@ Use one row per work item. Prefer `High`, `Medium`, or `Low` for priority and `P
 | Task 28: run prompt-pressure evaluations against the expanded router suite including `using-documents` before creating any more families | High | Pending |
 | Task 29: add a portable `generative-ui` skill and route it from `using-agent-practices` | High | Completed |
 | Task 30: standardize the shipped skill corpus and add a suite portability audit gate | High | Completed |
+| Task 31: upgrade `startup-pressure-test` trigger coverage and completion contract | High | Completed |
+| Task 32: add archetype-aware pressure branches to `startup-pressure-test` | High | Completed |

@@ -31,7 +31,7 @@ Apply these checks in order.
 - The requested deliverable is itself a prompt, system prompt, prompt template, or prompt architecture -> `meta-prompting`
 
 ### 3. Specialized business and design skills
-- Need a harsh startup viability simulation, market reality check, CAC/churn/runway stress test, or 180-day startup narrative -> `startup-pressure-test`
+- Need a startup sanity check, harsh viability simulation, investor-style business-model teardown, launch stress test, or CAC/churn/runway reality check -> `startup-pressure-test`
 - Need design tokens, a brand system, or a brand spec from brand inputs -> `generating-design-tokens`
 - Need model-generated, streamed, or schema-driven interactive UI in the browser, including sandboxed HTML or agent-rendered components -> `generative-ui`
 - Need an Apple-like liquid glass browser effect using CSS/SVG refraction and displacement maps -> `liquid-glass-design`

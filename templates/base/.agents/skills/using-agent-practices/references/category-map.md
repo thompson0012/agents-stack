@@ -13,7 +13,7 @@ This repository's first-party suite currently contains these live skills under `
 
 ## Commercial Reality Testing
 
-- `startup-pressure-test` — pressure-test a startup idea with market, funnel, and runway realism
+- `startup-pressure-test` — pressure-test a startup, launch thesis, or business model with market, funnel, monetization, and runway realism
 
 ## Web Project Routing
 
@@ -93,7 +93,7 @@ Ask first: what is the primary artifact or workflow needed?
 - compacted state -> `context-compaction`
 - audit or retro -> `self-cognitive`
 - prompt -> `meta-prompting`
-- startup simulation -> `startup-pressure-test`
+- startup sanity check, business-model teardown, launch stress test, or startup simulation -> `startup-pressure-test`
 - generative browser UI, schema-driven component rendering, or streamed agent surfaces -> `generative-ui`
 - ambiguous website or browser-based build across site, app, or game -> `website-building`
 - ambiguous document work across Word, PDF, PowerPoint, or Excel artifacts -> `using-documents`

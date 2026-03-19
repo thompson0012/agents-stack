@@ -4,11 +4,11 @@ Read after `docs/live/current-focus.md` to recover the latest state, continuity,
 
 ## Current State
 
-The base template skill suite now has a repo-level audit gate and a broad portability cleanup: shipped skills align with the portable frontmatter contract, stale `skills/` path references are removed, and website-building/finance/research guidance no longer points at dead tool surfaces. Prompt-pressure evaluation of the expanded router suite is still pending.
+The base template skill suite now has a repo-level audit gate, a broad portability cleanup, and an upgraded `startup-pressure-test` skill that is easier to trigger, defaults to a complete one-pass viability teardown, and now branches its pressure logic by startup archetype when that changes the dominant failure mechanism. Prompt-pressure evaluation of the wider router suite is still pending.
 
 ## Latest Completed Work
 
-Standardized the remaining legacy skill corpus onto the current portable contract, rewrote website-building around the current browser/local-run tool surface, removed stale vendor/tool/path references across document, finance, research, reasoning, marketing, legal, and sales skills, added `scripts/audit_base_template_skills.py` plus `.github/workflows/base-template-skill-audit.yml`, and deleted committed `.DS_Store` artifacts.
+Enhanced `startup-pressure-test` again with archetype-aware pressure branches for B2B long-sales cycles, consumer-subscription churn traps, marketplace liquidity failure, and regulated-startup friction. Added eval coverage for those cases and kept the startup skill on the portable contract while `using-agent-practices` continues routing broader startup-viability requests there more reliably.
 
 ## In Progress
 
@@ -27,6 +27,7 @@ Resume Task 28: run prompt-pressure evaluations against the expanded router suit
 - `scripts/audit_base_template_skills.py`
 - `.github/workflows/base-template-skill-audit.yml`
 - `templates/base/.agents/skills/{coding-and-data,design-foundations,feature-spec,generating-design-tokens,media,meta-prompting,self-cognitive,startup-pressure-test,visualization}/SKILL.md`
+- `templates/base/.agents/skills/startup-pressure-test/evals/{evals.json,trigger-evals.json}`
 - `templates/base/.agents/skills/using-{documents,finance,research,reasoning,legal,marketing,sales}/**`
 - `templates/base/.agents/skills/website-building/{SKILL.md,game/**,informational/**,shared/**,webapp/**}`
 - `docs/live/current-focus.md`
@@ -38,6 +39,8 @@ Resume Task 28: run prompt-pressure evaluations against the expanded router suit
 
 Observed success for:
 
+- `python3 templates/base/.agents/skills/create-skill/scripts/validate.py templates/base/.agents/skills/startup-pressure-test --strict`
+- `python3 templates/base/.agents/skills/create-skill/scripts/validate.py templates/base/.agents/skills/using-agent-practices --strict`
 - `python3 scripts/audit_base_template_skills.py`
 
 ## Hand-off Note
