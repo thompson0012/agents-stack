@@ -18,6 +18,18 @@
       "prompt": "The problem is clear: our onboarding completion rate fell from 62% to 41% after the redesign. Challenge my diagnosis and help me decide what to test first.",
       "expected_output": "Routes to using-reasoning/dynamic-problem-solving because the problem is already stated clearly and the user wants rigorous analysis and next steps.",
       "files": []
+    },
+    {
+      "id": "direct-external-signal",
+      "prompt": "A new export-control policy may reshape the AI chip market. What second-order effects should we expect and what indicators should we watch over the next year?",
+      "expected_output": "Routes to using-reasoning/strategic-foresight because the request centers on implications from a concrete external signal and asks for scenarios plus indicators.",
+      "files": []
+    },
+    {
+      "id": "direct-structured-advisory",
+      "prompt": "Act as an operating advisor and write a decision memo on whether we should centralize pricing ownership inside the product organization.",
+      "expected_output": "Routes to using-reasoning/domain-expert-consultation because the problem is already framed and the user explicitly wants a structured advisory deliverable.",
+      "files": []
     }
   ]
 }

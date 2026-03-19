@@ -4,11 +4,11 @@ Read after `docs/live/current-focus.md` to recover the latest state, continuity,
 
 ## Current State
 
-The base template skill suite now has a repo-level audit gate, a broad portability cleanup, and an upgraded `startup-pressure-test` skill that is easier to trigger, defaults to a complete one-pass viability teardown, and now branches its pressure logic by startup archetype and secondary drag when that changes the dominant failure mechanism. Prompt-pressure evaluation of the wider router suite is still pending.
+Task 34 is complete and the follow-up vendor-agnostic rename sweep also landed: the known legacy vendor residue has been removed from shared website assets, helper scripts, audit coverage, and document-script defaults. The next likely step is still a capability-based methodology refinement pass across the finance, research, and webapp docs that were already flagged as promising follow-up targets.
 
 ## Latest Completed Work
 
-Expanded `startup-pressure-test` with additional archetype branches for usage-based API businesses, services disguised as software, low-ticket ecommerce, creator/media businesses, and developer tools facing open-source competition. Added secondary-drag rules for overlapping archetypes and added router-level eval coverage in `using-agent-practices` so borderline startup viability requests are tested against generic reasoning and research routes.
+Renamed the remaining legacy vendor file and symbol names to vendor-agnostic alternatives (`provenance_metadata.html`, `OptionalAttribution.tsx`), generalized the audit patterns and tests, changed DOCX comment defaults to `Agent` / `AG`, and replaced the media-helper private SDK coupling with a provider-agnostic `media_client.py` adapter contract plus updated docs. Fresh unittest, py_compile, audit, and repo-wide grep verification all passed with no remaining legacy vendor name matches.
 
 ## In Progress
 
@@ -20,15 +20,17 @@ None.
 
 ## Next Recommended Action
 
-Resume Task 28: run prompt-pressure evaluations against the expanded router suite with `python3 scripts/audit_base_template_skills.py` kept green after each follow-up change.
+Review the identified methodology-heavy docs in finance, research, and website-building/webapp, then tighten their capability-based guidance without reintroducing stale or vendor-specific surface assumptions.
 
 ## Touched Files
 
 - `scripts/audit_base_template_skills.py`
+- `scripts/tests/test_audit_base_template_skills.py`
+- `scripts/tests/test_vendor_agnostic_naming.py`
 - `.github/workflows/base-template-skill-audit.yml`
 - `templates/base/.agents/skills/{coding-and-data,design-foundations,feature-spec,generating-design-tokens,media,meta-prompting,self-cognitive,startup-pressure-test,visualization}/SKILL.md`
 - `templates/base/.agents/skills/startup-pressure-test/evals/{evals.json,trigger-evals.json}`
-- `templates/base/.agents/skills/using-agent-practices/evals/{evals.json,trigger-evals.json}`
+- `templates/base/.agents/skills/using-agent-practices/{SKILL.md,evals/**,references/category-map.md}`
 - `templates/base/.agents/skills/using-{documents,finance,research,reasoning,legal,marketing,sales}/**`
 - `templates/base/.agents/skills/website-building/{SKILL.md,game/**,informational/**,shared/**,webapp/**}`
 - `docs/live/current-focus.md`
@@ -40,10 +42,14 @@ Resume Task 28: run prompt-pressure evaluations against the expanded router suit
 
 Observed success for:
 
-- `python3 templates/base/.agents/skills/create-skill/scripts/validate.py templates/base/.agents/skills/startup-pressure-test --strict`
 - `python3 templates/base/.agents/skills/create-skill/scripts/validate.py templates/base/.agents/skills/using-agent-practices --strict`
+- `python3 templates/base/.agents/skills/using-documents/scripts/validate_router.py templates/base/.agents/skills/using-documents`
+- `python3 templates/base/.agents/skills/using-reasoning/scripts/validate_router.py templates/base/.agents/skills/using-reasoning`
+- `python3 -m unittest scripts.tests.test_audit_base_template_skills scripts.tests.test_vendor_agnostic_naming -v`
+- `python3 -m py_compile scripts/audit_base_template_skills.py scripts/tests/test_audit_base_template_skills.py scripts/tests/test_vendor_agnostic_naming.py templates/base/.agents/skills/using-documents/docx/scripts/comment.py templates/base/.agents/skills/website-building/shared/llm-api/media_client.py templates/base/.agents/skills/website-building/shared/llm-api/generate_image.py templates/base/.agents/skills/website-building/shared/llm-api/generate_video.py templates/base/.agents/skills/website-building/shared/llm-api/generate_audio.py templates/base/.agents/skills/website-building/shared/llm-api/transcribe_audio.py`
 - `python3 scripts/audit_base_template_skills.py`
+- repo-wide grep for the removed vendor-name patterns returned no matches
 
 ## Hand-off Note
 
-The new audit script is now the truth source for portability drift: it runs strict leaf/router validation and scans for stale `skills/` paths, unsupported tool names, vendor strings, and `.DS_Store` artifacts. Run it before claiming future skill-suite edits are complete.
+The audit script is now the truth source for portability drift across both markdown skill docs and the currently targeted non-markdown website-building assets. Keep the scan explicit for now: the concrete website-building files were enough to catch real residue, and broader non-markdown scanning should wait for evidence that more template assets are drifting.

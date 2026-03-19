@@ -21,6 +21,41 @@
       "expected_output": "Routes to using-research because this is a market research deliverable, not a startup pressure test.",
       "files": [],
       "notes": "Negative control: broad market analysis should not fall into startup-pressure-test just because the target might be a startup market."
+    },
+    {
+      "id": "route-startup-decision-memo-over-reasoning",
+      "prompt": "Write a decision memo on whether this startup survives realistic CAC, churn, and runway assumptions over the next year.",
+      "expected_output": "Routes to startup-pressure-test rather than using-reasoning because the user still wants a startup viability teardown even though the wrapper artifact sounds like an advisory memo.",
+      "files": [],
+      "notes": "This pressures the domain-expert-consultation boundary with memo-style wording."
+    },
+    {
+      "id": "route-startup-market-sizing-to-research",
+      "prompt": "We are evaluating a startup idea in AI dental software. Build a TAM/SAM/SOM and competitor landscape for the space before we decide whether to pursue it.",
+      "expected_output": "Routes to using-research because the requested artifact is market sizing and competitor analysis, not a startup pressure simulation.",
+      "files": [],
+      "notes": "Startup context should not pull a market-framework deliverable into startup-pressure-test."
+    },
+    {
+      "id": "route-finance-tooling-before-investment-research",
+      "prompt": "I want to research cloud security companies as investments, but first tell me the finance-tool workflow for pulling public comps, financials, and earnings transcripts.",
+      "expected_output": "Routes to using-finance because the immediate need is finance-data workflow setup even though the downstream goal is investment research.",
+      "files": [],
+      "notes": "This protects the finance-dependency boundary against premature routing into using-research."
+    },
+    {
+      "id": "route-document-artifact-over-website-language",
+      "prompt": "Turn this landing-page copy into a one-page PDF brochure for investor emails and leave room for compliance footnotes.",
+      "expected_output": "Routes to using-documents because the deliverable is a PDF document artifact, not a website build, even though the source language mentions a landing page.",
+      "files": [],
+      "notes": "This pressures the top-level document-vs-website boundary with browser-ish wording."
+    },
+    {
+      "id": "route-market-framework-over-reasoning",
+      "prompt": "Should we enter the German payroll software market? Use Porter's Five Forces, competitor benchmarking, and TAM/SAM/SOM to support the recommendation.",
+      "expected_output": "Routes to using-research because the named market-framework deliverable is the primary artifact, not a generic reasoning workflow.",
+      "files": [],
+      "notes": "Analytical wording should not override an explicit framework-driven research artifact."
     }
   ]
 }

@@ -16,5 +16,35 @@
     "query": "Build a TAM/SAM/SOM analysis for cloud accounting software.",
     "should_trigger": true,
     "why": "The router should still trigger, but it should send this to using-research rather than startup-pressure-test."
+  },
+  {
+    "id": "should-route-startup-decision-memo-to-startup",
+    "query": "Write a decision memo on whether this startup survives realistic CAC, churn, and runway assumptions.",
+    "should_trigger": true,
+    "why": "Memo wording should not hide that this is still a startup viability teardown for startup-pressure-test."
+  },
+  {
+    "id": "should-route-startup-market-sizing-to-research",
+    "query": "We are evaluating a startup idea in AI dental software; build a TAM/SAM/SOM and competitor landscape before we decide whether to pursue it.",
+    "should_trigger": true,
+    "why": "Startup context is present, but the requested artifact is market research, so the top-level router should choose using-research rather than startup-pressure-test."
+  },
+  {
+    "id": "should-route-finance-tooling-before-investment-analysis",
+    "query": "I want to research cloud security companies as investments, but first tell me the finance-tool workflow for pulling public comps, financials, and transcripts.",
+    "should_trigger": true,
+    "why": "The request should route through using-finance first because the immediate need is finance-data workflow setup."
+  },
+  {
+    "id": "should-route-document-artifact-before-website",
+    "query": "Turn this landing-page copy into a one-page PDF brochure for investor emails.",
+    "should_trigger": true,
+    "why": "Landing-page wording should not override the fact that the deliverable is a document artifact, so the top-level router should choose using-documents."
+  },
+  {
+    "id": "should-route-market-framework-before-generic-reasoning",
+    "query": "Should we enter the German payroll software market? Use Porter's Five Forces, competitor benchmarking, and TAM/SAM/SOM.",
+    "should_trigger": true,
+    "why": "Analytical wording is present, but the named framework artifact means the top-level router should choose using-research rather than generic reasoning."
   }
 ]

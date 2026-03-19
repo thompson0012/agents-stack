@@ -74,8 +74,8 @@ CURLY_QUOTE_MAP = {
     "\u2019": "&#x2019;",
 }
 
-DEFAULT_AUTHOR = "Perplexity Computer"
-DEFAULT_INITIALS = "P"
+DEFAULT_AUTHOR = "Agent"
+DEFAULT_INITIALS = "AG"
 
 
 @dataclass

@@ -1,41 +1,10 @@
-"""Async video generation via LLM API. Copy into your project and call from FastAPI handlers.
+"""Provider-agnostic async video generation helper.
 
-Usage:
-    from generate_video import generate_video
-
-    video_bytes = await generate_video("A wave crashing on shore")
-    video_bytes = await generate_video("Animate this", image_bytes=frame, image_media_type="image/png")
+Copy this file and ``media_client.py`` into your project, implement
+``create_media_client()``, then call ``generate_video()`` from your handlers.
 """
 
-import base64
-
-from pplx.python.sdks.llm_api import (
-    Client,
-    Conversation,
-    Identity,
-    ImageBlock,
-    ImageGenAspectRatio,
-    ImageSource,
-    ImageSourceType,
-    LLMAPIClient,
-    MediaGenParams,
-    SamplingParams,
-    TextBlock,
-    VideoGenDuration,
-    VideoGenParams,
-)
-
-ASPECT_RATIOS = {
-    "16:9": ImageGenAspectRatio.RATIO_16_9,
-    "9:16": ImageGenAspectRatio.RATIO_9_16,
-}
-
-DURATIONS = {
-    4: VideoGenDuration.DURATION_4S,
-    6: VideoGenDuration.DURATION_6S,
-    8: VideoGenDuration.DURATION_8S,
-    12: VideoGenDuration.DURATION_12S,
-}
+from media_client import create_media_client
 
 
 async def generate_video(
@@ -48,38 +17,13 @@ async def generate_video(
     audio: bool = True,
     model: str = "sora_2",
 ) -> bytes:
-    client = LLMAPIClient()
-    convo = Conversation()
-    content: list = []
-    if image_bytes:
-        b64 = base64.b64encode(image_bytes).decode()
-        content.append(
-            ImageBlock(
-                source=ImageSource(
-                    type=ImageSourceType.BASE64,
-                    media_type=image_media_type or "image/png",
-                    data=b64,
-                )
-            )
-        )
-    content.append(TextBlock(text=prompt))
-    convo.add_user(content)
-
-    result = await client.messages.create(
+    client = create_media_client()
+    return await client.generate_video(
+        prompt,
+        image_bytes=image_bytes,
+        image_media_type=image_media_type,
+        aspect_ratio=aspect_ratio,
+        duration=duration,
+        audio=audio,
         model=model,
-        convo=convo,
-        identity=Identity(client=Client.ASI, use_case="webserver_video_gen"),
-        sampling_params=SamplingParams(max_tokens=1),
-        media_gen_params=MediaGenParams(
-            video=VideoGenParams(
-                number_of_videos=1,
-                duration=DURATIONS.get(duration, VideoGenDuration.DURATION_8S),
-                generate_audio=audio,
-                aspect_ratio=ASPECT_RATIOS.get(aspect_ratio, ImageGenAspectRatio.RATIO_16_9),
-            ),
-        ),
     )
-
-    if not result.videos:
-        raise RuntimeError("No video generated")
-    return base64.b64decode(result.videos[0].b64_data)

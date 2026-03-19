@@ -4,22 +4,22 @@ Read after `AGENTS.md` when starting or resuming work. Keep this file limited to
 
 ## Objective
 
-Run prompt-pressure evaluations against the expanded router suite now that the base template portability cleanup and audit gate are in place.
+Sharpen the methodology-rich but portable guidance in the finance, research, and webapp skill docs so they stay capability-based and current-tool-surface truthful without losing the strong workflow value.
 
 ## Scope
 
-- Keep `scripts/audit_base_template_skills.py` and `.github/workflows/base-template-skill-audit.yml` green while evaluating router behavior.
-- Use the newly standardized portable skill corpus as the baseline; do not add more router families unless prompt-pressure evidence justifies it.
-- Limit follow-up changes to eval-driven fixes and continuity docs; the portability cleanup itself is complete.
+- Focus first on the specific docs already identified as promising follow-up refinement targets in finance, research, and website-building.
+- Keep `scripts/audit_base_template_skills.py` green while refining wording or examples.
+- Limit follow-up changes to truthful methodology improvements and continuity docs; the portability audit extension is complete.
 
 ## Constraints
 
-- Keep shipped skill names and directory layout stable; rely on portable YAML frontmatter and current-tool-surface guidance only.
-- Do not reintroduce stale `skills/` paths, vendor branding, or unsupported tool names in skill docs.
-- Do not commit from this task.
+- Keep shipped skill names and directory layout stable; preserve methodology while avoiding stale private or vendor-specific surface assumptions.
+- Do not reintroduce stale `skills/` paths, vendor branding, unsupported tool names, or template placeholders.
+- Prefer capability-based overlays to product- or vendor-specific instructions.
 
 ## Success Criteria
 
-- Prompt-pressure evidence exists for the expanded router suite.
-- Any resulting fixes preserve a passing `python3 scripts/audit_base_template_skills.py`.
-- A clear decision is recorded on whether additional router families are still justified.
+- The targeted docs communicate strong workflow guidance without referring to unsupported or stale surfaces.
+- The portability audit and any relevant validators still pass after the refinement pass.
+- A clear decision is recorded on whether further methodology sharpening is still worth pursuing after those files.

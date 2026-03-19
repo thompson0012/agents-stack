@@ -30,11 +30,20 @@ UNSUPPORTED_TOOL_PATTERNS: dict[str, re.Pattern[str]] = {
     "start_server": re.compile(r"\bstart_server\b"),
 }
 VENDOR_PATTERNS: dict[str, re.Pattern[str]] = {
-    "Perplexity branding": re.compile(r"\bPerplexity(?: Computer| Finance)?\b"),
-    "perplexity finance URL": re.compile(r"perplexity\.ai/finance"),
-    "Perplexity-built phrasing": re.compile(r"built by Perplexity"),
-    "Perplexity-aligned phrasing": re.compile(r"Perplexity-aligned"),
+    "vendor-computer branding": re.compile(r"\b[A-Z][A-Za-z]+(?: [A-Z][A-Za-z]+)? Computer\b"),
+    "vendor finance URL": re.compile(r"https?://(?:www\.)?[A-Za-z0-9.-]+/(?:computer|finance)\b"),
+    "vendor-built phrasing": re.compile(r"built by [A-Z][A-Za-z]+"),
+    "vendor-aligned phrasing": re.compile(r"[A-Z][A-Za-z]+-aligned"),
 }
+PLACEHOLDER_PATTERNS: dict[str, re.Pattern[str]] = {
+    "port-token": re.compile(r"__PORT_\d+__"),
+}
+TARGETED_TEMPLATE_ASSET_RELATIVE_PATHS: tuple[tuple[str, ...], ...] = (
+    ("website-building", "shared", "provenance_metadata.html"),
+    ("website-building", "webapp", "template", "client", "index.html"),
+    ("website-building", "webapp", "template", "client", "src", "components", "OptionalAttribution.tsx"),
+    ("website-building", "webapp", "template", "client", "src", "lib", "queryClient.ts"),
+)
 
 
 @dataclass(frozen=True)
@@ -74,19 +83,42 @@ def indent(text: str) -> str:
     return "\n".join(f"  {line}" for line in text.splitlines()) if text else "  <no output>"
 
 
+def scan_text_file(path: Path) -> list[Finding]:
+    findings: list[Finding] = []
+    if not path.is_file():
+        return findings
+
+    rel = path.relative_to(REPO_ROOT)
+    for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        if STALE_SKILL_PATH.search(line):
+            findings.append(Finding(rel, line_number, "stale-skill-path", line.strip()))
+        for label, pattern in UNSUPPORTED_TOOL_PATTERNS.items():
+            if pattern.search(line):
+                findings.append(Finding(rel, line_number, f"unsupported-tool:{label}", line.strip()))
+        for label, pattern in VENDOR_PATTERNS.items():
+            if pattern.search(line):
+                findings.append(Finding(rel, line_number, f"vendor-string:{label}", line.strip()))
+        for label, pattern in PLACEHOLDER_PATTERNS.items():
+            if pattern.search(line):
+                findings.append(Finding(rel, line_number, f"template-placeholder:{label}", line.strip()))
+    return findings
+
+
+def targeted_template_asset_paths() -> list[Path]:
+    return [SKILLS_ROOT.joinpath(*parts) for parts in TARGETED_TEMPLATE_ASSET_RELATIVE_PATHS]
+
+
 def scan_markdown() -> list[Finding]:
     findings: list[Finding] = []
     for path in sorted(SKILLS_ROOT.rglob("*.md")):
-        rel = path.relative_to(REPO_ROOT)
-        for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
-            if STALE_SKILL_PATH.search(line):
-                findings.append(Finding(rel, line_number, "stale-skill-path", line.strip()))
-            for label, pattern in UNSUPPORTED_TOOL_PATTERNS.items():
-                if pattern.search(line):
-                    findings.append(Finding(rel, line_number, f"unsupported-tool:{label}", line.strip()))
-            for label, pattern in VENDOR_PATTERNS.items():
-                if pattern.search(line):
-                    findings.append(Finding(rel, line_number, f"vendor-string:{label}", line.strip()))
+        findings.extend(scan_text_file(path))
+    return findings
+
+
+def scan_targeted_template_assets() -> list[Finding]:
+    findings: list[Finding] = []
+    for path in targeted_template_asset_paths():
+        findings.extend(scan_text_file(path))
     return findings
 
 
@@ -97,6 +129,7 @@ def scan_artifacts() -> list[Path]:
 def main() -> int:
     failures = validate_skill_files()
     findings = scan_markdown()
+    findings.extend(scan_targeted_template_assets())
     artifacts = scan_artifacts()
 
     if not failures and not findings and not artifacts:

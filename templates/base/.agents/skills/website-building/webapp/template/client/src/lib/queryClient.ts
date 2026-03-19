@@ -1,6 +1,6 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
-const API_BASE = "__PORT_5000__".startsWith("__") ? "" : "__PORT_5000__";
+const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? "").trim();
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {

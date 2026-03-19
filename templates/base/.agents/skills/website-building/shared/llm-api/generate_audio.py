@@ -1,29 +1,10 @@
-"""Async audio generation (TTS) via LLM API. Copy into your project and call from FastAPI handlers.
+"""Provider-agnostic async audio generation helper.
 
-Usage:
-    from generate_audio import generate_audio, generate_dialogue
-
-    audio_bytes = await generate_audio("Hello world", voice="kore")
-    audio_bytes = await generate_dialogue([
-        {"speaker": "kore", "text": "Welcome!"},
-        {"speaker": "charon", "text": "Thanks for having me."},
-    ])
+Copy this file and ``media_client.py`` into your project, implement
+``create_media_client()``, then call these helpers from your handlers.
 """
 
-import base64
-
-from pplx.python.sdks.llm_api import (
-    AudioGenParams,
-    Client,
-    Conversation,
-    DialogueInput,
-    Identity,
-    LLMAPIClient,
-    MediaGenParams,
-    SamplingParams,
-)
-
-TTS_OUTPUT_FORMAT = "mp3_44100_128"
+from media_client import DialogueTurn, create_media_client
 
 
 async def generate_audio(
@@ -32,45 +13,14 @@ async def generate_audio(
     voice: str = "kore",
     model: str = "gemini_2_5_pro_tts",
 ) -> bytes:
-    client = LLMAPIClient()
-    convo = Conversation()
-    convo.set_single_audio_prompt(text)
-
-    result = await client.messages.create(
-        model=model,
-        convo=convo,
-        identity=Identity(client=Client.ASI, use_case="webserver_audio_gen"),
-        sampling_params=SamplingParams(max_tokens=1),
-        media_gen_params=MediaGenParams(
-            audio=AudioGenParams(voice=voice, output_format=TTS_OUTPUT_FORMAT),
-        ),
-    )
-
-    if not result.audios:
-        raise RuntimeError("No audio generated")
-    return base64.b64decode(result.audios[0].b64_data)
+    client = create_media_client()
+    return await client.generate_audio(text, voice=voice, model=model)
 
 
 async def generate_dialogue(
-    dialogue: list[dict],
+    dialogue: list[DialogueTurn],
     *,
     model: str = "gemini_2_5_pro_tts",
 ) -> bytes:
-    client = LLMAPIClient()
-    inputs = [DialogueInput(voice=d["speaker"], text=d["text"]) for d in dialogue]
-    convo = Conversation()
-    convo.set_dialogue_prompt(inputs)
-
-    result = await client.messages.create(
-        model=model,
-        convo=convo,
-        identity=Identity(client=Client.ASI, use_case="webserver_audio_gen"),
-        sampling_params=SamplingParams(max_tokens=1),
-        media_gen_params=MediaGenParams(
-            audio=AudioGenParams(output_format=TTS_OUTPUT_FORMAT, dialogue_inputs=inputs),
-        ),
-    )
-
-    if not result.audios:
-        raise RuntimeError("No audio generated")
-    return base64.b64decode(result.audios[0].b64_data)
+    client = create_media_client()
+    return await client.generate_dialogue(dialogue, model=model)

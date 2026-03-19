@@ -1,6 +1,6 @@
 # LLM & Media API Access
 
-The `anthropic` and `openai` SDKs (Python and Node.js) and `pplx.python.sdks.llm_api` are pre-installed in the sandbox. Credential handling depends on the current harness and runtime. This shared reference does not assume a special server-start helper or automatic secret injection.
+The `anthropic` and `openai` SDKs (Python and Node.js) are available in this harness. Media generation and transcription support is more runtime-specific, so the shared baseline uses provider-agnostic helper scripts plus a local adapter you implement in your project rather than a baked-in private SDK path. Credential handling depends on the current harness and runtime. This shared reference does not assume a special server-start helper or automatic secret injection.
 
 **Important:** The OpenAI proxy only supports the Responses API (`client.responses.create`), not Chat Completions.
 
@@ -54,12 +54,13 @@ response = client.responses.create(
 )
 ```
 
-## Media Generation & Transcription — SDK Helper Scripts
+## Media Generation & Transcription — Adapter-Based Helper Scripts
 
-Media generation (image, video, audio) and transcription use a separate SDK (`pplx.python.sdks.llm_api`). **Do not use the Anthropic SDK for media.** Ready-to-use async helper scripts are in `shared/llm-api/`. **Read the relevant file, then copy it into your project directory** and import it from your FastAPI handlers.
+Media generation (image, video, audio) and transcription should go through a provider adapter that you implement locally. **Do not bake a private SDK import path into shared docs or templates.** The helper scripts in `shared/llm-api/` call a narrow `create_media_client()` contract from `shared/llm-api/media_client.py`. **Read the relevant file, then copy it and `media_client.py` into your project directory** and connect that adapter to the SDK your runtime actually supports.
 
 | File | What it does | Key function |
 |------|-------------|--------------|
+| `shared/llm-api/media_client.py` | Provider adapter contract you implement locally | `create_media_client()` |
 | `shared/llm-api/generate_image.py` | Text-to-image, image-to-image editing | `await generate_image(prompt, image_bytes=..., aspect_ratio=...)` |
 | `shared/llm-api/generate_video.py` | Text-to-video, image-to-video animation | `await generate_video(prompt, image_bytes=..., duration=...)` |
 | `shared/llm-api/generate_audio.py` | Text-to-speech, multi-speaker dialogue | `await generate_audio(text, voice=...)` / `await generate_dialogue(lines)` |
@@ -67,7 +68,7 @@ Media generation (image, video, audio) and transcription use a separate SDK (`pp
 
 ### Website Backend Example
 
-Read the helper file, copy it into your project, then import it. Ensure the server process already has the required API key(s) before handling requests.
+Copy the helper file and `media_client.py`, implement `create_media_client()`, then import the helper. Ensure the server process already has the required API key(s) before handling requests.
 
 ```python
 from generate_image import generate_image
