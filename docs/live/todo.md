@@ -24,3 +24,4 @@ Use one row per work item. Prefer `High`, `Medium`, or `Low` for priority and `P
 | Task 34: extend portability audit coverage into non-markdown website-building template assets | High | Completed |
 | Task 35: refine capability-based methodology overlays in finance, research, and webapp docs | High | Pending |
 | Task 36: rename remaining legacy vendor residue to vendor-agnostic names and adapters | High | Completed |
+| Task 37: align `templates/base/AGENTS.md` with the full generated doc surface and live progress workflow | High | Completed |
