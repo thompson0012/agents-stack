@@ -4,11 +4,11 @@ Read after `docs/live/current-focus.md` to recover the latest state, continuity,
 
 ## Current State
 
-The base template skill suite now has a repo-level audit gate, a broad portability cleanup, and an upgraded `startup-pressure-test` skill that is easier to trigger, defaults to a complete one-pass viability teardown, and now branches its pressure logic by startup archetype when that changes the dominant failure mechanism. Prompt-pressure evaluation of the wider router suite is still pending.
+The base template skill suite now has a repo-level audit gate, a broad portability cleanup, and an upgraded `startup-pressure-test` skill that is easier to trigger, defaults to a complete one-pass viability teardown, and now branches its pressure logic by startup archetype and secondary drag when that changes the dominant failure mechanism. Prompt-pressure evaluation of the wider router suite is still pending.
 
 ## Latest Completed Work
 
-Enhanced `startup-pressure-test` again with archetype-aware pressure branches for B2B long-sales cycles, consumer-subscription churn traps, marketplace liquidity failure, and regulated-startup friction. Added eval coverage for those cases and kept the startup skill on the portable contract while `using-agent-practices` continues routing broader startup-viability requests there more reliably.
+Expanded `startup-pressure-test` with additional archetype branches for usage-based API businesses, services disguised as software, low-ticket ecommerce, creator/media businesses, and developer tools facing open-source competition. Added secondary-drag rules for overlapping archetypes and added router-level eval coverage in `using-agent-practices` so borderline startup viability requests are tested against generic reasoning and research routes.
 
 ## In Progress
 
@@ -28,6 +28,7 @@ Resume Task 28: run prompt-pressure evaluations against the expanded router suit
 - `.github/workflows/base-template-skill-audit.yml`
 - `templates/base/.agents/skills/{coding-and-data,design-foundations,feature-spec,generating-design-tokens,media,meta-prompting,self-cognitive,startup-pressure-test,visualization}/SKILL.md`
 - `templates/base/.agents/skills/startup-pressure-test/evals/{evals.json,trigger-evals.json}`
+- `templates/base/.agents/skills/using-agent-practices/evals/{evals.json,trigger-evals.json}`
 - `templates/base/.agents/skills/using-{documents,finance,research,reasoning,legal,marketing,sales}/**`
 - `templates/base/.agents/skills/website-building/{SKILL.md,game/**,informational/**,shared/**,webapp/**}`
 - `docs/live/current-focus.md`

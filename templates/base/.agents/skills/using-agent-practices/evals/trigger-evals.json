@@ -1,0 +1,20 @@
+[
+  {
+    "id": "should-route-startup-idea-teardown",
+    "query": "Tear apart this startup idea and tell me whether the economics break before month six.",
+    "should_trigger": true,
+    "why": "The request is exactly the kind of startup viability teardown that the agent-practices router should send to startup-pressure-test."
+  },
+  {
+    "id": "should-route-launch-survival-check",
+    "query": "Will this startup launch survive realistic CAC and churn?",
+    "should_trigger": true,
+    "why": "This is a startup survival simulation request rather than generic strategy advice."
+  },
+  {
+    "id": "should-not-route-pure-market-analysis-to-startup",
+    "query": "Build a TAM/SAM/SOM analysis for cloud accounting software.",
+    "should_trigger": true,
+    "why": "The router should still trigger, but it should send this to using-research rather than startup-pressure-test."
+  }
+]

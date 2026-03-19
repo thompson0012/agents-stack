@@ -108,6 +108,11 @@ Common archetypes:
 - **Consumer subscription** — habit-dependent products with low price points and high curiosity traffic
 - **Marketplace** — two-sided or multi-sided liquidity businesses
 - **Regulated or trust-gated startup** — healthcare, fintech, insurance, legal, education, or anything that depends on approval, compliance, or deep buyer trust
+- **Usage-based API business** — infrastructure, developer tooling, or embedded workflow products that monetize through volume, throughput, or calls instead of seats
+- **Services disguised as software** — products whose onboarding, delivery, or success depends on hidden manual labor
+- **Low-ticket ecommerce** — consumer products where gross margin, repeat purchase, logistics, and paid acquisition dominate
+- **Creator or media business** — audience-driven businesses that monetize attention through subscriptions, sponsorships, affiliates, or community
+- **Developer tool with open-source competition** — devtools where free substitutes or incumbent workflows create monetization drag
 - **Fallback generic software / service** — only when none of the above clearly dominates
 
 ### Archetype rules
@@ -140,7 +145,56 @@ Make these questions dominate the model:
 - Can the buyer act quickly, or does the process itself destroy the startup timeline?
 - Does the product need evidence, accreditation, or integration depth before anyone meaningful will adopt it?
 
-If more than one archetype fits, choose the dominant one and name the secondary drag explicitly.
+If more than one archetype fits, choose the dominant one and name the secondary drag explicitly. The dominant branch sets the main simulation logic; the secondary drag is the adjacent mechanic most likely to break the business if the dominant branch does not kill it first.
+
+#### Usage-based API business
+Make these questions dominate the model:
+- Is integration effort too high relative to the time-to-value the buyer gets?
+- Is usage concentrated in a few customers, creating dangerous revenue concentration?
+- Do unit economics weaken when heavy users push compute or support cost up faster than pricing?
+- Is expansion real, or is the model just hoping developers will scale usage later?
+
+#### Services disguised as software
+Make these questions dominate the model:
+- How much delivery labor hides behind onboarding, configuration, review, or customer success?
+- Is the company pretending to have software margins while actually staffing an agency-like process?
+- How quickly does founder or specialist bandwidth become the growth bottleneck?
+- Would removing the human layer cause customer value to collapse?
+
+#### Low-ticket ecommerce
+Make these questions dominate the model:
+- Do gross margins survive shipping, returns, discounts, and creator seeding?
+- Is repeat purchase strong enough to rescue paid acquisition?
+- Does paid social become an addiction the business cannot economically sustain?
+- How much working capital is trapped in inventory before retention is proven?
+
+#### Creator or media business
+Make these questions dominate the model:
+- Is there enough audience trust to convert attention into paid revenue?
+- Does the business depend too heavily on one creator, voice, or publishing cadence?
+- Are sponsorship and subscription revenues durable or highly volatile?
+- Does the audience want content, or do they want a product the business does not actually own?
+
+#### Developer tool with open-source competition
+Make these questions dominate the model:
+- Why would teams pay when open-source or incumbent workflows already solve enough of the problem?
+- Is adoption broad but monetization weak because developers love the tool more than their budget owner does?
+- How strong is workflow lock-in against switching from the status quo?
+- Does support, self-hosting complexity, or enterprise hardening eat the margin story?
+
+### Secondary-drag rules
+
+When two archetypes overlap, do not average them into generic startup mush. Use this order:
+1. Name the **dominant branch** — the archetype most likely to kill the business first.
+2. Name the **secondary drag** — the next failure mechanic that becomes decisive if the dominant branch is somehow survived.
+3. Let both appear in the verdict, economics, and next experiment.
+
+Examples:
+- marketplace + regulated -> liquidity is usually dominant, trust/compliance is secondary drag
+- B2B long-sales + regulated -> buying cycle may be dominant, compliance burden may be the secondary drag
+- creator/media + consumer subscription -> audience concentration may dominate, churn may be the secondary drag
+- services disguised as software + B2B -> manual delivery burden may dominate, long sales cycle may be the secondary drag
+
 ## Stage 4 — Segment Ranking
 
 Rank **3-5 plausible early customer segments**.
@@ -281,6 +335,9 @@ Use this structure unless the user asks for a shorter answer:
 [Dominant Pressure Branch]
 - the startup archetype that governs failure risk and the mechanics it introduces
 
+[Secondary Drag]
+- the secondary failure mechanic if another archetype materially compounds the risk; say `none` when not needed
+
 [Fact-Checked Claims vs Assumptions]
 - verified facts
 - disputed claims
@@ -343,6 +400,7 @@ Then update the ledger based on the chosen move.
 - confusing product engagement with business viability
 - ignoring founder time and build cost in burn
 - using one generic stress model when the startup archetype clearly changes the real failure mechanism
+- failing to name the secondary drag when overlapping archetypes materially compound risk
 - hiding uncertainty instead of bracketing assumptions
 - giving strategy theater instead of a commercial conclusion
 
@@ -355,6 +413,8 @@ Then update the ledger based on the chosen move.
 
 - [ ] Highest-impact factual claims were checked or explicitly bracketed
 - [ ] Best early segment was chosen or compared
+- [ ] Dominant archetype was identified and the simulation followed it
+- [ ] Secondary drag was named when overlapping archetypes mattered
 - [ ] Launch math is numerical, not hand-wavy
 - [ ] Retention and monetization failure modes are explicit
 - [ ] Cash, burn, and runway are visible

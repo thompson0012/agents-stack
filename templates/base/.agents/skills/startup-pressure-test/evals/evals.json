@@ -49,6 +49,48 @@
       "expected_output": "Loads startup-pressure-test, identifies the business as regulated or trust-gated, and makes compliance timing, approval risk, buyer trust, implementation drag, and longer proof cycles central to the verdict.",
       "files": [],
       "notes": "The skill should not treat healthcare adoption like a normal SaaS launch."
+    },
+    {
+      "id": "usage-based-api-pressure-branch",
+      "prompt": "Pressure test this startup: an API that helps ecommerce teams classify product catalogs and bills customers per thousand records processed.",
+      "expected_output": "Loads startup-pressure-test, identifies the business as a usage-based API business, and stresses integration friction, variable usage concentration, margin compression, customer concentration, and weak expansion assumptions rather than a seat-based SaaS model.",
+      "files": [],
+      "notes": "The failure mode should focus on usage dependence and integration depth, not generic self-serve subscription math."
+    },
+    {
+      "id": "services-disguised-as-software-branch",
+      "prompt": "Tear apart this startup: an AI proposal-writing platform for agencies where onboarding includes custom setup, prompt tuning, and hands-on review of the first ten client proposals.",
+      "expected_output": "Loads startup-pressure-test, identifies the business as services disguised as software, and makes delivery labor, founder bandwidth, gross-margin illusion, and onboarding burden central to the verdict.",
+      "files": [],
+      "notes": "The skill should detect when the real bottleneck is hidden service work rather than product scale."
+    },
+    {
+      "id": "low-ticket-ecommerce-branch",
+      "prompt": "Pressure test this startup: a direct-to-consumer skincare brand selling $18 products through Instagram ads and creator seeding.",
+      "expected_output": "Loads startup-pressure-test, identifies the business as low-ticket ecommerce, and stresses contribution margin, repeat purchase rate, paid-channel dependency, returns, and working-capital pressure rather than software retention logic.",
+      "files": [],
+      "notes": "The dominant failure mechanics should be margin and repeat purchase, not SaaS-style churn alone."
+    },
+    {
+      "id": "creator-media-business-branch",
+      "prompt": "Sanity check this startup: a creator-led finance newsletter and membership business that plans to monetize through subscriptions, sponsorships, and premium community access.",
+      "expected_output": "Loads startup-pressure-test, identifies the business as a creator or media business, and makes audience trust, content cadence, creator concentration risk, sponsor volatility, and conversion from attention to paid membership dominate the analysis.",
+      "files": [],
+      "notes": "The teardown should focus on attention dependency and creator concentration, not a normal product funnel."
+    },
+    {
+      "id": "devtools-open-source-competition-branch",
+      "prompt": "Pressure test this startup: a developer tool for CI optimization that charges teams per seat even though several open-source alternatives already exist.",
+      "expected_output": "Loads startup-pressure-test, identifies the business as a developer tool facing open-source competition, and stresses switching cost, incumbent workflow inertia, free substitute pressure, support burden, and monetization difficulty.",
+      "files": [],
+      "notes": "The analysis should reflect that developer adoption does not automatically mean commercial conversion."
+    },
+    {
+      "id": "secondary-drag-overlap-branch",
+      "prompt": "Pressure test this startup: a marketplace for independent nurses that also handles credentialing and compliance for clinics.",
+      "expected_output": "Loads startup-pressure-test, names one dominant archetype plus a secondary drag, and shows how overlapping marketplace liquidity and regulated trust friction compound the failure risk instead of pretending one simple model fits all.",
+      "files": [],
+      "notes": "This checks the new overlap logic for mixed startup archetypes."
     }
   ]
 }

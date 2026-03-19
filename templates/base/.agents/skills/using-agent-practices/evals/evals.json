@@ -1,0 +1,26 @@
+{
+  "skill_name": "using-agent-practices",
+  "evals": [
+    {
+      "id": "route-startup-sanity-check-over-reasoning",
+      "prompt": "I need an investor-style critique of this startup idea. Tell me whether the business survives realistic CAC, churn, and runway assumptions.",
+      "expected_output": "Routes to startup-pressure-test rather than using-reasoning because the request is a commercial viability teardown with simulated operating assumptions.",
+      "files": [],
+      "notes": "Borderline reasoning language should still route to the startup skill when startup survival is the real artifact."
+    },
+    {
+      "id": "route-startup-launch-stress-over-market-research",
+      "prompt": "Pressure test our launch plan for a new B2B startup and tell me what breaks in the first 180 days.",
+      "expected_output": "Routes to startup-pressure-test rather than using-research/market-research because the user wants a launch survival simulation, not a market framework report.",
+      "files": [],
+      "notes": "This protects against over-routing startup requests into research or strategy families."
+    },
+    {
+      "id": "route-market-research-when-not-startup-simulation",
+      "prompt": "Analyze the competitive landscape and market size for workflow automation software in Germany.",
+      "expected_output": "Routes to using-research because this is a market research deliverable, not a startup pressure test.",
+      "files": [],
+      "notes": "Negative control: broad market analysis should not fall into startup-pressure-test just because the target might be a startup market."
+    }
+  ]
+}

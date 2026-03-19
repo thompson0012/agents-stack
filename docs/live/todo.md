@@ -20,3 +20,4 @@ Use one row per work item. Prefer `High`, `Medium`, or `Low` for priority and `P
 | Task 30: standardize the shipped skill corpus and add a suite portability audit gate | High | Completed |
 | Task 31: upgrade `startup-pressure-test` trigger coverage and completion contract | High | Completed |
 | Task 32: add archetype-aware pressure branches to `startup-pressure-test` | High | Completed |
+| Task 33: deepen `startup-pressure-test` with more archetypes and overlap logic | High | Completed |
