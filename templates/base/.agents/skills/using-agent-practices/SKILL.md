@@ -11,6 +11,16 @@ Do not solve the user's substantive task here. Pick the right next skill or deci
 
 For the current category map and skill inventory, read `references/category-map.md` when the route is unclear or the suite has changed.
 
+## Quick path
+
+If this is your first request or you are not sure where to start, match your situation to a route below. Stop as soon as one stage gives you what you need.
+
+- Unclear problem, goal, or scope → `using-reasoning`
+- Need a spec or requirements document before building → `feature-spec`
+- Coding, debugging, or data work in an existing repo → `coding-and-data`
+- Building a web project → `website-building`
+- Preflight confidence check or postmortem before a risky decision → `self-cognitive`
+
 ## Core Contract
 
 - Choose exactly one target: a single leaf skill, a family router such as `website-building`, `using-documents`, `using-legal`, `using-reasoning`, `using-sales`, `using-marketing`, `using-research`, or `using-finance`, or no suite skill.
@@ -27,8 +37,9 @@ Apply these checks in order.
 - Need a compacted session state, handoff snapshot, or continuation summary -> `context-compaction`
 - Need a confidence check, postmortem, lessons learned, repeatable workflow extraction, or preflight verification -> `self-cognitive`
 
-### 2. Prompt artifact creation
+### 2. Prompt and spec artifact creation
 - The requested deliverable is itself a prompt, system prompt, prompt template, or prompt architecture -> `meta-prompting`
+- The request is to draft or review a feature spec, PRD, or requirements document -> `feature-spec`
 
 ### 3. Specialized business and design skills
 - Need a startup sanity check, harsh viability simulation, investor-style business-model teardown, launch stress test, or CAC/churn/runway reality check -> `startup-pressure-test`
@@ -36,30 +47,33 @@ Apply these checks in order.
 - Need model-generated, streamed, or schema-driven interactive UI in the browser, including sandboxed HTML or agent-rendered components -> `generative-ui`
 - Need an Apple-like liquid glass browser effect using CSS/SVG refraction and displacement maps -> `liquid-glass-design`
 
-### 4. Web project routing
+### 4. Code and data work
+- Need to delegate repo navigation, code changes, debugging, or structured data analysis to a focused subagent -> `coding-and-data`
+
+### 5. Web project routing
 - Need help building a web project and the request could plausibly mean an informational site, a fullstack web application, or a browser game -> `website-building`
-### 5. Document workflows
+### 6. Document workflows
 - Need help creating, editing, converting, extracting, or QA-ing a document artifact and the request could plausibly mean Word, PDF, PowerPoint, or Excel work -> `using-documents`
 
-### 6. Legal workflows
+### 7. Legal workflows
 - Need legal help and the request could plausibly mean commercial contract review or operational privacy-compliance support -> `using-legal`
 
-### 7. Sales workflows
+### 8. Sales workflows
 - Need sales help and the request could plausibly mean account research, meeting prep, or personalized outreach -> `using-sales`
 
-### 8. Marketing workflows
+### 9. Marketing workflows
 - Need marketing help and the request could plausibly mean performance analytics, competitor analysis, or content creation -> `using-marketing`
 
-### 9. Research workflows
+### 10. Research workflows
 - Need research help and the request could plausibly mean broad deep-dive research, market-framework analysis, or investment-oriented research -> `using-research`
 
-### 10. Finance workflows
+### 11. Finance workflows
 - Need finance help and the request could plausibly mean audit-control support or finance-data tooling -> `using-finance`
 
-### 11. Reasoning and strategy requests
+### 12. Reasoning and strategy requests
 If the task is mainly about understanding, framing, advising, or scenario-planning a problem, route to `using-reasoning`.
 
-### 12. No suite skill
+### 13. No suite skill
 If none of the above fits cleanly, do not force a suite skill.
 
 ## Router Output
@@ -69,6 +83,8 @@ Return one of these forms and then invoke the selected skill if needed:
 - `Route to context-compaction.`
 - `Route to self-cognitive.`
 - `Route to meta-prompting.`
+- `Route to feature-spec.`
+- `Route to coding-and-data.`
 - `Route to startup-pressure-test.`
 - `Route to generating-design-tokens.`
 - `Route to generative-ui.`

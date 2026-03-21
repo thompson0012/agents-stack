@@ -7,9 +7,15 @@ This repository's first-party suite currently contains these live skills under `
 - `context-compaction` — compact session state for handoff or continuation
 - `self-cognitive` — verify reasoning, run retros, and extract repeatable workflows
 
-## Prompt Artifact Creation
+## Prompt and Spec Artifact Creation
 
 - `meta-prompting` — design or optimize a production-grade prompt artifact
+- `feature-spec` — draft or review a PRD, feature spec, or requirements document before implementation
+
+## Code and Data Work
+
+- `coding-and-data` — route repo-backed coding or structured data work to a focused implementation subagent
+
 
 ## Commercial Reality Testing
 
@@ -92,8 +98,9 @@ Ask first: what is the primary artifact or workflow needed?
 
 - compacted state -> `context-compaction`
 - audit or retro -> `self-cognitive`
-- prompt -> `meta-prompting`
-- startup sanity check, business-model teardown, launch stress test, or startup simulation -> `startup-pressure-test`
+- prompt or system prompt artifact -> `meta-prompting`
+- feature spec, PRD, or requirements document -> `feature-spec`
+- repo-backed coding, debugging, refactor, or structured data task -> `coding-and-data`
 - generative browser UI, schema-driven component rendering, or streamed agent surfaces -> `generative-ui`
 - ambiguous website or browser-based build across site, app, or game -> `website-building`
 - ambiguous document work across Word, PDF, PowerPoint, or Excel artifacts -> `using-documents`

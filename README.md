@@ -50,6 +50,18 @@ Read only the smallest set of docs needed for the task:
 
 The goal is to keep the default context small while still making deeper project knowledge retrievable on demand.
 
+## First useful run
+
+Pick the stage that matches your situation. Stop as soon as it gives you what you need — you do not have to run every stage.
+
+- **Problem or goal is unclear** — use `using-reasoning` to frame the problem, map assumptions, and stress-test an approach before committing to a direction.
+- **Need requirements before building** — use `feature-spec` to draft scope, acceptance criteria, and open questions for any feature or project.
+- **Coding or data work in an existing repo** — use `coding-and-data` to hand off structured implementation or analysis tasks to a focused subagent.
+- **Building a web project** — use `website-building` to route to the right child skill for informational sites, full-stack apps, or browser games.
+- **Risky or irreversible step ahead** — use `self-cognitive` for a preflight confidence check, repeatable-workflow extraction, or postmortem.
+
+Not sure which applies? Use `using-agent-practices` — it routes to the narrowest skill that matches your request.
+
 ## Initialize a project from the template
 
 Primary and recommended path: scaffold from `templates/base` so the new project gets only the starter docs.

@@ -4,11 +4,11 @@ Read after `docs/live/current-focus.md` to recover the latest state, continuity,
 
 ## Current State
 
-Task 35 is now complete. The base template skill suite gained a few portable methodology upgrades without changing the repo's philosophy: `self-cognitive` and `feature-spec` now include an adversarial preflight challenge, router-creation guidance now treats `recommends` as honest next-step metadata instead of a wish list, `website-building/shared/09-technical.md` now suggests low-fidelity flow sketches for non-trivial web work, and the base-template audit now scans router `references/children.json` files for stale paths, vendor strings, and template placeholders. The next likely step is to resume the targeted methodology refinement pass across the finance, research, and webapp docs that were already flagged as promising follow-up work.
+Task 36 is now complete. In addition to the earlier portable methodology tightening, the repo now has a staged first-use path that lowers time-to-first-value without inventing a dishonest umbrella skill: `README.md` gives evaluators a short 'First useful run' sequence, and `templates/base/.agents/skills/using-agent-practices/SKILL.md` now mirrors that path as a router-level quick start. The next likely step is still to resume the targeted methodology refinement pass across the finance, research, and webapp docs that were already flagged as promising follow-up work.
 
 ## Latest Completed Work
 
-Added portable methodology guidance in `templates/base/.agents/skills/self-cognitive/SKILL.md`, `templates/base/.agents/skills/feature-spec/SKILL.md`, `templates/base/.agents/skills/website-building/shared/09-technical.md`, and the `create-router-skill` docs so preflight challenge, optional flow-sketching, and honest companion recommendations are explicit. Extended `scripts/audit_base_template_skills.py` plus `scripts/tests/test_audit_base_template_skills.py` so router metadata JSON is audited for the same stale-path, vendor-string, and placeholder drift already checked in markdown and targeted template assets.
+Added a staged onboarding path in `README.md` and `templates/base/.agents/skills/using-agent-practices/{SKILL.md,references/category-map.md}` so users can match their situation to an existing skill quickly, stop after the first useful stage, and avoid a monolithic 'do everything' skill. The router and category map now both cover spec work via `feature-spec` and repo-backed coding/data work via `coding-and-data`, keeping the quick path honest and aligned with the installed skill inventory.
 
 ## In Progress
 
@@ -20,10 +20,11 @@ None.
 
 ## Next Recommended Action
 
-Resume the methodology refinement pass in the finance, research, and website-building/webapp docs that were already identified as likely follow-up targets, reusing the new preflight-challenge and honest-companion patterns only where they genuinely improve the skill.
+Resume the methodology refinement pass in the finance, research, and website-building/webapp docs that were already identified as likely follow-up targets, and only add onboarding or quick-path language where the installed skill inventory already supports it honestly.
 
 ## Touched Files
 
+- `README.md`
 - `scripts/audit_base_template_skills.py`
 - `scripts/tests/test_audit_base_template_skills.py`
 - `scripts/tests/test_vendor_agnostic_naming.py`
@@ -44,16 +45,10 @@ Resume the methodology refinement pass in the finance, research, and website-bui
 
 Observed success for:
 
-- `python3 templates/base/.agents/skills/create-skill/scripts/validate.py templates/base/.agents/skills/self-cognitive --strict`
-- `python3 templates/base/.agents/skills/create-skill/scripts/validate.py templates/base/.agents/skills/feature-spec --strict`
-- `python3 templates/base/.agents/skills/create-skill/scripts/validate.py templates/base/.agents/skills/create-router-skill --strict`
-- `python3 templates/base/.agents/skills/create-router-skill/scripts/validate_router.py templates/base/.agents/skills/website-building --strict`
-- `python3 -m unittest scripts.tests.test_audit_base_template_skills scripts.tests.test_vendor_agnostic_naming -v`
-- `python3 -m py_compile scripts/audit_base_template_skills.py scripts/tests/test_audit_base_template_skills.py scripts/tests/test_vendor_agnostic_naming.py`
-- `python3 scripts/audit_base_template_skills.py`
+- `python3 templates/base/.agents/skills/create-skill/scripts/validate.py templates/base/.agents/skills/using-agent-practices --strict`
 - `git diff --check` returned no output
-- readback review confirmed the new preflight-challenge guidance in `self-cognitive` and `feature-spec`, the optional flow-sketch step in `website-building/shared/09-technical.md`, and the clarified `recommends` semantics in the `create-router-skill` docs
+- readback review confirmed the new staged 'First useful run' section in `README.md`, the matching router-level quick path in `templates/base/.agents/skills/using-agent-practices/SKILL.md`, and the corresponding `feature-spec` / `coding-and-data` entries in `references/category-map.md`
 
 ## Hand-off Note
 
-Portable methodology tightening now covers three new patterns worth reusing carefully: adversarial preflight challenge before execution, honest router-level companion recommendations via `recommends`, and optional low-fidelity state/flow sketches before non-trivial web implementation. The base-template audit also now scans router `references/children.json` files, so metadata drift is checked alongside markdown and targeted template assets.
+The repo now has one honest onboarding surface for 'where do I start?' without collapsing multiple lifecycle jobs into one skill: the public README gives a short staged first-use path, and `using-agent-practices` mirrors that path as a router-level quick start while still routing to narrow leaf or family skills.
