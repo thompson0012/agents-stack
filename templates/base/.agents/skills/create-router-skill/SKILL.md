@@ -25,7 +25,7 @@ Before writing files, answer these questions:
 
 1. What family boundary does this router own?
 2. Which child skills belong inside that boundary, and in what selection order?
-3. Which relationships matter beyond simple routing: `requires`, `recommends`, or `fallbacks_to`?
+3. Which relationships matter beyond simple routing: `requires` for prerequisites, `recommends` for conditional next steps or companions, or `fallbacks_to` for explicit degraded paths?
 4. What should happen if the best child is missing: install, fallback, or answer directly?
 5. Does the runtime discover only top-level skills, or can it follow nested children after the router is loaded?
 6. What is the believable baseline: no router, a flat list, or an overloaded umbrella skill?
@@ -132,6 +132,8 @@ Rules:
 - Each child `name` must be unique.
 - Each child needs a stable `target` for handoff.
 - Keep `route_when` intent-based and short.
+- Use `requires` only for prerequisites that must be present before the route is honest.
+- Use `recommends` only for optional next steps or companion skills that become useful under a named condition. Do not use it as a wish list or a hidden fallback.
 - Use `fallbacks_to` only for honest degraded paths.
 - If a child is shared across families, reference it here instead of inventing duplicate child packages.
 

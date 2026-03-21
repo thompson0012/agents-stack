@@ -72,6 +72,17 @@ See the success metrics section below for detailed guidance.
 - Dependencies on other teams' work or releases
 - Suggested phasing if the feature is too large for one release
 
+## Preflight Challenge Before Build
+
+Before implementation starts, pressure-test the spec with a short challenge pass:
+
+- **Scope honesty** — if the team had to cut this to the smallest version that still solves the stated problem, what remains? Move everything else to non-goals, later phases, or the parking lot.
+- **Failure modes** — what happens on empty, error, permission, latency, migration, and rollback paths? If the spec does not say, it is not ready.
+- **Metrics clarity** — which success metrics are still ambiguous, unmeasurable, or missing a time window, owner, or instrumentation plan?
+- **Blocking questions** — which open questions would stall implementation or force redesign if left unanswered? Resolve or explicitly defer them before build starts.
+
+If any answer is vague, tighten the spec instead of treating implementation as the discovery phase.
+
 ## User Story Writing
 
 Good user stories are:

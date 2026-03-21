@@ -74,5 +74,38 @@ class AuditBaseTemplateSkillsTests(unittest.TestCase):
             )
 
 
+    def test_main_flags_router_metadata_drift(self) -> None:
+        audit = load_audit_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            repo_root = Path(tmp)
+            skills_root = repo_root / "templates" / "base" / ".agents" / "skills"
+            write_file(
+                skills_root / "using-superpowers" / "references" / "children.json",
+                "{\n"
+                '  "children": [{"path": "skills/legacy-skill", "label": "Vendor Computer", "href": "__PORT_5000__"}]\n'
+                "}\n",
+            )
+
+            with (
+                patch.object(audit, "REPO_ROOT", repo_root),
+                patch.object(audit, "SKILLS_ROOT", skills_root),
+                patch.object(audit, "validate_skill_files", return_value=[]),
+                patch.object(audit, "scan_artifacts", return_value=[]),
+                patch("sys.stdout", new_callable=__import__("io").StringIO) as stdout,
+            ):
+                rc = audit.main()
+
+            self.assertEqual(rc, 1)
+            output = stdout.getvalue()
+            self.assertIn("templates/base/.agents/skills/using-superpowers/references/children.json:2 [stale-skill-path]", output)
+            self.assertIn(
+                "templates/base/.agents/skills/using-superpowers/references/children.json:2 [vendor-string:vendor-computer branding]",
+                output,
+            )
+            self.assertIn(
+                "templates/base/.agents/skills/using-superpowers/references/children.json:2 [template-placeholder:port-token]",
+                output,
+            )
+
 if __name__ == "__main__":
     unittest.main()

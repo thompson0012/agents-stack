@@ -19,6 +19,7 @@ Choose the smallest mode that fits the request:
 - Separate facts from assumptions.
 - State the main risks and how to validate them quickly.
 - Calibrate confidence as low, medium, or high and justify it with evidence.
+- Add a short disconfirming pass: ask what evidence is missing, what would change the recommendation, and where you should stop instead of proceeding.
 - Never include secrets or sensitive data.
 - Keep outputs concise; prefer bullets over narrative.
 - Include the JSON artifact when the request calls for a persistable record or workflow handoff; the schema lives in `references/artifacts.json`.
@@ -33,6 +34,7 @@ One sentence describing what is being verified, reviewed, or extracted.
 
 ### Verification
 - **Assumptions** — list each assumption and mark it validated or unvalidated.
+- **Disconfirming pass** — name the missing evidence, the stop conditions, and what would falsify or materially change the recommendation.
 - **Risks and failure modes** — what could break, and what the impact would be.
 - **Checks** — concrete actions that would validate the conclusion.
 - **Confidence** — low, medium, or high; explain why and what would raise it.
@@ -51,8 +53,9 @@ One sentence describing what is being verified, reviewed, or extracted.
 
 1. Draft the response with the required sections.
 2. Check whether facts, assumptions, risks, and confidence are clearly separated.
-3. Remove unsupported claims or vague confidence.
-4. Tighten the skill update proposal until it is specific enough to reuse.
+3. Run a short disconfirming pass: look for missing evidence, hidden blockers, stop conditions, and what would change the recommendation.
+4. Remove unsupported claims or vague confidence.
+5. Tighten the skill update proposal until it is specific enough to reuse.
 
 ## Common Mistakes
 

@@ -107,6 +107,9 @@ def scan_text_file(path: Path) -> list[Finding]:
 def targeted_template_asset_paths() -> list[Path]:
     return [SKILLS_ROOT.joinpath(*parts) for parts in TARGETED_TEMPLATE_ASSET_RELATIVE_PATHS]
 
+def router_metadata_paths() -> list[Path]:
+    return sorted(SKILLS_ROOT.rglob("references/children.json"))
+
 
 def scan_markdown() -> list[Finding]:
     findings: list[Finding] = []
@@ -121,6 +124,12 @@ def scan_targeted_template_assets() -> list[Finding]:
         findings.extend(scan_text_file(path))
     return findings
 
+def scan_router_metadata() -> list[Finding]:
+    findings: list[Finding] = []
+    for path in router_metadata_paths():
+        findings.extend(scan_text_file(path))
+    return findings
+
 
 def scan_artifacts() -> list[Path]:
     return sorted(path.relative_to(REPO_ROOT) for path in REPO_ROOT.rglob(".DS_Store"))
@@ -129,6 +138,7 @@ def scan_artifacts() -> list[Path]:
 def main() -> int:
     failures = validate_skill_files()
     findings = scan_markdown()
+    findings.extend(scan_router_metadata())
     findings.extend(scan_targeted_template_assets())
     artifacts = scan_artifacts()
 

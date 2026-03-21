@@ -63,7 +63,7 @@ Keep the router `SKILL.md` focused on selection logic. Put the change-prone chil
 - `route_when` — positive signals that select this child
 - `avoid_when` — negative signals that rule this child out
 - `requires` — local child names or external skill identifiers that must also be available before the selected child is safe to use
-- `recommends` — optional companion children or external post-checks worth suggesting
+- `recommends` — optional companion children or external post-checks worth suggesting when a stated condition is true; not a wish list and not a degraded fallback
 - `fallbacks_to` — explicit degraded alternatives, usually another nested child path in the same router family
 - `install_if_missing` — nested child-path hint for runtimes that can install missing children on demand
 
@@ -72,5 +72,6 @@ Keep the router `SKILL.md` focused on selection logic. Put the change-prone chil
 - Prefer `target` values that stay stable even if the filesystem layout changes.
 - Keep `route_when` intent-based, not keyword-stuffed.
 - Use `fallbacks_to` sparingly. A silent downgrade is a lie.
+- Use `recommends` for honest next steps or companion checks the router should surface conditionally. If the route cannot proceed without it, use `requires` instead. If it is a degraded route, use `fallbacks_to`.
 - Do not force every relationship into the folder tree. Keep the graph in metadata.
 - If a child is shared across families, reference it here rather than pretending it has only one true parent.

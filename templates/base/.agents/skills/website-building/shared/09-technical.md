@@ -41,11 +41,15 @@ If the task needs a React or fullstack application rather than a static site, ro
 
 Clarify purpose and pick an art direction. See `../SKILL.md` for the router-level decision model and the shared design references it points to.
 
-### Step 2: Build
+### Step 2: Optional Flow Sketch
+
+For non-trivial web work, sketch the main screens and states before building. Keep it low fidelity: bullets, boxes, wireframes, or a state map are all fine. The point is to expose missing states, navigation gaps, and backend dependencies early, not to produce polished mockups.
+
+### Step 3: Build
 
 Build the site page by page or state by state.
 
-### Step 3: Verify Locally
+### Step 4: Verify Locally
 
 Run the stack's normal local workflow from the shell:
 
