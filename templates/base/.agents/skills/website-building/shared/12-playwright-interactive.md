@@ -114,6 +114,17 @@ QA is complete only when all of the following are true:
 - A short exploratory pass was completed for interactive products.
 - The response can include a brief negative confirmation of the main defect classes checked and not found.
 
+## Fresh Evaluator Handoff
+
+When browser-facing work is non-trivial, release-sensitive, or needs independent signoff, finish this builder QA workflow first and then hand off to `software-delivery/frontend-evaluator` for a fresh re-check.
+
+Leave behind:
+- the exact start command, URL, and any required credentials, fixtures, or setup notes
+- the QA inventory covering requirements, claims, and critical flows
+- the states already exercised, evidence pointers that may help orientation, and any known defects or limits
+
+This handoff reduces setup ambiguity; it does not pre-approve the result. The evaluator re-runs the checks from scratch and may still fail the work.
+
 ## Common Failure Modes
 
 - **Page will not load:** the local server is not running, is on a different port, or needs more startup time. Re-check the shell command and URL.

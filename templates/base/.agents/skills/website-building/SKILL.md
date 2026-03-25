@@ -82,14 +82,16 @@ Add one sentence explaining why the selected child is the narrowest correct fit.
 ## Family Workflow Boundary
 
 1. The router chooses the narrowest child.
-2. The selected child owns the implementation workflow and domain-specific guidance.
+2. The selected child owns the implementation workflow and builder-side browser QA.
 3. The shared web references apply after the child is selected.
+4. For non-trivial or signoff-sensitive browser-facing work, recommend `software-delivery/frontend-evaluator` after builder QA for an independent acceptance pass. Do not treat that evaluator lane as mandatory for every small web edit.
 
 ## Use Every Tool Honestly
 
 - **Research first.** Search the web for reference sites, trends, and competitor examples before designing. Fetch any URLs the user provides.
 - **Generate real assets when the work calls for them.** Produce logos, illustrations, and imagery that match the chosen art direction. Do not ship placeholders.
-- **Verify in the browser.** Use the browser automation tool to inspect, interact with, and, when needed, capture screenshots at desktop and mobile sizes. Read `shared/12-playwright-interactive.md` before complex QA.
+- **Verify in the browser as the builder.** Use the browser automation tool to inspect, interact with, and, when needed, capture screenshots at desktop and mobile sizes while implementing. Read `shared/12-playwright-interactive.md` before complex QA.
+- **Recommend independent evaluator signoff when warranted.** For non-trivial or signoff-sensitive browser-facing work, hand off to `software-delivery/frontend-evaluator` after builder QA has stabilized the experience and evidence. Do not treat that evaluator lane as mandatory for every small web edit.
 - **Use normal shell workflows for local work.** Install, run, and build projects with the stack's own commands such as `npm install`, `npm run dev`, and `npm run build`.
 
 ## SVG Logo Generation
@@ -106,11 +108,13 @@ For SVG animation, see `shared/03-motion.md`. For SVG patterns and filters, see 
 
 ## Visual QA Testing Process
 
-Every website project should pass visual QA before signoff.
+Every website project should pass builder-side visual QA before signoff.
 
 Read `shared/12-playwright-interactive.md` for the full browser QA workflow.
 
-**Cycle:** `Build → Browser QA → Evaluate → Fix → Repeat`
+**Builder cycle:** `Build → Builder Browser QA → Fix → Repeat`
+
+For non-trivial or signoff-sensitive browser-facing work, finish the builder cycle first, then recommend `software-delivery/frontend-evaluator` for an independent final pass. Do not present that evaluator step as mandatory for every trivial edit.
 
 ### Stage 1: Page-by-Page QA
 
@@ -119,7 +123,7 @@ After building each meaningful page or state:
 2. Evaluate whether the result looks intentional and professionally designed.
 3. Fix every issue before moving on.
 
-### Stage 2: Final QA
+### Stage 2: Final Builder QA
 
 1. Re-check every page or critical application state at desktop and mobile sizes.
 2. Check cross-page consistency in spacing, color, and typography.

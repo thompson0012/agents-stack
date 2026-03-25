@@ -21,7 +21,9 @@
         "The request is for a content-first website, landing page, blog, portfolio, or small-business site."
       ],
       "requires": [],
-      "recommends": [],
+      "recommends": [
+        "software-delivery/frontend-evaluator"
+      ],
       "fallbacks_to": [],
       "install_if_missing": {
         "package": "website-building/game",
@@ -42,7 +44,9 @@
         "The request is a simple portfolio, landing page, editorial site, or brochure site with no app-style behavior."
       ],
       "requires": [],
-      "recommends": [],
+      "recommends": [
+        "software-delivery/frontend-evaluator"
+      ],
       "fallbacks_to": [],
       "install_if_missing": {
         "package": "website-building/webapp",
