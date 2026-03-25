@@ -16,7 +16,7 @@ For the current category map and skill inventory, read `references/category-map.
 If this is your first request or you are not sure where to start, match your situation to a route below. Stop as soon as one stage gives you what you need.
 
 - Unclear problem, goal, or scope → `using-reasoning`
-- Non-trivial software feature work still needs discovery, plan review, or stage-by-stage routing → `software-delivery`
+- Non-trivial software feature work still needs discovery, delivery-control routing, plan review, or strict frontend acceptance → `software-delivery`
 - Need a spec or requirements document before building → `feature-spec`
 - Coding, debugging, or data work in an existing repo → `coding-and-data`
 - Building a web project → `website-building`
@@ -50,7 +50,7 @@ Apply these checks in order.
 - Need an Apple-like liquid glass browser effect using CSS/SVG refraction and displacement maps -> `liquid-glass-design`
 
 ### 4. Software delivery routing
-- Need lifecycle guidance for non-trivial software feature work and the request could plausibly mean discovery, plan review, implementation handoff, web QA routing, or ship-readiness reflection -> `software-delivery`
+- Need lifecycle guidance for non-trivial software feature work and the request could plausibly mean discovery, cross-session delivery control, plan review, implementation handoff, strict frontend acceptance, or ship-readiness reflection -> `software-delivery`
 
 ### 5. Code and data work
 - Need to delegate repo navigation, code changes, debugging, or structured data analysis to a focused subagent -> `coding-and-data`
@@ -116,6 +116,8 @@ Add one sentence explaining why the selected route is the narrowest correct fit.
 - sending a request to multiple sibling skills in parallel from this router
 - forcing a suite skill onto a simple request that does not benefit from special instructions
 - routing model-generated or schema-driven browser UI work to `website-building` when the generative layer itself is the main problem
+- routing multi-session runtime control or planner/generator/evaluator requests straight to `self-cognitive` or `website-building` when `software-delivery` should narrow them first
+- routing strict independent frontend signoff straight to `website-building` or `self-cognitive` instead of `software-delivery`
 - routing an ambiguous website request straight to one child when `website-building` should narrow it first
 - routing an ambiguous document request straight to one leaf when `using-documents` should narrow it first
 - routing an ambiguous legal request straight to one child when `using-legal` should narrow it first

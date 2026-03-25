@@ -15,7 +15,7 @@ This repository uses a minimal agent documentation structure for recall, progres
 - If a needed skill is not already loaded from `~/.agents/skills`, check the project's `.agents/skills/` directory before assuming the skill is unavailable.
 - Treat `.agents/skills/` as the project-local skill surface: use the most specific relevant skill there when the repository ships task-specific guidance.
 - Read `.agents/skills/using-agent-practices/SKILL.md` as the router index whenever the right project-local skill or family router is not obvious.
-- For non-trivial software feature work that still needs discovery, planning, or review, consider `.agents/skills/software-delivery/SKILL.md` before jumping straight to implementation; keep trivial or already-clear work on the direct skill path.
+- For non-trivial software feature work that still needs discovery, planning, delivery-control decisions, or independent frontend signoff, consider `.agents/skills/software-delivery/SKILL.md` before jumping straight to implementation; keep trivial or already-clear work on the direct skill path.
 - Read only the smallest relevant skill or subdirectory needed for the task; do not preload the entire project skill tree.
 
 ## Progressive Disclosure Rules

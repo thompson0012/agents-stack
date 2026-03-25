@@ -56,6 +56,20 @@
       "expected_output": "Routes to using-research because the named market-framework deliverable is the primary artifact, not a generic reasoning workflow.",
       "files": [],
       "notes": "Analytical wording should not override an explicit framework-driven research artifact."
+    },
+    {
+      "id": "route-harness-control-through-software-delivery",
+      "prompt": "Design the runtime control for this long-running feature: decide what stays in one session, what resumes through compaction, and when to use a planner/generator/evaluator loop with explicit handoffs and pass/fail gates.",
+      "expected_output": "Routes to software-delivery because this is cross-session delivery control that should narrow to harness-design inside the software-delivery family rather than jumping straight to website-building or self-cognitive.",
+      "files": [],
+      "notes": "Top-level routing should enter software-delivery first whenever the main need is harness control or planner/generator/evaluator orchestration."
+    },
+    {
+      "id": "route-strict-frontend-acceptance-through-software-delivery",
+      "prompt": "The team already built the new onboarding flow. Do not implement anything. Independently verify it in the browser, return a pass or fail verdict with evidence, and tell us what must change before release.",
+      "expected_output": "Routes to software-delivery because strict independent frontend acceptance should narrow to frontend-evaluator inside the family rather than jumping straight to website-building or self-cognitive.",
+      "files": [],
+      "notes": "Implementation already exists, so the top-level router should pick software-delivery for family-level narrowing into the evaluator lane."
     }
   ]
 }

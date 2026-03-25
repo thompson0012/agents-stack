@@ -15,13 +15,15 @@ This repository's first-party suite currently contains these live skills under `
 
 ## Software Delivery Routing
 
-Route through `software-delivery` when the request is non-trivial software feature work and the user needs lifecycle guidance across discovery, plan review, implementation handoff, or ship-readiness.
+Route through `software-delivery` when the request is non-trivial software feature work and the user needs lifecycle guidance across discovery, harness control, plan review, independent frontend evaluation, implementation handoff, or ship-readiness.
 
 - `software-delivery/feature-discovery` — turn a fuzzy feature idea or change request into a clear problem statement, wedge, and next-step recommendation
+- `software-delivery/harness-design` — choose the honest delivery-control mode across single-session work, compacted continuation, or planner/generator/evaluator execution with explicit handoffs
 - `software-delivery/plan-product-review` — challenge a plan on user value, scope, sequencing, and MVP shape before implementation
 - `software-delivery/plan-engineering-review` — challenge a plan on architecture, failure modes, rollback, tests, and observability before implementation
 - `software-delivery/plan-design-review` — challenge a plan on UX flows, states, accessibility, and interface clarity before implementation
-- shared companions remain top-level: `feature-spec` for scoped artifacts, `coding-and-data` for repo-backed execution, `website-building` for web build or browser QA, and `self-cognitive` for confidence checks or retrospectives
+- `software-delivery/frontend-evaluator` — provide strict independent browser-facing acceptance with evidence, defects, and retry guidance after implementation exists
+- shared companions remain top-level: `feature-spec` for scoped artifacts, `coding-and-data` for repo-backed execution, `website-building` for web build or builder-side browser QA, and `self-cognitive` for confidence checks or retrospectives
 
 ## Code and Data Work
 
@@ -112,7 +114,7 @@ Ask first: what is the primary artifact or workflow needed?
 - system prompt, prompt template, prompt architecture, rubric, or eval plan -> `meta-prompting`
 - sparse prompt enrichment or prompt variants for text, image, or video generation -> `prompt-augmentation`
 - startup sanity check, business-model teardown, launch stress test, or startup simulation -> `startup-pressure-test`
-- non-trivial software feature work that still needs discovery, plan review, or stage-by-stage routing -> `software-delivery`
+- non-trivial software feature work that still needs discovery, delivery-control routing, plan review, strict frontend acceptance, or stage-by-stage routing -> `software-delivery`
 - feature spec, PRD, or requirements document -> `feature-spec`
 - repo-backed coding, debugging, refactor, or structured data task -> `coding-and-data`
 - generative browser UI, schema-driven component rendering, or streamed agent surfaces -> `generative-ui`

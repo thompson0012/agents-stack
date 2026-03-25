@@ -46,5 +46,17 @@
     "query": "Should we enter the German payroll software market? Use Porter's Five Forces, competitor benchmarking, and TAM/SAM/SOM.",
     "should_trigger": true,
     "why": "Analytical wording is present, but the named framework artifact means the top-level router should choose using-research rather than generic reasoning."
+  },
+  {
+    "id": "should-route-harness-control-through-software-delivery",
+    "query": "Design the runtime control for this long-running feature: decide what stays in one session, what resumes through compaction, and when to use a planner/generator/evaluator loop with explicit handoffs and pass/fail gates.",
+    "should_trigger": true,
+    "why": "This is a cross-session delivery-control request, so using-agent-practices should trigger and route through software-delivery first rather than sending it straight to website-building or self-cognitive."
+  },
+  {
+    "id": "should-route-strict-frontend-signoff-through-software-delivery",
+    "query": "The team already built the new onboarding flow. Do not fix it. Independently verify it in the browser, return a pass or fail verdict with evidence, and tell us what must change before release.",
+    "should_trigger": true,
+    "why": "This is a strict independent frontend acceptance request, so using-agent-practices should trigger and route through software-delivery first instead of jumping straight to website-building or self-cognitive."
   }
 ]
