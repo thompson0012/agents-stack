@@ -11,7 +11,7 @@ Use this skill when the model is responsible for choosing interface structure, c
 Read [dependency graph](references/dependency-graph.md) for suite integration and [output contracts](references/output-contracts.md) for the supported rendering modes.
 
 ## Core Contract
-- Start from a design contract, not ad hoc styling. Read the existing token or design source first (`docs/reference/design.md`, an equivalent brand spec, or repo-local token files). If no trustworthy token spec exists and the UI is meant to be reused or shipped, use `generating-design-tokens` before building the generative layer.
+- Start from a design contract, not ad hoc styling. Read the existing token or design source first (`docs/reference/design.md`, an equivalent brand spec, or repo-local token files). If no trustworthy token spec exists and the UI is meant to be reused or shipped, use `using-design/generating-design-tokens` before building the generative layer.
 - Keep the model on the UI side of the boundary. The model may choose components or emit safe HTML/schema payloads; the host application owns privileged actions, network access, persistence, and secret-bearing logic.
 - Choose one rendering contract before coding: standalone HTML document, typed component schema, or streamed UI. Do not blur those contracts together casually.
 - Generated UI must fail honestly. Handle malformed markup, unknown components, missing props, partial streams, empty states, and unsafe payloads with explicit fallback UI.
@@ -28,7 +28,7 @@ Use this skill when the request is about:
 
 Do not use this skill when:
 - the job is a normal website or webapp with hand-authored UI -> use `website-building`
-- the job is primarily brand or token creation -> use `generating-design-tokens`
+- the job is primarily brand or token creation -> use `using-design/generating-design-tokens`
 - the deliverable is mainly a prompt artifact or system prompt -> use `meta-prompting`
 
 ## Workflow
@@ -48,8 +48,8 @@ Read the existing design source first:
 - repo-local token files
 
 If none exists:
-- for productized or reusable work: use `generating-design-tokens`
-- for disposable prototypes: fall back to `design-foundations` deliberately and label the fallback
+- for productized or reusable work: use `using-design/generating-design-tokens`
+- for disposable prototypes: fall back to `using-design/design-foundations` deliberately and label the fallback
 
 At minimum establish: color roles, type scale, spacing rhythm, radius, shadow/elevation, motion rules, and empty/error/loading states.
 
@@ -105,7 +105,7 @@ If the UI is data-heavy, verify the source before polishing the surface.
 ## Quick Reference
 | Situation | Default move |
 | --- | --- |
-| No trustworthy token spec exists | Use `generating-design-tokens` first |
+| No trustworthy token spec exists | Use `using-design/generating-design-tokens` first |
 | User wants a full website/app/game | Route to `website-building` |
 | Ephemeral demo in one artifact | Standalone HTML + sandbox |
 | Production in-app generative surfaces | Typed schema + allowlisted components |

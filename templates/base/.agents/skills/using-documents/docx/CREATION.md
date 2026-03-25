@@ -73,7 +73,7 @@ size: {
 
 ## Typography and heading styles
 
-Pick a professional, universally installed sans-serif font as your base. Check `.agents/skills/design-foundations/SKILL.md` for typeface recommendations. Keep heading text in black to ensure legibility.
+Pick a professional, universally installed sans-serif font as your base. Check `.agents/skills/using-design/design-foundations/SKILL.md` for typeface recommendations. Keep heading text in black to ensure legibility.
 
 Override the built-in heading style definitions by referencing their canonical IDs. The `outlineLevel` property is mandatory -- without it, Table of Contents generation will not pick up these headings.
 

@@ -70,6 +70,27 @@
       "expected_output": "Routes to software-delivery because strict independent frontend acceptance should narrow to frontend-evaluator inside the family rather than jumping straight to website-building or self-cognitive.",
       "files": [],
       "notes": "Implementation already exists, so the top-level router should pick software-delivery for family-level narrowing into the evaluator lane."
+    },
+    {
+      "id": "route-ambiguous-design-family-through-using-design",
+      "prompt": "I need help defining the visual system for a new product, but I am not sure whether I need foundation rules, design tokens, or a more experimental UI direction. Point me to the right design skill first.",
+      "expected_output": "Routes to using-design because the request is explicitly about choosing among multiple design-family paths rather than directly asking for one narrow design leaf.",
+      "files": [],
+      "notes": "Ambiguous visual-system requests should enter the design family router before narrowing further."
+    },
+    {
+      "id": "route-design-tokens-directly-over-using-design",
+      "prompt": "Turn this brand brief into a cross-platform design token spec with color, typography, spacing, and semantic tokens.",
+      "expected_output": "Routes to using-design/generating-design-tokens rather than using-design because the requested artifact is already a specific token-generation workflow.",
+      "files": [],
+      "notes": "This keeps the family router honest by reserving it for ambiguity inside the design family."
+    },
+    {
+      "id": "route-website-build-over-design-family",
+      "prompt": "Build a marketing website for our fintech startup with polished visuals, responsive pages, and a CMS-backed blog.",
+      "expected_output": "Routes to website-building rather than using-design because this is still a website build request even though strong visual design is part of the outcome.",
+      "files": [],
+      "notes": "Negative control: design-heavy site requests should stay in the web-build family."
     }
   ]
 }

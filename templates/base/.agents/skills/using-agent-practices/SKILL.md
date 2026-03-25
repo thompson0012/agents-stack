@@ -18,13 +18,14 @@ If this is your first request or you are not sure where to start, match your sit
 - Unclear problem, goal, or scope → `using-reasoning`
 - Non-trivial software feature work still needs discovery, delivery-control routing, plan review, or strict frontend acceptance → `software-delivery`
 - Need a spec or requirements document before building → `feature-spec`
+- Need design help and are not sure whether the work is foundational design, design tokens, generative UI, or liquid-glass experimentation → `using-design`
 - Coding, debugging, or data work in an existing repo → `coding-and-data`
 - Building a web project → `website-building`
 - Preflight confidence check or postmortem before a risky decision → `self-cognitive`
 
 ## Core Contract
 
-- Choose exactly one target: a single leaf skill, a family router such as `software-delivery`, `website-building`, `using-documents`, `using-legal`, `using-reasoning`, `using-sales`, `using-marketing`, `using-research`, or `using-finance`, or no suite skill.
+- Choose exactly one target: a single leaf skill, a family router such as `software-delivery`, `using-design`, `website-building`, `using-documents`, `using-legal`, `using-reasoning`, `using-sales`, `using-marketing`, `using-research`, or `using-finance`, or no suite skill.
 - Prefer the narrowest correct fit over the most impressive fit.
 - If no first-party skill clearly adds value, say so and answer directly.
 - Do not stack multiple primary suite skills from this router.
@@ -45,9 +46,11 @@ Apply these checks in order.
 
 ### 3. Specialized business and design skills
 - Need a startup sanity check, harsh viability simulation, investor-style business-model teardown, launch stress test, or CAC/churn/runway reality check -> `startup-pressure-test`
-- Need design tokens, a brand system, or a brand spec from brand inputs -> `generating-design-tokens`
-- Need model-generated, streamed, or schema-driven interactive UI in the browser, including sandboxed HTML or agent-rendered components -> `generative-ui`
-- Need an Apple-like liquid glass browser effect using CSS/SVG refraction and displacement maps -> `liquid-glass-design`
+- Need help choosing among design foundations, design tokens, generative browser UI, or liquid-glass experimentation, or the request is broadly about visual systems or design stacks -> `using-design`
+- Need help choosing colors, typography, spacing, or chart styling for a visual artifact when no project-specific design system already governs the work -> `using-design/design-foundations`
+- Need design tokens, a brand system, or a brand spec from brand inputs -> `using-design/generating-design-tokens`
+- Need model-generated, streamed, or schema-driven interactive UI in the browser, including sandboxed HTML or agent-rendered components -> `using-design/generative-ui`
+- Need an Apple-like liquid glass browser effect using CSS/SVG refraction and displacement maps -> `using-design/liquid-glass-design`
 
 ### 4. Software delivery routing
 - Need lifecycle guidance for non-trivial software feature work and the request could plausibly mean discovery, cross-session delivery control, plan review, implementation handoff, strict frontend acceptance, or ship-readiness reflection -> `software-delivery`
@@ -92,9 +95,11 @@ Return one of these forms and then invoke the selected skill if needed:
 - `Route to feature-spec.`
 - `Route to coding-and-data.`
 - `Route to startup-pressure-test.`
-- `Route to generating-design-tokens.`
-- `Route to generative-ui.`
-- `Route to liquid-glass-design.`
+- `Route to using-design.`
+- `Route to using-design/design-foundations.`
+- `Route to using-design/generating-design-tokens.`
+- `Route to using-design/generative-ui.`
+- `Route to using-design/liquid-glass-design.`
 - `Route to software-delivery.`
 - `Route to website-building.`
 - `Route to using-documents.`
@@ -115,6 +120,9 @@ Add one sentence explaining why the selected route is the narrowest correct fit.
 - routing prompt-architecture or system-prompt work to `prompt-augmentation` when the request is really about designing the artifact, not enriching it
 - sending a request to multiple sibling skills in parallel from this router
 - forcing a suite skill onto a simple request that does not benefit from special instructions
+- routing a normal site, app, or browser game build to `using-design` when `website-building` owns the build family
+- routing an ambiguous design-family request straight to one design leaf when `using-design` should narrow it first
+- routing a specific `using-design/generating-design-tokens`, `using-design/generative-ui`, or `using-design/liquid-glass-design` request to `using-design` when a direct leaf is already the narrowest fit
 - routing model-generated or schema-driven browser UI work to `website-building` when the generative layer itself is the main problem
 - routing multi-session runtime control or planner/generator/evaluator requests straight to `self-cognitive` or `website-building` when `software-delivery` should narrow them first
 - routing strict independent frontend signoff straight to `website-building` or `self-cognitive` instead of `software-delivery`

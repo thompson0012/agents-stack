@@ -29,3 +29,9 @@ Read after mistakes, rework, or surprises. Capture only reusable lessons.
 - Fix:
 - When to apply:
 - Evidence:
+
+
+### Router Family Created Before Physical Bundling
+- Pattern: Adding a new router over existing top-level leaves first, then doing a second pass to move those leaves under the router package.
+- Detection: The router metadata points at external leaf targets even though the leaves are bundled with the repo and clearly belong inside the same family boundary.
+- Better default: When a new bundled router family is justified, default to nesting the bundled leaves under that router in the same change and cut all routes/references over once.

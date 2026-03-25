@@ -8,7 +8,7 @@ description: Use when creating, editing, converting, or extracting Microsoft Wor
 
 Under the hood, .docx is a ZIP container holding XML parts. Creation, reading, and modification all operate on this XML structure.
 
-**Visual and typographic standards:** Consult `.agents/skills/design-foundations/SKILL.md` for color palette, typeface selection, and layout principles (single accent color with neutral tones, no decorative graphics, WCAG-compliant contrast). Use widely available sans-serif typefaces like Arial or Calibri as your baseline.
+**Visual and typographic standards:** Consult `.agents/skills/using-design/design-foundations/SKILL.md` for color palette, typeface selection, and layout principles (single accent color with neutral tones, no decorative graphics, WCAG-compliant contrast). Use widely available sans-serif typefaces like Arial or Calibri as your baseline.
 
 ## Choosing an approach
 

@@ -19,7 +19,7 @@ Use this skill when:
 Do not use this skill for:
 - feature discovery before the core problem is clear — use `software-delivery/feature-discovery`
 - PRD drafting or scope negotiation — use `feature-spec`
-- visual system or token generation in isolation — use `design-foundations` or `generating-design-tokens` as needed
+- visual system or token generation in isolation — use `using-design/design-foundations` or `using-design/generating-design-tokens` as needed
 - implementing or QA'ing a built website or app — use `website-building`
 - live browser review, screenshot critique, or component polish after code exists
 

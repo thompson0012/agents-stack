@@ -29,10 +29,20 @@ Route through `software-delivery` when the request is non-trivial software featu
 
 - `coding-and-data` — route repo-backed coding or structured data work to a focused implementation subagent
 
-
 ## Commercial Reality Testing
 
 - `startup-pressure-test` — pressure-test a startup, launch thesis, or business model with market, funnel, monetization, and runway realism
+
+## Design Workflow Routing
+
+Route through `using-design` when the request is broadly about a visual system, design stack, or design-family selection and could plausibly fit more than one of these:
+
+- `using-design/design-foundations` — choose colors, typography, spacing, chart styling, and general visual-system defaults when no project-specific system already governs the work
+- `using-design/generating-design-tokens` — turn brand inputs into a design token spec or brand system
+- `using-design/generative-ui` — build or evaluate model-generated browser UI with sandboxed HTML, typed component schemas, or streamed UI
+- `using-design/liquid-glass-design` — implement or evaluate experimental liquid-glass UI effects in the browser
+
+Normal site, app, or browser-game builds still route through `website-building` even when visual polish, art direction, or interaction taste are major concerns.
 
 ## Web Project Routing
 
@@ -99,12 +109,6 @@ Route through `using-reasoning` when the request could plausibly fit more than o
 - `using-reasoning/domain-expert-consultation` — produce a structured advisory memo or expert recommendation
 - `using-reasoning/strategic-foresight` — run scenarios around a concrete external signal or threshold
 
-## Design Systems and Visual Prototyping
-
-- `generating-design-tokens` — turn brand inputs into a design token spec or brand system
-- `generative-ui` — build or evaluate model-generated browser UI with sandboxed HTML, typed component schemas, or streamed UI
-- `liquid-glass-design` — implement or evaluate experimental liquid-glass UI effects in the browser
-
 ## Routing Rule of Thumb
 
 Ask first: what is the primary artifact or workflow needed?
@@ -117,12 +121,14 @@ Ask first: what is the primary artifact or workflow needed?
 - non-trivial software feature work that still needs discovery, delivery-control routing, plan review, strict frontend acceptance, or stage-by-stage routing -> `software-delivery`
 - feature spec, PRD, or requirements document -> `feature-spec`
 - repo-backed coding, debugging, refactor, or structured data task -> `coding-and-data`
-- generative browser UI, schema-driven component rendering, or streamed agent surfaces -> `generative-ui`
+- ambiguous design-family work across visual systems, design stacks, foundations, tokens, generative UI, or liquid-glass experimentation -> `using-design`
+- `using-design/design-foundations` — design foundations for colors, typography, spacing, or chart styling
+- `using-design/generating-design-tokens` — design token spec
+- `using-design/generative-ui` — generative browser UI, schema-driven component rendering, or streamed agent surfaces
+- `using-design/liquid-glass-design` — liquid-glass implementation note
 - ambiguous website or browser-based build across site, app, or game -> `website-building`
 - ambiguous document work across Word, PDF, PowerPoint, or Excel artifacts -> `using-documents`
 - ambiguous legal help across contract redlines or privacy compliance -> `using-legal`
-- design token spec -> `generating-design-tokens`
-- liquid-glass implementation note -> `liquid-glass-design`
 - ambiguous sales help across research, meeting prep, or outreach -> `using-sales`
 - ambiguous marketing help across analytics, competitor analysis, or content creation -> `using-marketing`
 - ambiguous research help across broad research, market frameworks, or investment analysis -> `using-research`

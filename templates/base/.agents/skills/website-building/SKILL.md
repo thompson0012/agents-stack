@@ -9,7 +9,7 @@ Use this router when the request is about building a website or browser-based ex
 
 Do not perform the full child workflow here. Choose the narrowest correct child, then hand off.
 
-**Universal design principles** are shared with `design-foundations`. This family's `shared/` files extend those foundations with web-specific implementation guidance, so children should load the web references they need directly.
+**Universal design principles** are shared with `using-design/design-foundations`. This family's `shared/` files extend those foundations with web-specific implementation guidance, so children should load the web references they need directly.
 
 ## Core Contract
 

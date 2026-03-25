@@ -58,5 +58,23 @@
     "query": "The team already built the new onboarding flow. Do not fix it. Independently verify it in the browser, return a pass or fail verdict with evidence, and tell us what must change before release.",
     "should_trigger": true,
     "why": "This is a strict independent frontend acceptance request, so using-agent-practices should trigger and route through software-delivery first instead of jumping straight to website-building or self-cognitive."
+  },
+  {
+    "id": "should-route-ambiguous-design-family-through-using-design",
+    "query": "I need help defining the visual system for a new product, but I am not sure whether I need foundation rules, design tokens, or a more experimental UI direction. Point me to the right design skill first.",
+    "should_trigger": true,
+    "why": "This is explicit design-family ambiguity, so the top-level router should route through using-design before narrowing to a leaf."
+  },
+  {
+    "id": "should-route-design-tokens-directly-over-using-design",
+    "query": "Turn this brand brief into a cross-platform design token spec with color, typography, spacing, and semantic tokens.",
+    "should_trigger": true,
+    "why": "The router should still trigger, but it should choose using-design/generating-design-tokens directly because the artifact is already specific."
+  },
+  {
+    "id": "should-route-website-build-over-design-family",
+    "query": "Build a marketing website for our fintech startup with polished visuals, responsive pages, and a CMS-backed blog.",
+    "should_trigger": true,
+    "why": "Design-heavy wording is present, but the primary artifact is still a website build, so the top-level router should choose website-building rather than using-design."
   }
 ]

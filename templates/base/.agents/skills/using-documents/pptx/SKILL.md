@@ -26,7 +26,7 @@ Render equations with Unicode math symbols only. Do not use OMML or generate equ
 
 ## Design Ideas
 
-**Design defaults:** See `.agents/skills/design-foundations/SKILL.md` for palette, fonts + pairings, chart colors, and core principles (1 accent + neutrals, no decorative imagery, accessibility). Below is **slides-specific** guidance only.
+**Design defaults:** See `.agents/skills/using-design/design-foundations/SKILL.md` for palette, fonts + pairings, chart colors, and core principles (1 accent + neutrals, no decorative imagery, accessibility). Below is **slides-specific** guidance only.
 
 ### Before Starting
 
@@ -44,9 +44,9 @@ Render equations with Unicode math symbols only. Do not use OMML or generate equ
 - *Healthcare overview* → calming blue or teal builds trust
 - *Creative brief* → warmer accent (terracotta, berry) adds energy
 
-Build every palette as **1 accent + neutral surface + neutral text**. The accent is for emphasis only (headings, key data, section markers) — everything else stays neutral. See `.agents/skills/design-foundations/SKILL.md` for the full "Earn Every Color" philosophy, contrast rules, and the custom-palette workflow (user hue → derive surfaces by desaturating → test contrast).
+Build every palette as **1 accent + neutral surface + neutral text**. The accent is for emphasis only (headings, key data, section markers) — everything else stays neutral. See `.agents/skills/using-design/design-foundations/SKILL.md` for the full "Earn Every Color" philosophy, contrast rules, and the custom-palette workflow (user hue → derive surfaces by desaturating → test contrast).
 
-**When no topic-specific color is obvious**, fall back to the Nexus palette: teal `#01696F` accent on warm beige `#F7F6F2` (see `.agents/skills/design-foundations/SKILL.md` → Default Palette).
+**When no topic-specific color is obvious**, fall back to the Nexus palette: teal `#01696F` accent on warm beige `#F7F6F2` (see `.agents/skills/using-design/design-foundations/SKILL.md` → Default Palette).
 
 ### For Each Slide
 
@@ -66,7 +66,7 @@ Build every palette as **1 accent + neutral surface + neutral text**. The accent
 
 ### Typography
 
-See `.agents/skills/design-foundations/SKILL.md` for font pairings (Slides Pairings table) and size hierarchy. Default to professional sans-serif. Use serif for headings only when formal tone is needed.
+See `.agents/skills/using-design/design-foundations/SKILL.md` for font pairings (Slides Pairings table) and size hierarchy. Default to professional sans-serif. Use serif for headings only when formal tone is needed.
 
 ### Spacing
 

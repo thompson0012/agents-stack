@@ -7,7 +7,7 @@ description: Use when selecting chart types, writing Python visualization code, 
 
 Use this skill when you need chart selection guidance, Python visualization code patterns, or chart-specific design and accessibility guidance.
 
-**Design defaults:** See `../design-foundations/SKILL.md` for the canonical chart color sequence and default palette.
+**Design defaults:** See `../using-design/design-foundations/SKILL.md` for the canonical chart color sequence and default palette.
 
 ## Chart Selection Guide
 
@@ -63,8 +63,8 @@ plt.rcParams.update({
     'figure.titlesize': 16,
 })
 
-# Default categorical palette — from ../design-foundations/SKILL.md
-# See ../design-foundations/SKILL.md for full chart color guidance
+# Default categorical palette — from ../using-design/design-foundations/SKILL.md
+# See ../using-design/design-foundations/SKILL.md for full chart color guidance
 PALETTE_CATEGORICAL = ['#20808D', '#A84B2F', '#1B474D', '#BCE2E7', '#944454', '#FFC553', '#848456', '#6E522B']
 PALETTE_SEQUENTIAL = 'YlOrRd'
 PALETTE_DIVERGING = 'RdBu_r'
@@ -228,7 +228,7 @@ fig.show()
 
 ## Design Principles
 
-Design-foundations covers color theory, data-ink ratio, labeling, and accessibility rules. Below adds chart-specific guidance not in those files.
+`using-design/design-foundations` covers color theory, data-ink ratio, labeling, and accessibility rules. Below adds chart-specific guidance not in that leaf.
 
 - **Highlight the story**: Bright accent for the key insight; grey everything else
 - **Titles state insights**: "Revenue grew 23% YoY" not "Revenue by Month". Subtitle adds date range, filters, source
@@ -241,7 +241,7 @@ Design-foundations covers color theory, data-ink ratio, labeling, and accessibil
 
 ## Accessibility
 
-Design-foundations covers color independence and contrast rules. Python-specific additions:
+`using-design/design-foundations` covers color independence and contrast rules. Python-specific additions:
 
 - Use `sns.color_palette("colorblind")` as an alternative colorblind-safe palette
 - Add pattern fills (`hatch` in matplotlib) or different line styles alongside color

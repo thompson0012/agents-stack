@@ -6,7 +6,7 @@ description: Use when creating, editing, formatting, recalculating, or validatin
 
 # Requirements for Outputs
 
-**Design guidance:** For styled spreadsheets (dashboard reports, branded workbooks), see `.agents/skills/design-foundations/SKILL.md` for the default accent color and chart colors. Reserve color for emphasis — most cells should use default black text on white. Use the accent color sparingly (header rows, key totals). Financial model color conventions below are industry-standard overrides and take priority.
+**Design guidance:** For styled spreadsheets (dashboard reports, branded workbooks), see `.agents/skills/using-design/design-foundations/SKILL.md` for the default accent color and chart colors. Reserve color for emphasis — most cells should use default black text on white. Use the accent color sparingly (header rows, key totals). Financial model color conventions below are industry-standard overrides and take priority.
 
 ## All Excel files
 
