@@ -1,11 +1,13 @@
 {
   "router_name": "software-delivery",
-  "purpose": "Route non-trivial software feature delivery requests to the narrowest next skill across discovery, scoped artifacts, plan review, implementation, web-specific QA, and ship-readiness reflection.",
+  "purpose": "Route non-trivial software feature delivery requests to the narrowest next skill across discovery, scoped artifacts, delivery-control orchestration, plan review, independent frontend acceptance, implementation, builder-side web QA, and ship-readiness reflection.",
   "selection_order": [
     "Fuzzy feature ideas or unclear user problems beat every later stage because building the wrong thing efficiently is still failure.",
     "Scoped-artifact work beats plan review when the team still needs explicit goals, non-goals, and acceptance criteria.",
+    "Cross-session delivery-control design beats plan review when the real question is how work should be orchestrated across sessions, handoffs, and QA loops.",
     "Specific plan review beats implementation when the plan exists but its product, engineering, or design assumptions still need challenge.",
-    "Browser-facing web work beats generic repo implementation when user-facing web behavior, browser QA, or web child routing is the main risk.",
+    "Independent frontend acceptance beats builder-side web work when the browser-facing deliverable already exists and needs skeptical signoff rather than implementation.",
+    "Browser-facing web work beats generic repo implementation when user-facing web behavior, browser implementation, builder-side browser QA, or web child routing is the main risk.",
     "Default to repo-backed implementation only when the plan is stable enough to build.",
     "Confidence checks, ship-readiness, and retrospectives come last because they are only honest once delivery work has actually happened."
   ],
@@ -48,6 +50,7 @@
       ],
       "requires": [],
       "recommends": [
+        "software-delivery/harness-design",
         "software-delivery/plan-product-review",
         "software-delivery/plan-engineering-review",
         "software-delivery/plan-design-review"
@@ -56,6 +59,32 @@
       "install_if_missing": {
         "package": "feature-spec",
         "notes": "Install this shared top-level skill before routing when the runtime does not already have it available."
+      }
+    },
+    {
+      "name": "harness-design",
+      "target": "software-delivery/harness-design",
+      "relationship": "routes_to",
+      "summary": "Designs delivery-control rules for single-session work, compacted continuation, or planner/generator/evaluator loops so cross-session execution stays honest and bounded.",
+      "route_when": [
+        "The request is about multi-session execution, delivery control, harness design, planner/generator/evaluator loops, or handoff contracts rather than product implementation.",
+        "The main need is to decide session boundaries, pass/fail gates, or required artifacts for work that will span resets, compaction, or multiple agents."
+      ],
+      "avoid_when": [
+        "The router can already choose the next ordinary delivery stage without extra orchestration design.",
+        "The user mainly wants the feature plan reviewed, the product built, or defects fixed rather than the control model defined."
+      ],
+      "requires": [],
+      "recommends": [
+        "software-delivery/plan-engineering-review",
+        "website-building",
+        "coding-and-data",
+        "software-delivery/frontend-evaluator"
+      ],
+      "fallbacks_to": [],
+      "install_if_missing": {
+        "package": "software-delivery/harness-design",
+        "notes": "Install this nested child path before routing when the runtime cannot discover software-delivery children automatically."
       }
     },
     {
@@ -133,6 +162,57 @@
       }
     },
     {
+      "name": "frontend-evaluator",
+      "target": "software-delivery/frontend-evaluator",
+      "relationship": "routes_to",
+      "summary": "Runs independent browser-facing acceptance on an already-built frontend deliverable and returns a pass, fail, or blocked verdict with evidence, defects, and retry guidance.",
+      "route_when": [
+        "The browser-facing work already exists and the user wants independent acceptance, strict signoff, or a skeptical QA gate before release.",
+        "The main need is a verdict plus evidence and defects, not implementation, polish, or builder-side re-testing."
+      ],
+      "avoid_when": [
+        "The frontend still needs to be built, changed, or repaired rather than evaluated independently.",
+        "The request is ordinary browser implementation or builder-side QA that belongs with the team doing the web work."
+      ],
+      "requires": [
+        "The browser-facing deliverable already exists and can be exercised independently.",
+        "Shared interactive browser QA methodology documented at `website-building/shared/12-playwright-interactive.md`."
+      ],
+      "recommends": [
+        "website-building",
+        "self-cognitive"
+      ],
+      "fallbacks_to": [],
+      "install_if_missing": {
+        "package": "software-delivery/frontend-evaluator",
+        "notes": "Install this nested child path before routing when the runtime cannot discover software-delivery children automatically."
+      }
+    },
+    {
+      "name": "website-building",
+      "target": "website-building",
+      "relationship": "routes_to",
+      "summary": "Handles user-facing web implementation plus builder-side browser QA when web project type, interaction behavior, or browser validation is the main delivery risk.",
+      "route_when": [
+        "The request is to build or QA a user-facing web experience and browser behavior is central to success.",
+        "The work could require browser implementation, builder-side QA, or routing inside the web family rather than only repo mechanics."
+      ],
+      "avoid_when": [
+        "The work is backend-only, non-web, or mainly about generic repo implementation rather than browser-facing behavior.",
+        "The request is still about feature discovery, spec writing, plan review, or independent frontend acceptance rather than building and builder-side QA."
+      ],
+      "requires": [],
+      "recommends": [
+        "software-delivery/frontend-evaluator",
+        "self-cognitive"
+      ],
+      "fallbacks_to": [],
+      "install_if_missing": {
+        "package": "website-building",
+        "notes": "Install this shared top-level skill before routing when the runtime does not already have it available."
+      }
+    },
+    {
       "name": "coding-and-data",
       "target": "coding-and-data",
       "relationship": "routes_to",
@@ -156,29 +236,6 @@
       }
     },
     {
-      "name": "website-building",
-      "target": "website-building",
-      "relationship": "routes_to",
-      "summary": "Handles user-facing web implementation and browser QA when web project type, interaction behavior, or browser validation is the main delivery risk.",
-      "route_when": [
-        "The request is to build or QA a user-facing web experience and browser behavior is central to success.",
-        "The work could require routing inside the web family or real browser validation rather than only repo mechanics."
-      ],
-      "avoid_when": [
-        "The work is backend-only, non-web, or mainly about generic repo implementation rather than browser-facing behavior.",
-        "The request is still about feature discovery, spec writing, or plan review rather than building and QA."
-      ],
-      "requires": [],
-      "recommends": [
-        "self-cognitive"
-      ],
-      "fallbacks_to": [],
-      "install_if_missing": {
-        "package": "website-building",
-        "notes": "Install this shared top-level skill before routing when the runtime does not already have it available."
-      }
-    },
-    {
       "name": "self-cognitive",
       "target": "self-cognitive",
       "relationship": "routes_to",
@@ -188,7 +245,7 @@
         "The main need is to challenge blind spots, extract lessons, or assess readiness rather than define or build the feature itself."
       ],
       "avoid_when": [
-        "The team still needs discovery, a scoped artifact, plan review, or implementation help as the main next step.",
+        "The team still needs discovery, a scoped artifact, plan review, implementation help, or independent frontend acceptance as the main next step.",
         "The request is ordinary execution support rather than reflective or risk-focused judgment."
       ],
       "requires": [],

@@ -14,6 +14,12 @@
       "files": []
     },
     {
+      "id": "direct-harness-control",
+      "prompt": "Design the delivery harness for this long-running app effort: decide when work stays in one session, when it should resume through compaction, and when to use a planner/generator/evaluator loop with hard handoff artifacts.",
+      "expected_output": "Routes to software-delivery/harness-design because the request is about cross-session delivery control and orchestration boundaries, not ordinary product planning or implementation.",
+      "files": []
+    },
+    {
       "id": "direct-product-review",
       "prompt": "I already drafted a plan for scheduled exports. Challenge the scope, MVP cuts, rollout sequence, and whether the user value is strong enough before we commit engineers.",
       "expected_output": "Routes to software-delivery/plan-product-review because the plan exists and the dominant need is product-value and scope challenge.",
@@ -32,9 +38,15 @@
       "files": []
     },
     {
+      "id": "direct-frontend-evaluator",
+      "prompt": "The team already built the customer-facing checkout redesign. Do not implement anything. Independently verify it in the browser, return a pass or fail verdict with evidence and defects, and tell us what must change before release.",
+      "expected_output": "Routes to software-delivery/frontend-evaluator because the browser-facing deliverable already exists and the main need is strict independent acceptance, not implementation or builder-side QA.",
+      "files": []
+    },
+    {
       "id": "direct-web-build-and-qa",
-      "prompt": "Build the customer-facing pricing workflow in our Next.js app and verify desktop and mobile behavior in the browser before signoff.",
-      "expected_output": "Routes to website-building because the main implementation risk is user-facing web behavior plus browser QA, not generic repo mechanics alone.",
+      "prompt": "Build the customer-facing pricing workflow in our Next.js app and verify desktop and mobile behavior in the browser yourself before handing it off for final signoff.",
+      "expected_output": "Routes to website-building because the main implementation risk is user-facing web behavior plus builder-side browser QA, not generic repo mechanics alone or independent evaluator signoff.",
       "files": []
     },
     {

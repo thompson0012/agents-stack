@@ -6,16 +6,28 @@
     "why": "This is ambiguous feature-delivery work inside the software-delivery family and should enter the router before a narrower skill is chosen."
   },
   {
+    "id": "should-trigger-harness-control",
+    "query": "We need stronger harness control for a long-running app project. Decide when the work should stay in one session, when to resume via compaction, and when to run a planner/generator/evaluator loop with explicit handoffs.",
+    "should_trigger": true,
+    "why": "This is a software-delivery delivery-control request about cross-session orchestration, so it should route through the family router to the harness-design child."
+  },
+  {
     "id": "should-trigger-plan-review",
     "query": "I already have a rollout plan for offline sync. Pressure-test the architecture, rollback plan, and observability before implementation starts.",
     "should_trigger": true,
     "why": "This is clearly a software-delivery plan-review request and should route through the family router to the engineering review child."
   },
   {
+    "id": "should-trigger-strict-frontend-signoff",
+    "query": "The frontend is already built. I need an independent browser-based acceptance gate with a pass or fail verdict, evidence, and defects. Do not have the builder sign off on their own work.",
+    "should_trigger": true,
+    "why": "This is a strict independent frontend signoff request, so it should route through the software-delivery family to frontend-evaluator rather than implementation or builder-side QA."
+  },
+  {
     "id": "should-trigger-web-feature-build",
     "query": "Build the new customer onboarding flow in our web app and use the browser to verify the responsive states before we call it done.",
     "should_trigger": true,
-    "why": "This is software feature delivery work whose dominant risk is user-facing web behavior and browser QA."
+    "why": "This is software feature delivery work whose dominant risk is user-facing web behavior plus builder-side browser QA."
   },
   {
     "id": "should-trigger-ship-readiness",
