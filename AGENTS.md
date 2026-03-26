@@ -4,6 +4,53 @@
 
 This repository uses a minimal agent documentation structure for recall, progressive disclosure, and reliable hand-off in a single worktree.
 
+## Task Execution Priority
+
+**SKILLS TAKE PRECEDENCE OVER MODEL KNOWLEDGE.**
+
+Before ANY response or action, answer this question aloud:
+
+> **What skill should I activate for this task?**
+
+Execution order:
+1. **SKILLS FIRST** — If a skill exists for the task type, invoke it before doing anything else
+2. **Project-Local Skills** — Check `.agents/skills/` for repository-specific guidance
+3. **User Skills** — Check `~/.agents/skills/` for user-installed capabilities
+4. **Model Knowledge** — Use as fallback only when no skill applies
+
+### Skill Check Protocol
+
+| Before | After |
+|--------|-------|
+| "I'll just implement this..." | STOP → "Which skill applies? What does it say?" |
+| "This is straightforward..." | STOP → "Is there a skill that could improve the approach?" |
+| "I know how to do this..." | STOP → "Does a skill mandate a specific workflow?" |
+| "Let me read files first..." | STOP → "Does a skill tell me HOW to explore?" |
+
+### Mandatory Skill Invocation
+
+If you think there is even a **1% chance** a skill might apply, you **MUST** invoke it to check.
+
+When a skill is invoked:
+1. Announce: `"Using [skill-name] for [purpose]..."`
+2. Read the skill content via the `skill` tool
+3. Follow the skill's workflow exactly
+4. Proceed with the skill's guidance as your primary method
+
+### Red Flags
+
+These thoughts indicate you are rationalizing away skill usage:
+
+| Rationalization | Reality |
+|-----------------|---------|
+| "This is just a simple question" | Questions are tasks. Check for skills. |
+| "I need more context first" | Skill check comes BEFORE gathering information. |
+| "Let me explore the codebase first" | Skills tell you HOW to explore. Check first. |
+| "I can check git/files quickly" | Skills provide structure. Use them. |
+| "This doesn't need a formal skill" | If a skill exists for it, use it. |
+| "I remember this skill" | Skills evolve. Read the current version. |
+| "I'll just do this one thing first" | Check BEFORE doing anything. |
+
 ## Injected Context Contract
 
 - Inject `AGENTS.md` at session start.
@@ -12,9 +59,9 @@ This repository uses a minimal agent documentation structure for recall, progres
 
 ## Project-Local Skills
 
-- If a needed skill is not already loaded from `~/.agents/skills`, check the project's `.agents/skills/` directory before assuming the skill is unavailable.
-- Treat `.agents/skills/` as the project-local skill surface: use the most specific relevant skill there when the repository ships task-specific guidance.
+- **ALWAYS** check `.agents/skills/` FIRST when a task type might have repository-specific guidance.
 - Read `.agents/skills/using-agent-practices/SKILL.md` as the router index whenever the right project-local skill or family router is not obvious.
+- Use the most specific relevant skill available; do not fall back to model knowledge when a skill exists.
 - Read only the smallest relevant skill or subdirectory needed for the task; do not preload the entire project skill tree.
 
 ## Progressive Disclosure Rules
