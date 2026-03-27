@@ -4,18 +4,17 @@ Read after `docs/live/current-focus.md` to recover the latest state, continuity,
 
 ## Current State
 
-The user-directed skill audit is now landed: the template's top-level skill router and category inventory cover every live top-level skill under `templates/base/.agents/skills/`, including standalone specialist leaves that were previously undiscoverable from the canonical top-level surface. No router family move or package-layout cutover was needed, and no validation blocker is open, so the default next move still returns to Task 35.
+The next work item is harness goal-lineage hardening: keep template live docs inert, add a roadmap artifact that preserves source/plan/phase goals, and make phased execution rehydrate from stored truth after compaction instead of drifting from the original objective.
 
 ## Latest Completed Work
 
-- completed a full scan of `templates/base/.agents/skills/` and found six live top-level skills missing from `using-agent-practices` discoverability: `create-skill`, `create-router-skill`, `cx-ticket-triage`, `data-exploration`, `visualization`, and `media`
-- updated `templates/base/.agents/skills/using-agent-practices/{SKILL.md,references/category-map.md,evals/*}` so those skills are explicit direct routes with near-miss coverage against `coding-and-data`, `using-design/design-foundations`, and `using-documents`
-- updated `templates/base/docs/reference/{codemap.md,memory.md}` and `templates/base/docs/live/progress.md` to preserve the top-level discoverability rule and continuity state
-- reviewed reference writeback: no `docs/reference/{architecture,codemap,memory,lessons}.md` update was needed at the repo root because the durable routing rule is template-local rather than repo-wide
+- captured the user requirement that `template/` must be a true template with no prefilled content
+- identified the recurring failure mode where roadmap execution loses the source goal after phase 1 and compaction
+- drafted `docs/superpowers/plans/2026-03-27-harness-goal-lineage-hardening.md` to harden template inertness, goal lineage, and resume behavior
 
 ## In Progress
 
-None.
+Harness goal-lineage hardening plan drafted; implementation pending.
 
 ## Blockers
 
@@ -23,22 +22,18 @@ None recorded.
 
 ## Next Recommended Action
 
-Resume Task 35: refine the capability-based methodology overlays in the finance, research, and webapp docs. Treat the top-level skill audit as landed unless a concrete discoverability regression appears.
+Review and execute `docs/superpowers/plans/2026-03-27-harness-goal-lineage-hardening.md`.
 
 ## Touched Files
 
-- `templates/base/.agents/skills/using-agent-practices/`
-- `templates/base/docs/reference/{codemap.md,memory.md}`
-- `templates/base/docs/live/progress.md`
+- `docs/superpowers/plans/2026-03-27-harness-goal-lineage-hardening.md`
+- `docs/live/current-focus.md`
 - `docs/live/progress.md`
 
 ## Verification Status
 
-- Check: `python3 templates/base/.agents/skills/create-skill/scripts/validate.py --strict templates/base/.agents/skills/using-agent-practices`
-- Result: passed
-- Check: targeted Python assertions for top-level skill coverage, router outputs, category-map inventory completeness, and eval IDs
-- Result: passed
+- Not run yet for this plan.
 
 ## Hand-off Note
 
-`using-agent-practices` is now the honest top-level inventory for both family routers and standalone specialist skills. If a new top-level skill lands later, update the router body, category map, and trigger/task evals together; otherwise resume from Task 35.
+The next session should implement the harness goal-lineage hardening plan and keep the roadmap as the authoritative source for phased work.
