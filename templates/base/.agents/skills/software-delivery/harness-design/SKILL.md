@@ -30,6 +30,8 @@ Do not use this skill when:
 - Keep planner, generator, and evaluator as separate owners. Planner and evaluator must not collapse into the same role.
 - Define the handoff artifacts, pass/fail gates, and return paths before any implementation begins.
 - When live docs are part of the workflow, require honest updates before each baton pass so the next role reads current truth rather than stale intent.
+- Preserve goal lineage: the source goal, plan goal, and current phase goal must remain linked until the user explicitly retires or replaces the work.
+- Rehydrate from stored truth before phase 1 and after every compaction; do not continue from chat memory alone.
 - Stay portable. Do not assume a vendor-specific runtime, daemon, background supervisor, or always-on agent framework.
 
 ## Mode Selection
@@ -102,6 +104,7 @@ Does not own:
 
 For any non-trivial control model, define these artifacts explicitly:
 - `docs/live/current-focus.md` — current objective and active boundary
+- `docs/live/roadmap.md` — source goal, plan goal, phase ledger, goal changes, and resume rules for phased work
 - `docs/live/runtime.md` — current execution mode, baton owner, and transition rules
 - `docs/live/progress.md` — progress record with touched files and verification evidence
 - `docs/live/qa.md` — evaluation record when an evaluator exists
@@ -113,6 +116,9 @@ When live docs are in use, update them before handoff with the current truth. At
 - what was verified
 - what failed
 - who owns the next action
+- what the original source goal is
+- what phase goal is active now
+- whether the user changed direction and retired the old goal
 
 ## Return Paths
 
@@ -121,6 +127,7 @@ Every failure must route to one owner.
 - **Implementation defect** -> return to the generator. The plan was still valid, but the produced work did not satisfy it.
 - **Scope, contract, or orchestration defect** -> return to the planner. The control model, boundary, or acceptance logic was wrong or incomplete.
 - **Environment or setup blocker** -> mark the work as `blocked`. Do not pretend planning or implementation can proceed until the external blocker is removed.
+- **Goal-lineage drift** -> return to the planner. If the current phase can no longer be reconciled with the source goal or roadmap, the control artifact is stale and must be rewritten before more implementation continues.
 
 If a failure could fit more than one bucket, choose the earliest broken contract. Do not send generator work back to the planner just because the failure was discovered late.
 

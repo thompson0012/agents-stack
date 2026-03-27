@@ -8,6 +8,10 @@ Read when you need to find where to work. Prefer only high-value paths.
 - Purpose: live handoff surface for current objective, runtime control, continuity, QA evidence, and task selection.
 - Update when: a live-doc path, handoff contract, or evaluation artifact changes.
 
+- Path: `templates/base/docs/live/roadmap.md`
+- Purpose: persistent source-goal / plan-goal / phase-goal ledger for roadmap-driven work.
+- Update when: a plan is created, a phase changes, or the user explicitly changes direction.
+
 - Path: `templates/base/docs/reference/`
 - Purpose: stable reference docs for architecture, codemap, implementation, design, memory, and lessons.
 - Update when: boundaries, high-value paths, or stable repo guidance changes.
@@ -57,6 +61,10 @@ Read when you need to find where to work. Prefer only high-value paths.
 - File: `templates/base/docs/live/current-focus.md`
 - Why it matters: defines the active boundary and next-owner instruction.
 - Read after: `templates/base/AGENTS.md`
+
+- File: `templates/base/docs/live/roadmap.md`
+- Why it matters: preserves goal lineage so phased work can survive compaction and resume honestly.
+- Read after: `templates/base/docs/live/current-focus.md`
 
 - File: `templates/base/docs/live/todo.md`
 - Why it matters: records the queued work so the active baton owner and next owner can see what remains and what is already done.

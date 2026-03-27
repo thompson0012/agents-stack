@@ -1,12 +1,9 @@
 # QA
 
-Read when an explicit acceptance pass or independent evaluator is in play. Skip for trivial work that does not need a separate QA artifact.
-
 ## Evidence Matrix
 
 | Item | Check | Evidence | Result |
 | --- | --- | --- | --- |
-| Requirement or claim | How it was checked | Artifact, note, or pointer | `pass` / `fail` / `blocked` |
 
 ## Browser QA Evidence Summary
 
@@ -19,13 +16,10 @@ Read when an explicit acceptance pass or independent evaluator is in play. Skip 
 ## Defects by Severity
 
 ### Blocker
-- None.
 
 ### Major
-- None.
 
 ### Minor
-- None.
 
 ## Retry Contract
 

@@ -68,7 +68,7 @@
       "summary": "Designs delivery-control rules for single-session work, compacted continuation, or planner/generator/evaluator loops so cross-session execution stays honest and bounded.",
       "route_when": [
         "The request is about multi-session execution, delivery control, harness design, planner/generator/evaluator loops, or handoff contracts rather than product implementation.",
-        "The main need is to decide session boundaries, pass/fail gates, or required artifacts for work that will span resets, compaction, or multiple agents."
+        "The main need is to decide session boundaries, pass/fail gates, goal lineage, or required artifacts for work that will span resets, compaction, or multiple agents."
       ],
       "avoid_when": [
         "The router can already choose the next ordinary delivery stage without extra orchestration design.",

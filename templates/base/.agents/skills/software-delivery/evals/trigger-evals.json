@@ -12,6 +12,12 @@
     "why": "This is a software-delivery delivery-control request about cross-session orchestration, so it should route through the family router to the harness-design child."
   },
   {
+    "id": "should-trigger-roadmap-drift",
+    "query": "After the roadmap was produced, the agent forgot the source goal during phase 1 and compaction. We need the workflow hardened so the original objective survives resume.",
+    "should_trigger": true,
+    "why": "This is a harness-control problem about preserving goal lineage across phased delivery and compaction, so it should route to harness-design."
+  },
+  {
     "id": "should-trigger-plan-review",
     "query": "I already have a rollout plan for offline sync. Pressure-test the architecture, rollback plan, and observability before implementation starts.",
     "should_trigger": true,

@@ -69,6 +69,7 @@ These thoughts indicate you are rationalizing away skill usage:
 
 - Start here, then read only the smallest set of docs needed for the task.
 - Read `docs/live/current-focus.md` for the active objective, scope, and constraints.
+- Read `docs/live/roadmap.md` when work spans roadmap execution, phase handoffs, or compaction-sensitive continuity.
 - Read `docs/live/runtime.md` when the work runs under explicit delivery control, crosses session boundaries, or depends on planner/generator/evaluator baton state.
 - Read `docs/live/progress.md` for session continuity, touched files, latest verification, and the next recommended action.
 - Read `docs/live/qa.md` when independent acceptance evidence or evaluator verdicts matter.
@@ -85,6 +86,7 @@ These thoughts indicate you are rationalizing away skill usage:
 ## Read Order by Task Type
 
 - Start or resume work: `AGENTS.md` → `docs/live/current-focus.md` → `docs/live/progress.md`
+- Roadmap-driven phased work: `AGENTS.md` → `docs/live/current-focus.md` → `docs/live/roadmap.md` → `docs/live/progress.md`
 - Resume controlled multi-session work: `AGENTS.md` → `docs/live/current-focus.md` → `docs/live/runtime.md` → `docs/live/progress.md` → `docs/live/qa.md` when evaluator evidence exists
 - Pick the next task: `AGENTS.md` → `docs/live/current-focus.md` → `docs/live/progress.md` → `docs/live/todo.md` when prioritization is still needed
 - Find where to work: `AGENTS.md` → `docs/live/current-focus.md` → `docs/live/progress.md` → `docs/reference/codemap.md`

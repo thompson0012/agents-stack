@@ -1,10 +1,8 @@
 # Runtime
 
-Read when work uses explicit delivery control across sessions or roles. Keep this current before each baton pass.
-
 ## Current Mode
 
-- Mode: `single-session` | `compacted-continuation` | `planner-generator-evaluator`
+- Mode:
 - Why this mode:
 - Active boundary:
 
@@ -24,7 +22,7 @@ Read when work uses explicit delivery control across sessions or roles. Keep thi
 ## Reset vs Compaction Rule
 
 - Stay in-session when:
-- Use `context-compaction` when the same role should continue after a reset or context pressure.
+- Use `context-compaction` when:
 - Do not compact when:
 - Reset result:
 
@@ -34,7 +32,7 @@ Read when work uses explicit delivery control across sessions or roles. Keep thi
 - `docs/live/runtime.md`:
 - `docs/live/progress.md`:
 - `docs/live/qa.md`:
-- Other artifact:
+- `docs/live/roadmap.md`:
 
 ## Stop / Escalation Conditions
 

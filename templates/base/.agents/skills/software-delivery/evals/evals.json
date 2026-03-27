@@ -20,6 +20,12 @@
       "files": []
     },
     {
+      "id": "direct-roadmap-drift",
+      "prompt": "The agent keeps losing the original goal after roadmap execution and phase 1 implementation. Harden the workflow so compaction cannot make it drift away from the source objective.",
+      "expected_output": "Routes to software-delivery/harness-design because the request is about preserving goal lineage and cross-session execution control, not about building the feature itself.",
+      "files": []
+    },
+    {
       "id": "direct-product-review",
       "prompt": "I already drafted a plan for scheduled exports. Challenge the scope, MVP cuts, rollout sequence, and whether the user value is strong enough before we commit engineers.",
       "expected_output": "Routes to software-delivery/plan-product-review because the plan exists and the dominant need is product-value and scope challenge.",
