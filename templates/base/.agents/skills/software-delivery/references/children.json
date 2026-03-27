@@ -62,6 +62,32 @@
       }
     },
     {
+      "name": "multi-phase-control",
+      "target": "software-delivery/multi-phase-control",
+      "relationship": "routes_to",
+      "summary": "Sets up persistence structure and phase gates for multi-phase work that must preserve original intent across context resets and session boundaries.",
+      "route_when": [
+        "The user presents a vision and multi-phase roadmap and wants to preserve the original intent across all phases.",
+        "Work will span multiple phases or sessions and the user explicitly mentions preserving, maintaining integrity, or avoiding drift.",
+        "The main need is setting up docs/live structure, phase gates, compaction checkpoints, and drift tracking before execution begins."
+      ],
+      "avoid_when": [
+        "Single-session work with no phases or cross-session concerns.",
+        "The request is for planning only without execution intent.",
+        "The request is purely about context compaction (use context-compaction directly)."
+      ],
+      "requires": [],
+      "recommends": [
+        "software-delivery/harness-design",
+        "context-compaction"
+      ],
+      "fallbacks_to": [],
+      "install_if_missing": {
+        "package": "software-delivery/multi-phase-control",
+        "notes": "Install this nested child path before routing when the runtime cannot discover software-delivery children automatically."
+      }
+    },
+    {
       "name": "harness-design",
       "target": "software-delivery/harness-design",
       "relationship": "routes_to",

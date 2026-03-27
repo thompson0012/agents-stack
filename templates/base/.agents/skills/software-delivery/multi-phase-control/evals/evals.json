@@ -1,0 +1,23 @@
+{
+  "skill_name": "multi-phase-control",
+  "evals": [
+    {
+      "id": "direct-match",
+      "prompt": "I have a product vision and a 4-phase roadmap to build it. Phase 1 is authentication, Phase 2 is core features, Phase 3 is integrations, Phase 4 is polish and launch. I want to start Phase 1 but I'm worried about losing track of the original vision as we work through each phase. Can you help me set this up so we don't drift?",
+      "expected_output": "Sets up docs/live/current-focus.md with original objective, phase breakdown with entry/exit criteria, and drift log. Creates docs/live/progress.md for state tracking. Chooses control model via harness-design. Schedules compaction checkpoints.",
+      "files": []
+    },
+    {
+      "id": "near-miss",
+      "prompt": "I need to build a feature in stages. First the backend, then the API, then the frontend. Should I use some kind of planning structure?",
+      "expected_output": "Assesses whether multi-phase-control is needed. If phases fit in one session and no explicit persistence concern, may route to simpler planning approach. If user expresses concern about context loss or handoffs, applies multi-phase-control.",
+      "files": []
+    },
+    {
+      "id": "noisy-case",
+      "prompt": "The context is getting long and I've been working on this project for a while. We've gone through several phases and I think we might have drifted from the original goal. I vaguely remember we started with 'build a dashboard for X' but now we're doing OAuth and payment processing and I'm not sure all of that was in scope. Can you help me figure out if we've drifted and get back on track?",
+      "expected_output": "Detects drift concern. Creates or recovers current-focus.md with original objective if recoverable. Sets up drift log to track divergence. May need to ask user for original intent if lost. Applies multi-phase-control going forward.",
+      "files": []
+    }
+  ]
+}

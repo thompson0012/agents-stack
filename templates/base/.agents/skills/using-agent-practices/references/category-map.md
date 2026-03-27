@@ -33,6 +33,7 @@ Use `create-skill` when the package's job is one repeatable workflow. Use `creat
 Route through `software-delivery` when the request is non-trivial software feature work and the user needs lifecycle guidance across discovery, harness control, plan review, independent frontend evaluation, implementation handoff, or ship-readiness.
 
 - `software-delivery/feature-discovery` — turn a fuzzy feature idea or change request into a clear problem statement, wedge, and next-step recommendation
+- `software-delivery/multi-phase-control` — set up persistence structure and phase gates for multi-phase work that must preserve original intent across context resets
 - `software-delivery/harness-design` — choose the honest delivery-control mode across single-session work, compacted continuation, or planner/generator/evaluator execution with explicit handoffs
 - `software-delivery/plan-product-review` — challenge a plan on user value, scope, sequencing, and MVP shape before implementation
 - `software-delivery/plan-engineering-review` — challenge a plan on architecture, failure modes, rollback, tests, and observability before implementation

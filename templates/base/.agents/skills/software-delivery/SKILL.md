@@ -29,7 +29,12 @@ Route to `software-delivery/feature-discovery` when the team is still sorting ou
 ### 2. Is the main need a scoped artifact?
 Route to `feature-spec` when the team wants a PRD, scope, non-goals, acceptance criteria, or another concrete requirements artifact.
 
-### 3. Is the main need cross-session delivery control or harness design?
+### 3. Is the main need multi-phase control and drift prevention?
+Route to `software-delivery/multi-phase-control` when the user presents a vision and multi-phase roadmap and wants to preserve original intent across phases, set up phase gates, compaction checkpoints, and drift tracking before execution begins.
+
+Use this lane when the user explicitly mentions preserving, maintaining integrity, avoiding drift, or wants explicit phase-gate structure before starting phase 1.
+
+### 4. Is the main need cross-session delivery control or harness design?
 Route to `software-delivery/harness-design` when the work needs explicit control over single-session vs compacted continuation vs planner/generator/evaluator loops, plus the handoff artifacts and pass/fail boundaries that keep multi-session execution honest.
 
 Use this lane for orchestration and control. Do not use it for ordinary single-session stage selection that the router already handles.
@@ -63,6 +68,7 @@ Return one of these forms and then invoke the selected skill if needed:
 
 - `Route to software-delivery/feature-discovery.`
 - `Route to feature-spec.`
+- `Route to software-delivery/multi-phase-control.`
 - `Route to software-delivery/harness-design.`
 - `Route to software-delivery/plan-product-review.`
 - `Route to software-delivery/plan-engineering-review.`

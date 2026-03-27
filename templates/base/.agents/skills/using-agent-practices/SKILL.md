@@ -44,6 +44,7 @@ Apply these checks in order.
 ### 1. Orchestration and continuity
 - Need a compacted session state, handoff snapshot, or continuation summary -> `context-compaction`
 - Need a confidence check, postmortem, lessons learned, repeatable workflow extraction, or preflight verification -> `self-cognitive`
+- Need multi-phase control with phase gates, drift tracking, and cross-session persistence for a vision/roadmap that must not drift -> `software-delivery/multi-phase-control`
 
 ### 2. Prompt, spec, and skill artifact creation
 - The requested deliverable is a system prompt, prompt template, prompt architecture, prompt rubric, or prompt eval plan -> `meta-prompting`

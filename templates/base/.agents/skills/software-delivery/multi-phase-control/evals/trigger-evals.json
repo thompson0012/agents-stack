@@ -1,0 +1,44 @@
+[
+  {
+    "id": "should-trigger-1",
+    "query": "I have a vision and 3-phase roadmap. Start phase 1 but make sure we preserve the original intent across all phases.",
+    "should_trigger": true,
+    "why": "Explicit multi-phase work with explicit preservation requirement"
+  },
+  {
+    "id": "should-trigger-2",
+    "query": "Build this feature in stages over multiple sessions. I want to maintain roadmap integrity throughout.",
+    "should_trigger": true,
+    "why": "Multi-session work with explicit integrity concern"
+  },
+  {
+    "id": "should-trigger-3",
+    "query": "Here's my 4-phase plan. We'll need to hand off between phases and I don't want to lose context.",
+    "should_trigger": true,
+    "why": "Explicit handoff between phases with context preservation concern"
+  },
+  {
+    "id": "should-not-trigger-1",
+    "query": "Build this feature end-to-end in one session.",
+    "should_trigger": false,
+    "why": "Single session, no phases, no context preservation concern"
+  },
+  {
+    "id": "should-not-trigger-2",
+    "query": "Give me a roadmap for this project.",
+    "should_trigger": false,
+    "why": "Requesting a plan, not executing multi-phase work with persistence"
+  },
+  {
+    "id": "should-not-trigger-3",
+    "query": "This feature has 3 parts to implement: backend, API, frontend.",
+    "should_trigger": false,
+    "why": "Describing scope, not expressing concern about cross-phase persistence or drift"
+  },
+  {
+    "id": "should-not-trigger-4",
+    "query": "Compact the context and continue.",
+    "should_trigger": false,
+    "why": "Context compaction request, use context-compaction skill directly"
+  }
+]

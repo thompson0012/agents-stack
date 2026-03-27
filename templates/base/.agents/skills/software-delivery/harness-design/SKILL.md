@@ -27,10 +27,30 @@ Do not use this skill when:
 - Choose exactly one execution mode: `single-session`, `compacted-continuation`, or `planner-generator-evaluator`.
 - Make the choice from observable conditions such as session-boundary risk, context volume, independent-verification needs, and defect-routing needs.
 - Name `context-compaction` as the canonical mechanism for `compacted-continuation`. Do not describe compaction as an ad hoc summary.
+- Use `live_docs_root` if the consuming project declares one; default to `docs/live/` when none is declared.
 - Keep planner, generator, and evaluator as separate owners. Planner and evaluator must not collapse into the same role.
 - Define the handoff artifacts, pass/fail gates, and return paths before any implementation begins.
 - When live docs are part of the workflow, require honest updates before each baton pass so the next role reads current truth rather than stale intent.
 - Stay portable. Do not assume a vendor-specific runtime, daemon, background supervisor, or always-on agent framework.
+
+## Runtime Contract
+
+- `mode`: one active mode only.
+- `baton owner`: the role currently allowed to act.
+- `next role`: the role that should read and act next.
+- `max_retries`: maximum generator retries before planner escalation; default 3 unless the planner states otherwise.
+- `doc_state`: `stable` or `updating` for live-doc handoff integrity.
+- `live_docs_root`: the path where the consuming project stores live docs; defaults to `docs/live/`.
+
+## Escalation Table
+
+| Trigger | From | To |
+| --- | --- | --- |
+| Context pressure or imminent reset | `single-session` | `compacted-continuation` |
+| Repeated defects prove role separation needed | `compacted-continuation` | `planner-generator-evaluator` |
+| Work collapses to one bounded slice | `planner-generator-evaluator` | `single-session` |
+
+Planner updates `runtime.md` before work resumes under a new mode.
 
 ## Mode Selection
 
@@ -82,6 +102,7 @@ Owns:
 - executing the plan inside the permitted boundary
 - updating the agreed handoff artifacts with what actually changed, what was verified, and what remains true or blocked
 - returning implementation defects with concrete evidence when the plan was followed but the output failed
+- respecting the retry budget before escalating to the planner
 
 Does not own:
 - expanding scope silently
@@ -93,6 +114,7 @@ Owns:
 - checking the delivered work against the planner's contract and the observable acceptance gate
 - reporting pass, fail, and defect evidence clearly enough that the next owner knows what must change
 - preserving independence from generation so the evaluation is not a self-justification loop
+- logging out-of-scope findings separately so they do not distort the current pass/fail gate
 
 Does not own:
 - writing the implementation fix
@@ -106,6 +128,13 @@ For any non-trivial control model, define these artifacts explicitly:
 - `docs/live/progress.md` — progress record with touched files and verification evidence
 - `docs/live/qa.md` — evaluation record when an evaluator exists
 - next-owner instruction stating who acts next and why (written into `docs/live/current-focus.md`)
+
+### Required formats
+
+- `docs/live/progress.md` must represent work units with explicit state, not prose-only completion.
+- `docs/live/runtime.md` is planner-owned; generator and evaluator read it but do not redefine the active mode.
+- `docs/live/qa.md` must separate in-scope verdicts from out-of-scope findings.
+- If a live doc is being updated mid-pass, mark it `updating` first and return it to `stable` only after the update is complete.
 
 When live docs are in use, update them before handoff with the current truth. At minimum, the receiving role must be able to recover:
 - what mode is active
@@ -121,6 +150,7 @@ Every failure must route to one owner.
 - **Implementation defect** -> return to the generator. The plan was still valid, but the produced work did not satisfy it.
 - **Scope, contract, or orchestration defect** -> return to the planner. The control model, boundary, or acceptance logic was wrong or incomplete.
 - **Environment or setup blocker** -> mark the work as `blocked`. Do not pretend planning or implementation can proceed until the external blocker is removed.
+- **Out-of-scope finding during evaluation** -> record it in `qa.md`, do not block the current in-scope verdict, and route it to the planner as a separate follow-up item.
 
 If a failure could fit more than one bucket, choose the earliest broken contract. Do not send generator work back to the planner just because the failure was discovered late.
 
@@ -133,6 +163,12 @@ Return a compact control artifact with these sections:
 4. **Handoff artifacts** — what must exist before baton passing
 5. **Return paths** — implementation defect, scope/contract/orchestration defect, environment blocker
 6. **Next route** — the next skill or work lane that should execute under this control model
+
+## Handoff Integrity
+
+- Start live-doc updates by writing `doc_state: updating` in the relevant doc when partial writes are possible.
+- Finish live-doc updates by returning the doc to `stable`.
+- Prefer structured gate language: `observable condition -> pass if predicate, fail if predicate`.
 
 ## Failure Modes to Avoid
 

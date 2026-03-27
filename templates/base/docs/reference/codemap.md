@@ -5,8 +5,8 @@ Read when you need to find where to work. Prefer only high-value paths.
 ## Key Paths
 
 - Path: `templates/base/docs/live/`
-- Purpose: live handoff surface for current objective, runtime control, continuity, QA evidence, and task selection.
-- Update when: a live-doc path, handoff contract, or evaluation artifact changes.
+- Purpose: starter templates for the consuming project's live handoff surface (`docs/live/`).
+- Update when: the template shapes, placeholder text, or handoff contract changes.
 
 - Path: `templates/base/docs/reference/`
 - Purpose: stable reference docs for architecture, codemap, implementation, design, memory, and lessons.
@@ -19,6 +19,10 @@ Read when you need to find where to work. Prefer only high-value paths.
 - Path: `templates/base/.agents/skills/software-delivery/multi-phase-control/`
 - Purpose: leaf skill for phase-gated persistence, drift tracking, and cross-session roadmap continuity.
 - Update when: the multi-phase workflow, templates, or router bindings change.
+
+- Path: `templates/base/.agents/skills/software-delivery/harness-design/`
+- Purpose: execution-mode contract for single-session, compacted-continuation, and planner/generator/evaluator control with live-doc integrity rules.
+- Update when: mode selection, retry routing, handoff artifacts, or live-doc ownership semantics change.
 
 - Path: `templates/base/.agents/skills/using-reasoning/`
 - Purpose: router family for analytical requests across state calibration, problem framing, strategic foresight, hidden-rule reality checks, structured advisory, and multi-lens analysis.
