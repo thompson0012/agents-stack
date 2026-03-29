@@ -15,7 +15,7 @@ For the current shipped inventory and install hints, read [child inventory](refe
 
 - Route only among the currently shipped top-level skills in this template suite.
 - Do not route to moved or external families such as `website-building`, `using-documents`, `coding-and-data`, `using-research`, or similar non-suite skills. They are outside this router's owned boundary.
-- Prefer a family router only when the ambiguity lives inside that family. In this suite, that means `using-design`, `using-reasoning`, or `software-delivery`.
+- Prefer a family router only when the ambiguity lives inside that family. In this suite, that means `using-design`, `using-reasoning`, or `delivery-control`.
 - If the best shipped child is missing, say to install it before routing. Do not silently substitute a different child.
 - If no shipped Labs21 suite skill fits, say so and answer directly or continue with a non-suite workflow.
 
@@ -30,7 +30,7 @@ Apply these checks in order.
 5. Need a reusable leaf skill package created or upgraded -> `create-skill`
 6. Need a router package created or upgraded with child metadata and honest install-or-fallback behavior -> `create-router-skill`
 7. Need design-family help and the right design lane is not obvious yet -> `using-design`
-8. Need lifecycle guidance for non-trivial software delivery and the next stage inside that family is not obvious yet -> `software-delivery`
+8. Need lifecycle guidance for non-trivial software delivery and the next stage inside that family is not obvious yet -> `delivery-control`
 9. Need a harsh startup viability teardown, launch stress test, or CAC/churn/runway pressure pass -> `startup-pressure-test`
 10. Need analytical, strategic, or diagnostic reasoning and the right reasoning lane is not obvious yet -> `using-reasoning`
 11. Otherwise -> no Labs21 suite skill
@@ -46,7 +46,7 @@ Return one of these forms and then invoke the selected skill if needed:
 - `Route to create-skill.`
 - `Route to create-router-skill.`
 - `Route to using-design.`
-- `Route to software-delivery.`
+- `Route to delivery-control.`
 - `Route to startup-pressure-test.`
 - `Route to using-reasoning.`
 - `No Labs21 suite skill fits; answer directly.`
@@ -63,5 +63,5 @@ Add one sentence explaining why the selected route is the narrowest correct fit.
 - routing harsh startup viability or GTM teardown work into `using-reasoning` because it sounds analytical
 - routing prompt-architecture work to `prompt-augmentation` when the user really needs `meta-prompting`
 - routing router-package work to `create-skill` when the package's job is family routing
-- routing non-trivial software delivery straight to `self-cognitive` when the main need is still discovery, delivery-control design, plan review, or evaluator selection inside `software-delivery`
+- routing non-trivial software delivery straight to `self-cognitive` when the main need is still discovery, delivery-control design, plan review, or evaluator selection inside `delivery-control`
 - forcing a Labs21 suite route onto a request that is now outside this router's owned boundary

@@ -11,18 +11,18 @@ def read(path: str) -> str:
 
 class HarnessGoalLineageTests(unittest.TestCase):
     def test_router_mentions_harness_and_goal_lineage(self) -> None:
-        router = read("templates/base/.agents/skills/software-delivery/SKILL.md")
+        router = read("templates/base/.agents/skills/delivery-control/SKILL.md")
         self.assertIn("cross-session delivery control or harness design", router)
 
         children = read(
-            "templates/base/.agents/skills/software-delivery/references/children.json"
+            "templates/base/.agents/skills/delivery-control/references/children.json"
         )
         self.assertIn("goal lineage", children)
 
     def test_evals_cover_roadmap_drift(self) -> None:
-        evals = read("templates/base/.agents/skills/software-delivery/evals/evals.json")
+        evals = read("templates/base/.agents/skills/delivery-control/evals/evals.json")
         triggers = read(
-            "templates/base/.agents/skills/software-delivery/evals/trigger-evals.json"
+            "templates/base/.agents/skills/delivery-control/evals/trigger-evals.json"
         )
         self.assertIn("direct-roadmap-drift", evals)
         self.assertIn("should-trigger-roadmap-drift", triggers)

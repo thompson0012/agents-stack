@@ -51,9 +51,9 @@
       "notes": "Top-level router should hand off to the design family rather than guessing one nested child here."
     },
     {
-      "id": "route-software-delivery-family",
+      "id": "route-delivery-control-family",
       "prompt": "We know what feature we want, but I need help deciding whether this next step is discovery cleanup, harness design, plan review, or evaluator signoff before implementation continues.",
-      "expected_output": "Routes to software-delivery because the ambiguity is inside the software-delivery lifecycle family rather than at the top-level suite boundary.",
+      "expected_output": "Routes to delivery-control because the ambiguity is inside the delivery-control lifecycle family rather than at the top-level suite boundary.",
       "files": [],
       "notes": "Non-trivial software stage selection belongs in the delivery router."
     },

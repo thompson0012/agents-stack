@@ -33,7 +33,7 @@ class GoalLineageTemplateTests(unittest.TestCase):
 
     def test_harness_skill_mentions_goal_lineage(self) -> None:
         content = read(
-            "templates/base/.agents/skills/software-delivery/harness-design/SKILL.md"
+            "templates/base/.agents/skills/delivery-control/harness-design/SKILL.md"
         )
         self.assertIn("source goal", content)
         self.assertIn("plan goal", content)

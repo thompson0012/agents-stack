@@ -5,7 +5,7 @@ Read when you need to find where to work. Prefer only high-value paths.
 ## Key Paths
 
 - Path: `templates/base/.agents/skills/using-labs21-suite/`
-- Purpose: top-level router, child inventory, and category-map surface for the shipped Labs21 template suite, including `using-design`, `using-reasoning`, and `software-delivery` while excluding deleted or moved external families.
+- Purpose: top-level router, child inventory, and category-map surface for the shipped Labs21 template suite, including `using-design`, `using-reasoning`, and `delivery-control` while excluding deleted or moved external families.
 - Update when: the shipped suite boundary, first-hop routing, or category descriptions change.
 
 - Path: `templates/base/.agents/skills/using-design/`
@@ -16,7 +16,7 @@ Read when you need to find where to work. Prefer only high-value paths.
 - Purpose: reasoning-family router for analytical, strategic, and diagnostic requests across calibration, framing, foresight, reality checks, advisory analysis, and multi-lens problem solving.
 - Update when: the reasoning family boundary, child list, or handoff rules change.
 
-- Path: `templates/base/.agents/skills/software-delivery/`
+- Path: `templates/base/.agents/skills/delivery-control/`
 - Purpose: router family for non-trivial software delivery, including `harness-design` and `frontend-evaluator`.
 - Update when: the family boundary, child list, or eval coverage changes.
 
@@ -50,13 +50,13 @@ Read when you need to find where to work. Prefer only high-value paths.
 - Consumer: router authors and reviewers checking durable reasoning-family boundaries.
 - Notes: source of truth for shipped reasoning children and install hints.
 
-- Entrypoint: `templates/base/.agents/skills/software-delivery/SKILL.md`
+- Entrypoint: `templates/base/.agents/skills/delivery-control/SKILL.md`
 - Consumer: agents deciding whether work needs discovery, harness control, review, evaluator signoff, implementation, or readiness reflection.
 - Notes: enter here before direct leaf selection when non-trivial software delivery is ambiguous.
 
-- Entrypoint: `templates/base/.agents/skills/software-delivery/references/children.json`
+- Entrypoint: `templates/base/.agents/skills/delivery-control/references/children.json`
 - Consumer: router authors and reviewers checking durable delivery-family boundaries.
-- Notes: source of truth for `harness-design`, `frontend-evaluator`, and the remaining software-delivery targets.
+- Notes: source of truth for `harness-design`, `frontend-evaluator`, and the remaining delivery-control targets.
 
 - Entrypoint: `templates/base/docs/live/runtime.md`
 - Consumer: planner, generator, evaluator, or same-role continuation across resets.
@@ -68,13 +68,13 @@ Read when you need to find where to work. Prefer only high-value paths.
 
 ## High-Value Files
 
-- File: `templates/base/.agents/skills/software-delivery/harness-design/SKILL.md`
+- File: `templates/base/.agents/skills/delivery-control/harness-design/SKILL.md`
 - Why it matters: defines when to stay single-session, compact, or use planner/generator/evaluator control.
-- Read after: `templates/base/.agents/skills/software-delivery/SKILL.md`
+- Read after: `templates/base/.agents/skills/delivery-control/SKILL.md`
 
-- File: `templates/base/.agents/skills/software-delivery/frontend-evaluator/SKILL.md`
+- File: `templates/base/.agents/skills/delivery-control/frontend-evaluator/SKILL.md`
 - Why it matters: defines independent browser QA output, evidence standards, and pass/fail/blocked semantics.
-- Read after: `templates/base/.agents/skills/software-delivery/SKILL.md`
+- Read after: `templates/base/.agents/skills/delivery-control/SKILL.md`
 
 - File: `templates/base/.agents/skills/using-design/references/children.json`
 - Why it matters: quickest way to see which shipped design children the top-level suite can honestly hand off to.

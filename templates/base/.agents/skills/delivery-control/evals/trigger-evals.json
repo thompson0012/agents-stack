@@ -1,0 +1,29 @@
+{
+  "test_cases": [
+    {
+      "input": "This task will span multiple sessions, set up a planner and evaluator loop.",
+      "should_trigger": true,
+      "rationale": "Explicit cross-session harness orchestration requires delivery-control."
+    },
+    {
+      "input": "Please verify this UI in the browser and give me a strict pass/fail.",
+      "should_trigger": true,
+      "rationale": "Independent frontend QA requires delivery-control."
+    },
+    {
+      "input": "Write a PRD for the new dashboard.",
+      "should_trigger": false,
+      "rationale": "Product definition (PRDs) belong in labs21-product-suite, not delivery-control."
+    },
+    {
+      "input": "Can you fix the layout bug on the home page?",
+      "should_trigger": false,
+      "rationale": "Standard implementation and fixes do not require delivery-control."
+    },
+    {
+      "input": "We need to handle should-trigger-roadmap-drift during execution.",
+      "should_trigger": true,
+      "rationale": "Goal lineage anomalies demand harness control."
+    }
+  ]
+}

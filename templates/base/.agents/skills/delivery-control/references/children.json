@@ -1,5 +1,5 @@
 {
-  "router_name": "software-delivery",
+  "router_name": "delivery-control",
   "purpose": "Route non-trivial software feature delivery requests to harness-design (for orchestration) or frontend-evaluator (for independent QA).",
   "selection_order": [
     "Cross-session delivery-control design beats implementation when the real question is how work should be orchestrated across sessions, handoffs, and QA loops.",
@@ -8,7 +8,7 @@
   "children": [
     {
       "name": "harness-design",
-      "target": "software-delivery/harness-design",
+      "target": "delivery-control/harness-design",
       "relationship": "routes_to",
       "summary": "Designs delivery-control rules for single-session work, compacted continuation, or planner/generator/evaluator loops so cross-session execution stays honest and bounded.",
       "route_when": [
@@ -20,17 +20,17 @@
       ],
       "requires": [],
       "recommends": [
-        "software-delivery/frontend-evaluator"
+        "delivery-control/frontend-evaluator"
       ],
       "fallbacks_to": [],
       "install_if_missing": {
-        "package": "software-delivery/harness-design",
-        "notes": "Install this nested child path before routing when the runtime cannot discover software-delivery children automatically."
+        "package": "delivery-control/harness-design",
+        "notes": "Install this nested child path before routing when the runtime cannot discover delivery-control children automatically."
       }
     },
     {
       "name": "frontend-evaluator",
-      "target": "software-delivery/frontend-evaluator",
+      "target": "delivery-control/frontend-evaluator",
       "relationship": "routes_to",
       "summary": "Runs independent browser-facing acceptance on an already-built frontend deliverable and returns a pass, fail, or blocked verdict with evidence, defects, and retry guidance.",
       "route_when": [
@@ -48,8 +48,8 @@
       "recommends": [],
       "fallbacks_to": [],
       "install_if_missing": {
-        "package": "software-delivery/frontend-evaluator",
-        "notes": "Install this nested child path before routing when the runtime cannot discover software-delivery children automatically."
+        "package": "delivery-control/frontend-evaluator",
+        "notes": "Install this nested child path before routing when the runtime cannot discover delivery-control children automatically."
       }
     }
   ]

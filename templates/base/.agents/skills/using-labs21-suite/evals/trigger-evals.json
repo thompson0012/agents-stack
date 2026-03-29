@@ -42,10 +42,10 @@
     "why": "This is design-family ambiguity inside the shipped Labs21 suite, so using-labs21-suite should trigger and route to using-design."
   },
   {
-    "id": "should-trigger-software-delivery",
+    "id": "should-trigger-delivery-control",
     "query": "For this non-trivial feature, tell me whether the next honest step is discovery, harness design, plan review, or evaluator signoff.",
     "should_trigger": true,
-    "why": "This is delivery-stage ambiguity inside the shipped Labs21 suite, so using-labs21-suite should trigger and route to software-delivery."
+    "why": "This is delivery-stage ambiguity inside the shipped Labs21 suite, so using-labs21-suite should trigger and route to delivery-control."
   },
   {
     "id": "should-trigger-startup-pressure-test",

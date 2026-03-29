@@ -34,14 +34,14 @@ Route through `using-design` when the request is about design-family selection a
 
 ## Software Delivery Routing
 
-Route through `software-delivery` when the request is non-trivial software feature work and the user needs help choosing the next delivery stage.
+Route through `delivery-control` when the request is non-trivial software feature work and the user needs help choosing the next delivery stage.
 
-- `software-delivery/feature-discovery` — turn a fuzzy feature idea or change request into a clear problem statement and next-step recommendation
-- `software-delivery/harness-design` — choose the honest delivery-control mode across single-session work, compacted continuation, or planner/generator/evaluator execution with explicit handoffs
-- `software-delivery/plan-product-review` — challenge a plan on user value, scope, sequencing, and MVP shape before implementation
-- `software-delivery/plan-engineering-review` — challenge a plan on architecture, failure modes, rollback, tests, and observability before implementation
-- `software-delivery/plan-design-review` — challenge a plan on UX flows, states, accessibility, and interface clarity before implementation
-- `software-delivery/frontend-evaluator` — provide strict independent browser-facing acceptance with evidence, defects, and retry guidance after implementation exists
+- `delivery-control/feature-discovery` — turn a fuzzy feature idea or change request into a clear problem statement and next-step recommendation
+- `delivery-control/harness-design` — choose the honest delivery-control mode across single-session work, compacted continuation, or planner/generator/evaluator execution with explicit handoffs
+- `delivery-control/plan-product-review` — challenge a plan on user value, scope, sequencing, and MVP shape before implementation
+- `delivery-control/plan-engineering-review` — challenge a plan on architecture, failure modes, rollback, tests, and observability before implementation
+- `delivery-control/plan-design-review` — challenge a plan on UX flows, states, accessibility, and interface clarity before implementation
+- `delivery-control/frontend-evaluator` — provide strict independent browser-facing acceptance with evidence, defects, and retry guidance after implementation exists
 
 ## Commercial Reality Testing
 

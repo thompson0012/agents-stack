@@ -2,18 +2,23 @@
   "test_cases": [
     {
       "input": "This feature is going to take 4 hours and I need to step away. How should we set up the handoff so the next agent can continue building the UI?",
-      "expected_route": "software-delivery/harness-design",
+      "expected_route": "delivery-control/harness-design",
       "rationale": "Explicit cross-session orchestration and baton passing belongs in harness-design."
     },
     {
       "input": "I just finished the new login flow. Can you open the browser and verify the error states work as expected before we merge?",
-      "expected_route": "software-delivery/frontend-evaluator",
+      "expected_route": "delivery-control/frontend-evaluator",
       "rationale": "Independent acceptance of browser-facing work belongs in frontend-evaluator."
     },
     {
       "input": "I have an idea for a new product. We should build an AI code reviewer.",
       "expected_route": "labs21-product-suite",
       "rationale": "Greenfield product definition routes to labs21-product-suite."
+    },
+    {
+      "input": "We need to execute task 5 from the roadmap but the plan doesn't match the current code.",
+      "expected_route": "delivery-control/harness-design",
+      "rationale": "Handling direct-roadmap-drift requires explicit cross-session execution controls."
     }
   ]
 }

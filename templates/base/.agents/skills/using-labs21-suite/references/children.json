@@ -5,7 +5,7 @@
     "Continuity and reflective control beat artifact creation because they decide whether work should continue, compact, or be challenged before more output is produced.",
     "Prompt-artifact work beats skill and family routing when the deliverable itself is the prompt.",
     "Skill-package authoring beats domain-family routing when the requested artifact is a reusable skill package.",
-    "Design-family selection beats software-delivery and generic reasoning when the hard problem is the design boundary itself rather than implementation or analysis.",
+    "Design-family selection beats delivery-control and generic reasoning when the hard problem is the design boundary itself rather than implementation or analysis.",
     "Software-delivery routing beats generic reasoning when the task is really about non-trivial feature lifecycle choices rather than broad analysis.",
     "Direct startup viability teardown beats generic reasoning because harsh commercial survivability is a narrower job than analytical advice.",
     "If the request falls outside the shipped suite boundary, do not force a Labs21 route."
@@ -43,7 +43,7 @@
       ],
       "avoid_when": [
         "The user still needs the core work performed rather than reviewed or extracted into lessons.",
-        "The request is really about software-delivery stage selection or prompt design rather than reflective verification."
+        "The request is really about delivery-control stage selection or prompt design rather than reflective verification."
       ],
       "requires": [],
       "recommends": [],
@@ -163,8 +163,8 @@
       }
     },
     {
-      "name": "software-delivery",
-      "target": "software-delivery",
+      "name": "delivery-control",
+      "target": "delivery-control",
       "relationship": "routes_to",
       "summary": "Routes non-trivial software feature work to the right delivery stage across discovery, delivery-control design, plan review, evaluator selection, and readiness reflection.",
       "route_when": [
@@ -181,7 +181,7 @@
       ],
       "fallbacks_to": [],
       "install_if_missing": {
-        "package": "software-delivery",
+        "package": "delivery-control",
         "notes": "Install this top-level family router before routing when the runtime does not already have the Labs21 delivery family available."
       }
     },

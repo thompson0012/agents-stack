@@ -4,19 +4,19 @@ Read when system shape, boundaries, or invariants matter. Keep this focused on s
 
 ## System Boundaries
 
-- Inside scope: portable skill routing, including the `using-design`, `using-reasoning`, and `software-delivery` families, plus template live/reference docs that carry delivery state across sessions.
+- Inside scope: portable skill routing, including the `using-design`, `using-reasoning`, and `delivery-control` families, plus template live/reference docs that carry delivery state across sessions.
 - Outside scope: product-specific implementations, runtime-specific harness code, and mandatory evaluator overhead for trivial one-shot tasks.
 - Boundary note: `using-design` owns design-family selection when the design boundary itself is the hard problem, while ordinary hand-authored web implementation stays outside this template suite.
 - Boundary note: `using-reasoning` owns reasoning-family selection for analytical requests, while `startup-pressure-test` stays separate for harsh commercial survivability work.
-- Boundary note: `software-delivery` owns delivery-control routing and independent frontend acceptance selection for non-trivial software feature work.
+- Boundary note: `delivery-control` owns delivery-control routing and independent frontend acceptance selection for non-trivial software feature work.
 
 ## Invariants
 
-- Invariant: `software-delivery/harness-design` is only for cross-session control, compaction rules, baton passing, and planner/generator/evaluator structure.
+- Invariant: `delivery-control/harness-design` is only for cross-session control, compaction rules, baton passing, and planner/generator/evaluator structure.
 - Why it must hold: routing ordinary single-session execution into harness design would duplicate the base router and blur ownership.
 - Failure signal: routine build or plan-review work is described as harness design without any explicit session-control problem.
 
-- Invariant: independent browser signoff belongs to `software-delivery/frontend-evaluator`, and the template suite must not imply a separate shipped builder-QA family unless that family actually exists in `templates/base/.agents/skills/`.
+- Invariant: independent browser signoff belongs to `delivery-control/frontend-evaluator`, and the template suite must not imply a separate shipped builder-QA family unless that family actually exists in `templates/base/.agents/skills/`.
 - Why it must hold: deleted or external web-builder families cannot remain as ghost defaults without lying about what the template currently ships.
 - Failure signal: `website-building` or another removed family is still described as an active shipped QA surface inside the template docs or router metadata.
 
@@ -30,7 +30,7 @@ Read when system shape, boundaries, or invariants matter. Keep this focused on s
 
 ## Major Components
 
-- Component: `templates/base/.agents/skills/software-delivery/`
+- Component: `templates/base/.agents/skills/delivery-control/`
 - Responsibility: routes non-trivial software work across discovery, harness control, plan review, implementation handoff, independent frontend evaluation, and readiness reflection.
 - Key dependency: `references/children.json` plus the nested `harness-design/` and `frontend-evaluator/` leaves.
 

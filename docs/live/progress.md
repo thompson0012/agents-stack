@@ -17,7 +17,7 @@ The next work item is harness goal-lineage hardening: keep template live docs in
 ## In Progress
 
 Harness goal-lineage hardening plan drafted; implementation pending.
-- goal-lineage hardening remains the main pending implementation track; the top-level suite router now matches the shipped `using-design`, `using-reasoning`, and `software-delivery` families
+- goal-lineage hardening remains the main pending implementation track; the top-level suite router now matches the shipped `using-design`, `using-reasoning`, and `delivery-control` families
 
 ## Blockers
 
@@ -44,4 +44,4 @@ Review and execute `docs/superpowers/plans/2026-03-27-harness-goal-lineage-harde
 
 ## Hand-off Note
 
-The next session should implement the harness goal-lineage hardening plan and keep the roadmap as the authoritative source for phased work. The shipped `using-labs21-suite` boundary now reflects `using-design`, `using-reasoning`, and `software-delivery`; deleted `project-founding` should not be reintroduced unless that family is deliberately restored.
+The next session should implement the harness goal-lineage hardening plan and keep the roadmap as the authoritative source for phased work. The shipped `using-labs21-suite` boundary now reflects `using-design`, `using-reasoning`, and `delivery-control`; deleted `project-founding` should not be reintroduced unless that family is deliberately restored.

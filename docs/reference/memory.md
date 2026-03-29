@@ -26,6 +26,6 @@ Read for durable truths worth preserving across sessions. Do not store transient
 - Preserve because: this keeps commercial pressure testing separate from generic reasoning-family selection and prevents stale deleted-family routes from reappearing in the top-level router.
 - Revisit only if: the template intentionally reintroduces a distinct founding or research-family router with its own shipped boundary.
 
-- Decision: Keep the template's top-level suite router scoped to the shipped Labs21 skill surface under `templates/base/.agents/skills/`, with `using-labs21-suite` routing across the current top-level families `using-design`, `using-reasoning`, and `software-delivery` plus the direct leaves.
+- Decision: Keep the template's top-level suite router scoped to the shipped Labs21 skill surface under `templates/base/.agents/skills/`, with `using-labs21-suite` routing across the current top-level families `using-design`, `using-reasoning`, and `delivery-control` plus the direct leaves.
 - Preserve because: the router boundary must tell the truth about the shipped skill tree, or discovery and first-hop routing drift immediately when families are added, removed, or moved.
 - Revisit only if: the template intentionally re-bundles other families under the top-level suite or replaces the top-level router boundary entirely.
