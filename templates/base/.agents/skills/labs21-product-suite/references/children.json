@@ -1,5 +1,13 @@
 {
   "router_name": "labs21-product-suite",
+  "purpose": "Guides users starting net-new product development through strategy, blueprinting, PRD authoring, and v1 architecture design.",
+  "selection_order": [
+    "Evaluates stage-gated needs:",
+    "1. Stage 1 (Strategy/MVP/Blueprint)",
+    "2. Stage 2 (PRD/Stories)",
+    "3. Stage 3 (System Architecture/Schema)",
+    "Warns users when prerequisite artifacts are missing."
+  ],
   "children": [
     {
       "name": "labs21-chief-architect",
