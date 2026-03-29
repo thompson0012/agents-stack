@@ -1,16 +1,18 @@
 ---
 name: software-delivery
-description: Use when a software feature request could plausibly need discovery, scope definition, delivery-control orchestration, plan review, independent frontend acceptance, implementation, web builder QA, or ship-readiness reflection and the agent must choose the narrowest next skill.
+description: Use when a software feature request needs delivery-control orchestration, plan review, independent frontend acceptance, or implementation routing. For greenfield product definition (strategy, PRDs, v1 architecture), use labs21-product-suite instead.
 ---
 
 # Software Delivery
 
-Use this router when the request is about delivering a non-trivial software feature and more than one delivery-stage or delivery-control skill could fit.
+Use this router when the product or feature direction is largely established and the question is how to deliver it safely. 
+For net-new product creation, raw ideas, comprehensive PRDs, or system architecture from scratch, use `labs21-product-suite` instead.
 
 Do not perform the stage work here. Choose the narrowest next skill, then hand off.
 
 ## Core Contract
 
+- Defer greenfield product definition (Strategy, MVP, PRDs, System Architecture) to `labs21-product-suite`. `software-delivery` governs how to deliver; `labs21-product-suite` defines what to build.
 - Choose exactly one primary route or decide that no software-delivery route fits.
 - Prefer the earliest unmet delivery need: discovery before spec, spec before cross-session delivery-control design, delivery-control design before plan review.
 - Prefer `software-delivery/frontend-evaluator` over `website-building` when the main need is independent browser-facing acceptance rather than implementation or builder-side QA.
@@ -23,10 +25,13 @@ Do not perform the stage work here. Choose the narrowest next skill, then hand o
 
 Apply these checks in order.
 
-### 1. Is the feature idea or problem still fuzzy?
-Route to `software-delivery/feature-discovery` when the team is still sorting out the user problem, opportunity, constraints, or what should be built at all.
+### 0. Is this a net-new product or greenfield initiative?
+Route to `labs21-product-suite` if the user is starting from a raw idea, needs a strategic blueprint, a comprehensive PRD, or a baseline system architecture.
 
-### 2. Is the main need a scoped artifact?
+### 1. Is an incremental feature idea or problem still fuzzy?
+Route to `software-delivery/feature-discovery` when the team is sorting out a tactical user problem, opportunity, or constraints for an existing product.
+
+### 2. Is the main need a scoped artifact for an incremental feature?
 Route to `feature-spec` when the team wants a PRD, scope, non-goals, acceptance criteria, or another concrete requirements artifact.
 
 ### 3. Is the main need cross-session delivery control or harness design?
@@ -61,6 +66,7 @@ If none of the above fits cleanly, do not force this family.
 
 Return one of these forms and then invoke the selected skill if needed:
 
+- `Route to labs21-product-suite.`
 - `Route to software-delivery/feature-discovery.`
 - `Route to feature-spec.`
 - `Route to software-delivery/harness-design.`
@@ -82,6 +88,7 @@ Add one sentence explaining why the selected route is the narrowest correct fit.
 
 ## Failure Modes to Avoid
 
+- routing to `software-delivery` for greenfield product definition, v1.0 PRDs, or baseline system architecture instead of `labs21-product-suite`
 - treating a fuzzy feature request as implementation work before the problem is stable
 - routing to product review when the user actually needs a requirements artifact
 - routing `software-delivery/harness-design` for ordinary single-session stage selection instead of true cross-session delivery control
