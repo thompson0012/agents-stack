@@ -15,6 +15,7 @@ The next work item is harness goal-lineage hardening: keep template live docs in
 - updated active reference docs so the template suite boundary matches the actual shipped skill tree instead of stale family history
 - rebuilt `templates/base/.agents/skills/labs21-product-suite/` into the canonical router-package shape with router metadata, relationship docs, a bundled validator, and canonical trigger-evals schema
 - added the canonical bundled router assets under `templates/base/.agents/skills/labs21-product-suite/assets/` and revalidated the router package after the cutover
+- refreshed `labs21-chief-architect` so the product framework now uses Now / Next / Later plus landscape, pain, blind spots, and add / refine / defer / drop decisions
 
 ## In Progress
 
@@ -39,6 +40,7 @@ Review and execute `docs/superpowers/plans/2026-03-27-harness-goal-lineage-harde
 - `docs/reference/{architecture.md,codemap.md,memory.md}`
 - `templates/base/.agents/skills/labs21-product-suite/{SKILL.md,evals/,references/{children.json,router-metadata.md,relationship-types.md},scripts/validate_router.py}`
 - `templates/base/.agents/skills/labs21-product-suite/assets/{router-skill-template.md,children-template.json}`
+- `templates/base/.agents/skills/labs21-product-suite/labs21-chief-architect/SKILL.md`
 
 ## Verification Status
 
