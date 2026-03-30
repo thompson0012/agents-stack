@@ -8,6 +8,31 @@ Read when you need to find where to work. Prefer only high-value paths.
 - Purpose: top-level router, child inventory, and category-map surface for the shipped Labs21 template suite, including `using-design`, `using-reasoning`, and `delivery-control` while excluding deleted or moved external families.
 - Update when: the shipped suite boundary, first-hop routing, or category descriptions change.
 
+- Entrypoint: `templates/base/.agents/skills/labs21-product-suite/SKILL.md`
+- Consumer: agents choosing the right Labs21 product stage before any narrower handoff.
+- Notes: enter here when a request starts as a raw idea or needs to move between strategy, PRD, and architecture phases.
+
+- Entrypoint: `templates/base/.agents/skills/labs21-product-suite/references/children.json`
+- Consumer: router authors and reviewers checking the stage-to-child inventory and selection order.
+- Notes: source of truth for the product-suite child set and handoff metadata.
+
+- Entrypoint: `templates/base/.agents/skills/labs21-product-suite/references/router-metadata.md`
+- Consumer: router authors and reviewers checking the child-inventory schema and field rules.
+- Notes: keep the human-readable metadata aligned with `references/children.json`.
+- Entrypoint: `templates/base/.agents/skills/labs21-product-suite/references/relationship-types.md`
+- Consumer: router authors and reviewers checking allowed relationship semantics and install-hint rules.
+- Notes: keep the graph semantics explicit rather than encoding them in folder layout.
+
+- Entrypoint: `templates/base/.agents/skills/labs21-product-suite/scripts/validate_router.py`
+- Consumer: maintainers validating the rebuilt router package before evaluation.
+- Notes: copy of the router-agnostic validator used by the other shipped router families.
+
+- Path: `templates/base/.agents/skills/labs21-product-suite/assets/`
+- Purpose: bundled router templates for the product-suite router package, including the reusable router skill and children metadata templates.
+- Update when: the canonical router-package scaffold changes.
+
+
+
 - Path: `templates/base/.agents/skills/using-design/`
 - Purpose: design-family router for visual-system guidance, design-token generation, generative browser UI, and liquid-glass experimentation.
 - Update when: the design family boundary, child list, or install hints change.

@@ -38,6 +38,10 @@ Read when system shape, boundaries, or invariants matter. Keep this focused on s
 - Responsibility: top-level discoverability router for the shipped Labs21 template suite; it routes only across the owned top-level skills and refuses to claim moved external families as part of the suite.
 - Key dependency: `references/children.json` plus `references/category-map.md` for the current top-level suite inventory.
 
+- Component: `templates/base/.agents/skills/labs21-product-suite/`
+- Responsibility: stage-gated product-development router for raw ideas, validated blueprints, PRDs, and v1 architecture; it hands off to exactly one child skill and continues from that child's workflow.
+- Key dependency: `references/children.json`, `references/router-metadata.md`, `references/relationship-types.md`, `assets/router-skill-template.md`, `assets/children-template.json`, and the nested `labs21-chief-architect`, `labs21-prd-writer`, and `labs21-system-architect` leaves.
+
 - Component: `templates/base/.agents/skills/using-design/`
 - Responsibility: routes design-family requests across design foundations, design-token generation, generative UI, and liquid-glass experimentation.
 - Key dependency: `references/children.json` plus the shipped design child packages.

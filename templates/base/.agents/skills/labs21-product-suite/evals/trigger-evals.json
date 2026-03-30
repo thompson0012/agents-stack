@@ -1,0 +1,26 @@
+[
+  {
+    "id": "trigger-raw-product-idea",
+    "query": "I have an idea for a new product. We should build an AI code reviewer.",
+    "should_trigger": true,
+    "why": "Raw product ideas belong in labs21-product-suite."
+  },
+  {
+    "id": "trigger-validated-blueprint-prd",
+    "query": "We already have a validated blueprint. Write the PRD and the first set of user stories.",
+    "should_trigger": true,
+    "why": "Validated blueprint-to-PRD work belongs in labs21-product-suite."
+  },
+  {
+    "id": "trigger-validated-prd-architecture",
+    "query": "The PRD is approved. Design the schemas and APIs for the v1 backend.",
+    "should_trigger": true,
+    "why": "PRD-to-architecture work belongs in labs21-product-suite."
+  },
+  {
+    "id": "dont-trigger-delivery-control-work",
+    "query": "We need to set up a cross-session planner/generator/evaluator loop for implementation.",
+    "should_trigger": false,
+    "why": "Execution governance belongs in delivery-control, not labs21-product-suite."
+  }
+]

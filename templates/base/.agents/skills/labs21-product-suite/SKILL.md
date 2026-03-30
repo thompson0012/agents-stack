@@ -1,44 +1,43 @@
 ---
 name: labs21-product-suite
-description: Use when a user starts a new Labs21 product development workflow, introduces a raw idea, or needs to transition between strategic, spec, and technical architecture phases.
+description: Use when a user starts a new Labs21 product development workflow or needs to move between strategy, PRD, and system-design phases.
 ---
 
-# Labs21 Product Suite — Master Router
+# Labs21 Product Suite — Router
 
-## Mission
+## Core Contract
 
-You are the entry point for the Labs21 product development workflow.
-Your role is not to answer the user's question directly.
-Your role is to diagnose their current stage, identify what they actually need, and invoke the correct downstream skill.
+This router owns the stage-gated Labs21 product-development family.
+It chooses exactly one child skill, hands off cleanly, and does not perform the child workflow inline.
 
-One wrong routing decision wastes hours.
-One correct routing decision accelerates the entire project.
+## Decision Order
 
-## The Labs21 Methodology
+1. Raw ideas, strategy, MVP framing, and blueprints from scratch belong to `labs21-chief-architect`.
+2. Once a blueprint is validated, PRDs, user stories, acceptance criteria, and edge cases belong to `labs21-prd-writer`.
+3. Once a validated PRD exists, schemas, API contracts, state flows, and infrastructure decisions belong to `labs21-system-architect`.
+4. If the best child is missing or unavailable, disclose the risk and tell the user what to install or what the nearest honest fallback is.
+5. If the requested artifact would skip a prerequisite stage, route to the prerequisite child first.
 
-Labs21 enforces structured, stage-gated progression.
-Do not skip stages unless the user explicitly requests it.
+## Router Output
 
-- **Stage 1: Strategy** (Blueprint, MVP, OKR)
-- **Stage 2: Product Definition** (PRD, User Stories)
-- **Stage 3: System Design** (Architecture, Schema, APIs)
+- `Route to labs21-product-suite/labs21-chief-architect.`
+- `Route to labs21-product-suite/labs21-prd-writer.`
+- `Route to labs21-product-suite/labs21-system-architect.`
+- `Install labs21-product-suite/labs21-chief-architect, then route to labs21-product-suite/labs21-chief-architect.`
+- `Install labs21-product-suite/labs21-prd-writer, then route to labs21-product-suite/labs21-prd-writer.`
+- `Install labs21-product-suite/labs21-system-architect, then route to labs21-product-suite/labs21-system-architect.`
+- `No labs21-product-suite child fits; answer directly.`
 
-## Routing Protocol
+## References
 
-Evaluate the user's request against the child skills mapped in `references/children.json`. 
+- [child inventory](references/children.json)
+- [router metadata](references/router-metadata.md)
+- [relationship types](references/relationship-types.md)
 
-- Route to `labs21-product-suite/labs21-chief-architect` for Stage 1 (Raw ideas, Strategy, MVP definition).
-- Route to `labs21-product-suite/labs21-prd-writer` for Stage 2 (Drafting specs, User stories from a blueprint).
-- Route to `labs21-product-suite/labs21-system-architect` for Stage 3 (Designing system architecture from a PRD).
+## Family Workflow Boundary
 
-### Missing-Child Policy
-If the required prerequisite child skill's artifact (e.g. Blueprint for Stage 2) is missing, advise the user of the risk and recommend running the prerequisite skill first.
-
-## Router Output Format
-
-When selecting a route, output this format:
-
-- `Route to labs21-product-suite/[child-name].`
-- Add one concise sentence explaining why the selected child is the correct fit based on their current stage.
-
-If the user attempts to skip a stage without its prerequisite artifact, explicitly flag the risk before handing off.
+1. This router owns Stage 1 strategy, Stage 2 product definition, and Stage 3 system design for new Labs21 product work.
+2. This router does not answer the substantive product question itself; it selects the narrowest child that can.
+3. This router must surface missing prerequisite artifacts instead of silently skipping ahead.
+4. This router must hand off to the selected child and continue from that child's workflow.
+5. This router must stay truthful about the shipped child set and the order in which the stage gates are evaluated.

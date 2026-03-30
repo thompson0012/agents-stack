@@ -1,0 +1,29 @@
+{
+  "skill_name": "labs21-product-suite",
+  "evals": [
+    {
+      "id": "direct-stage-1-chief-architect",
+      "prompt": "I have a raw idea for a Labs21 product and need the first strategic blueprint, MVP shape, and architecture direction. Where should this go?",
+      "expected_output": "Routes to labs21-product-suite/labs21-chief-architect because the request is still at Stage 1 and needs strategy plus MVP framing before any PRD or system-architecture work.",
+      "files": []
+    },
+    {
+      "id": "direct-stage-2-prd-writer",
+      "prompt": "We already validated the blueprint. Turn it into a PRD with user stories, acceptance criteria, and edge cases.",
+      "expected_output": "Routes to labs21-product-suite/labs21-prd-writer because the blueprint already exists and the remaining job is Stage 2 product definition.",
+      "files": []
+    },
+    {
+      "id": "direct-stage-3-system-architect",
+      "prompt": "A validated PRD exists. Define the schema, API contracts, state flows, and infrastructure for v1.",
+      "expected_output": "Routes to labs21-product-suite/labs21-system-architect because the request is Stage 3 system design from an approved PRD.",
+      "files": []
+    },
+    {
+      "id": "missing-prerequisite-stays-stage-1",
+      "prompt": "Please complete the entire system design for a brand-new product, but we do not have a blueprint or PRD yet.",
+      "expected_output": "Routes to labs21-product-suite/labs21-chief-architect because the missing blueprint and PRD make this a Stage 1 strategy problem first, even though the user is asking for a later-stage artifact.",
+      "files": []
+    }
+  ]
+}
