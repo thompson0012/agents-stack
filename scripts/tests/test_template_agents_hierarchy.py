@@ -9,6 +9,12 @@ DOC_GUIDES = (
     "templates/base/docs/reference/AGENTS.md",
 )
 
+AGENT_GUIDES = (
+    "templates/base/.agents/AGENTS.md",
+    "templates/base/.agents/skills/AGENTS.md",
+    "templates/base/.agents/skills-optional/AGENTS.md",
+)
+
 
 def read(path: str) -> str:
     return (REPO_ROOT / path).read_text(encoding="utf-8")
@@ -35,6 +41,17 @@ class TemplateAgentsHierarchyTests(unittest.TestCase):
         self.assertIn("docs/AGENTS.md", root_content)
         self.assertIn("docs/live/AGENTS.md", root_content)
         self.assertIn("docs/reference/AGENTS.md", root_content)
+
+    def test_agents_guides_exist_and_are_indexed_by_root(self) -> None:
+        root_content = read("templates/base/AGENTS.md")
+
+        for relative in AGENT_GUIDES:
+            self.assertTrue((REPO_ROOT / relative).exists(), relative)
+
+        self.assertIn(".agents/AGENTS.md", root_content)
+        self.assertIn(".agents/skills/AGENTS.md", root_content)
+        self.assertIn(".agents/skills-optional/AGENTS.md", root_content)
+
 
     def test_reference_guide_describes_all_current_reference_docs(self) -> None:
         reference_guide = read("templates/base/docs/reference/AGENTS.md")

@@ -13,12 +13,15 @@ This `AGENTS.md` is the constitutional root for `templates/base`. Read it first.
 
 ## Discovery Rule
 
-When you enter `docs/`, `docs/live/`, or `docs/reference/`, read that local `AGENTS.md` before acting in the subtree.
+When you enter `.agents/`, `.agents/skills/`, `.agents/skills-optional/`, `docs/`, `docs/live/`, or `docs/reference/`, read that local `AGENTS.md` before acting in the subtree.
 
 ## Discovery Index
 
 | Topic | Location |
 |-------|----------|
+| Agent package boundary | `.agents/AGENTS.md` |
+| Shipped skill package rules | `.agents/skills/AGENTS.md` |
+| Optional skill package rules | `.agents/skills-optional/AGENTS.md` |
 | Documentation workflow rules | `docs/AGENTS.md` |
 | Live-doc scaffold rules | `docs/live/AGENTS.md` |
 | Reference-doc rules | `docs/reference/AGENTS.md` |
