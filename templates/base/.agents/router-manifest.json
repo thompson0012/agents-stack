@@ -1,0 +1,144 @@
+{
+  "router_name": "template-agents-router",
+  "purpose": "Route work inside a copied template hierarchy to the smallest correct local guide while keeping live-doc scaffolds inert until localization.",
+  "startup_paths": {
+    "copied_repo_work": [
+      "AGENTS.md",
+      "docs/live/current-focus.md",
+      "docs/live/progress.md"
+    ],
+    "template_maintenance": [
+      "AGENTS.md"
+    ]
+  },
+  "decision_order": [
+    "Read AGENTS.md first, then the indexed local guide for the subtree you will touch.",
+    "Use .agents/AGENTS.md for package-boundary work, docs/AGENTS.md for docs work, and their child guides for narrower ownership.",
+    "Keep docs/live inert until a copied repo localizes them into active project truth.",
+    "Treat optional skill packages as opt-in, not shipped default truth."
+  ],
+  "children": [
+    {
+      "name": "agent-packages",
+      "path": ".agents/AGENTS.md",
+      "kind": "local-agents",
+      "scope": "template",
+      "summary": "Owns the template agent-package boundary and routes to shipped or optional package inventories.",
+      "route_when": [
+        "The task touches .agents/ package ownership or template package boundaries.",
+        "The task needs to decide between shipped and optional template package surfaces."
+      ],
+      "avoid_when": [
+        "The task only changes docs under docs/.",
+        "The task is active copied-repo runtime work outside the template package."
+      ],
+      "requires": [
+        "AGENTS.md"
+      ],
+      "fallbacks_to": []
+    },
+    {
+      "name": "shipped-skill-inventory",
+      "path": ".agents/skills/AGENTS.md",
+      "kind": "local-agents",
+      "scope": "template",
+      "summary": "Owns the shipped top-level skill inventory for the template's default surface.",
+      "route_when": [
+        "The task changes the shipped top-level skill package surface.",
+        "The task needs the truthful shipped inventory."
+      ],
+      "avoid_when": [
+        "The task only changes optional packages.",
+        "The task is about docs or live-doc localization rather than package inventory."
+      ],
+      "requires": [
+        ".agents/AGENTS.md"
+      ],
+      "fallbacks_to": [
+        "agent-packages"
+      ]
+    },
+    {
+      "name": "optional-skill-inventory",
+      "path": ".agents/skills-optional/AGENTS.md",
+      "kind": "local-agents",
+      "scope": "template",
+      "summary": "Owns the optional top-level skill inventory and opt-in package semantics.",
+      "route_when": [
+        "The task changes optional package inventory or promotion into shipped truth.",
+        "The task needs the truthful optional package list."
+      ],
+      "avoid_when": [
+        "The task only changes shipped packages.",
+        "The task is about docs or live-doc localization rather than package inventory."
+      ],
+      "requires": [
+        ".agents/AGENTS.md"
+      ],
+      "fallbacks_to": [
+        "agent-packages"
+      ]
+    },
+    {
+      "name": "docs-root",
+      "path": "docs/AGENTS.md",
+      "kind": "local-agents",
+      "scope": "template",
+      "summary": "Owns the template docs boundary and splits inert live-doc scaffolds from durable reference docs.",
+      "route_when": [
+        "The task touches docs/live or docs/reference inside the copied template.",
+        "The task needs to decide whether a docs change is inert scaffold behavior or durable template truth."
+      ],
+      "avoid_when": [
+        "The task only changes agent-package inventories under .agents/.",
+        "The task is active root repo runtime work rather than template-package maintenance."
+      ],
+      "requires": [
+        "AGENTS.md"
+      ],
+      "fallbacks_to": []
+    },
+    {
+      "name": "live-doc-scaffolds",
+      "path": "docs/live/AGENTS.md",
+      "kind": "local-agents",
+      "scope": "template",
+      "summary": "Owns the inert scaffold contract for template live docs until localization in a copied repo.",
+      "route_when": [
+        "The task changes current-focus, progress, todo, roadmap, runtime, or qa scaffolds inside the template.",
+        "The task needs the inert-live-doc rules before localization."
+      ],
+      "avoid_when": [
+        "The change is durable template policy.",
+        "The task is active copied-repo runtime work after localization."
+      ],
+      "requires": [
+        "docs/AGENTS.md"
+      ],
+      "fallbacks_to": [
+        "docs-root"
+      ]
+    },
+    {
+      "name": "reference-docs",
+      "path": "docs/reference/AGENTS.md",
+      "kind": "local-agents",
+      "scope": "template",
+      "summary": "Owns durable template truth such as boundaries, codemap, memory, implementation, and lessons.",
+      "route_when": [
+        "The task changes durable template policy, paths, boundaries, or reusable lessons.",
+        "The task changes the template root contract and needs durable writeback."
+      ],
+      "avoid_when": [
+        "The change only updates inert scaffold placeholders.",
+        "The task is about active copied-repo runtime progress rather than durable template truth."
+      ],
+      "requires": [
+        "docs/AGENTS.md"
+      ],
+      "fallbacks_to": [
+        "docs-root"
+      ]
+    }
+  ]
+}

@@ -9,7 +9,7 @@ This `AGENTS.md` extends `../AGENTS.md`. Root constitutional rules cannot be ove
 
 ## Owns
 
-- the template docs boundary under `templates/base/docs/`
+- the docs boundary under `docs/` in the copied hierarchy
 - the split between inert live-doc scaffolds and durable reference docs
 
 ## Does Not Own

@@ -1,6 +1,6 @@
 # Labs21 Suite Category Map
 
-This template's shipped Labs21 suite under `templates/base/.agents/skills/` currently contains only these top-level skills and family routers.
+This template's shipped Labs21 suite under `.agents/skills/` currently contains only these top-level skills and family routers.
 
 ## Suite Router
 

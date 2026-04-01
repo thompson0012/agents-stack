@@ -15,18 +15,35 @@ AGENT_GUIDES = (
     "templates/base/.agents/skills-optional/AGENTS.md",
 )
 
+TEMPLATE_PORTABLE_ASSETS = (
+    "templates/base/.agents/router-manifest.json",
+)
+
+TEMPLATE_ROOT_PORTABLE_SNIPPETS = (
+    ".agents/router-manifest.json",
+)
+
+TEMPLATE_ROOT_FORBIDDEN_SNIPPETS = (
+    "scripts.tests.test_template_agents_hierarchy",
+    "scripts.tests.test_goal_lineage_templates",
+    "audit_base_template_skills.py",
+    "templates/base/scripts/validate_agents_router.py",
+    "python3 scripts/validate_agents_router.py",
+)
+
+
 REFERENCE_DOC_TRUTHS = {
     "templates/base/docs/reference/architecture.md": (
         "constitutional root",
         "first-read index",
-        "must-read local `AGENTS.md`",
-        "inert until a copied repo localizes them",
+        "local rule boundaries live under `docs/` and `.agents/`",
+        "copied subtree has its own durable contract",
     ),
     "templates/base/docs/reference/codemap.md": (
         "Approved local guides live only at durable boundaries",
-        "`templates/base/docs/AGENTS.md`",
-        "`templates/base/.agents/AGENTS.md`",
-        "`templates/base/.agents/skills-optional/AGENTS.md`",
+        "`docs/AGENTS.md`",
+        "`.agents/AGENTS.md`",
+        "`.agents/skills-optional/AGENTS.md`",
     ),
     "templates/base/docs/reference/memory.md": (
         "Root discovery index must list every must-read local guide",
@@ -40,10 +57,18 @@ REFERENCE_DOC_TRUTHS = {
 }
 
 ROOT_CONSTITUTION_SNIPPETS = (
+    "## Project Context",
+    "packages a portable AGENTS and skill hierarchy that can be copied into another repository and localized there.",
     "## Mandatory First Reads",
-    "Read this file first for any work touching `templates/base`.",
+    "Read this file first before acting in the copied hierarchy.",
+    "## Operational Commands",
+    "This template ships no seeded install, build, lint, or test commands by default.",
     "## Skill Invocation Precedence",
     "Check project-local shipped skills under `.agents/skills/` before relying on generic knowledge.",
+    "## Safety Boundaries",
+    "### Always do",
+    "### Ask first",
+    "### Never do",
     "## Injected Context Contract",
     "This root `AGENTS.md` is the only always-in-context index for the template hierarchy.",
     "## Hierarchical Discovery",
@@ -97,6 +122,39 @@ class TemplateAgentsHierarchyTests(unittest.TestCase):
 
         for snippet in ROOT_CONSTITUTION_SNIPPETS:
             self.assertIn(snippet, root_content)
+
+    def test_template_portable_router_assets_exist_and_are_indexed(self) -> None:
+        root_content = read("templates/base/AGENTS.md")
+        agents_guide = read("templates/base/.agents/AGENTS.md")
+
+        for relative in TEMPLATE_PORTABLE_ASSETS:
+            self.assertTrue((REPO_ROOT / relative).exists(), relative)
+
+        self.assertFalse(
+            (REPO_ROOT / "templates/base/scripts/validate_agents_router.py").exists(),
+            "template should not ship a seeded validator script",
+        )
+
+        for snippet in TEMPLATE_ROOT_PORTABLE_SNIPPETS:
+            self.assertIn(snippet, root_content)
+
+        for snippet in TEMPLATE_ROOT_FORBIDDEN_SNIPPETS:
+            self.assertNotIn(snippet, root_content)
+
+        self.assertIn("router-manifest.json", agents_guide)
+
+
+    def test_template_subtree_has_no_seeded_repo_paths(self) -> None:
+        offenders: list[str] = []
+        for path in (REPO_ROOT / "templates/base").rglob("*"):
+            if path.suffix not in {".md", ".json", ".py"}:
+                continue
+            content = path.read_text(encoding="utf-8")
+            if "templates/base/" in content:
+                offenders.append(str(path.relative_to(REPO_ROOT)))
+
+        self.assertEqual(offenders, [], f"seeded repo paths remain in: {offenders}")
+
 
     def test_reference_guide_describes_all_current_reference_docs(self) -> None:
         reference_guide = read("templates/base/docs/reference/AGENTS.md")
