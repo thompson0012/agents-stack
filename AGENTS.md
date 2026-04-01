@@ -1,93 +1,133 @@
 # Project Agent Guide
 
-This `AGENTS.md` is the constitutional root for `templates/base`. Read it first. Local `AGENTS.md` files add subtree-specific rules and cannot override this file.
+## Repo Purpose
 
-## Project Context
+This repository uses a minimal agent documentation structure for recall, progressive disclosure, and reliable hand-off in a single worktree.
 
-This directory packages a portable AGENTS and skill hierarchy that can be copied into another repository and localized there.
+## Task Execution Priority
 
-- `AGENTS.md` is the always-loaded root index for the copied hierarchy.
-- `.agents/` carries bundled skill packages and package-surface rules.
-- `docs/live/` ships as inert scaffolds until the copied repo localizes them into active project state.
-- `docs/reference/` ships durable template truths that should be adapted only when the copied project changes the underlying contract.
+**SKILLS TAKE PRECEDENCE OVER MODEL KNOWLEDGE.**
 
-## Mandatory First Reads
+Before ANY response or action, answer this question aloud:
 
-1. Read this file first before acting in the copied hierarchy.
-2. Before acting in `.agents/`, `.agents/skills/`, `.agents/skills-optional/`, `docs/`, `docs/live/`, or `docs/reference/`, read the indexed local guide for that subtree.
-3. If you copy only part of this template, revalidate every parent-relative guide path before relying on local rules.
+> **What skill should I activate for this task?**
 
-## Operational Commands
+Execution order:
+1. **SKILLS FIRST** — If a skill exists for the task type, invoke it before doing anything else
+2. **Project-Local Skills** — Check `.agents/skills/` for repository-specific guidance
+3. **User Skills** — Check `~/.agents/skills/` for user-installed capabilities
+4. **Model Knowledge** — Use as fallback only when no skill applies
 
-This template ships no seeded install, build, lint, or test commands by default.
+### Skill Check Protocol
 
-- After copying into a downstream repo, replace this section with that repo's exact commands before relying on autonomous verification.
-- Keep the copied template command-free until the downstream repo localizes its real toolchain honestly.
-- Use `.agents/router-manifest.json` plus the indexed local guides to route work until those commands are localized.
+| Before | After |
+|--------|-------|
+| "I'll just implement this..." | STOP → "Which skill applies? What does it say?" |
+| "This is straightforward..." | STOP → "Is there a skill that could improve the approach?" |
+| "I know how to do this..." | STOP → "Does a skill mandate a specific workflow?" |
+| "Let me read files first..." | STOP → "Does a skill tell me HOW to explore?" |
 
-## Skill Invocation Precedence
+### Mandatory Skill Invocation
 
-- Check project-local shipped skills under `.agents/skills/` before relying on generic knowledge.
-- Use the most specific shipped skill that matches the task.
-- Treat `.agents/skills-optional/` as opt-in surfaces, not default bundled truth.
+If you think there is even a **1% chance** a skill might apply, you **MUST** invoke it to check.
 
-## Safety Boundaries
+When a skill is invoked:
+1. Announce: `"Using [skill-name] for [purpose]..."`
+2. Read the skill content via the `skill` tool
+3. Follow the skill's workflow exactly
+4. Proceed with the skill's guidance as your primary method
 
-### Always do
+### Red Flags
 
-- Keep the root guide short, truthful, and index-like.
-- Update the discovery index in the same change that adds or removes a must-read local `AGENTS.md`.
-- Keep template live docs inert until a copied repo localizes them.
+These thoughts indicate you are rationalizing away skill usage:
 
-### Ask first
-
-- If a copied repo wants this template root to own downstream install/build/lint/test commands permanently instead of localizing them.
-- If you plan to merge optional skill surfaces into shipped default truth.
-
-### Never do
-
-- Do not treat template placeholder content as active copied-repo truth.
-- Do not hide required guidance in non-indexed leaves.
-- Do not describe optional or planned surfaces as shipped default truth.
+| Rationalization | Reality |
+|-----------------|---------|
+| "This is just a simple question" | Questions are tasks. Check for skills. |
+| "I need more context first" | Skill check comes BEFORE gathering information. |
+| "Let me explore the codebase first" | Skills tell you HOW to explore. Check first. |
+| "I can check git/files quickly" | Skills provide structure. Use them. |
+| "This doesn't need a formal skill" | If a skill exists for it, use it. |
+| "I remember this skill" | Skills evolve. Read the current version. |
+| "I'll just do this one thing first" | Check BEFORE doing anything. |
 
 ## Injected Context Contract
 
-- This root `AGENTS.md` is the only always-in-context index for the template hierarchy.
-- Pull deeper guides and docs on demand; do not assume child guides or `docs/*` content were injected unless you read them.
-- Keep the root guide short, truthful, and index-like.
+- Inject `AGENTS.md` at session start.
+- Treat `AGENTS.md` as the only always-in-context index.
+- Retrieve additional docs on demand from `docs/live/` and `docs/reference/`; do not preload the full docs set.
 
-## Hierarchical Discovery
+## Project-Local Skills
 
-- Local guides may add subtree-specific rules, but they cannot override this file.
-- Every must-read local `AGENTS.md` must appear in the discovery index in the same change that adds or removes it.
-- Do not hide required guidance in non-indexed leaves.
+- **ALWAYS** check `.agents/skills/` FIRST when a task type might have repository-specific guidance.
+- Read `.agents/skills/using-labs21-suite/SKILL.md` as the router index whenever the right project-local skill or family router is not obvious.
+- Use the most specific relevant skill available; do not fall back to model knowledge when a skill exists.
+- Read only the smallest relevant skill or subdirectory needed for the task; do not preload the entire project skill tree.
 
-## Live-Doc Writeback Obligation
+## Progressive Disclosure Rules
 
-- In this template, `docs/live/` remains inert until a copied repo localizes it into real project state.
-- If work changes the template live-doc contract or localization expectations, update the governing docs in the same change.
-- Do not seed or preserve plausible live-doc state as shipped template truth.
+- Start here, then read only the smallest set of docs needed for the task.
+- Read `docs/live/current-focus.md` for the active objective, scope, and constraints.
+- Read `docs/live/progress.md` for session continuity, touched files, latest verification, and the next recommended action.
+- Use `docs/live/progress.md`'s `Next Recommended Action` as the default resume pointer unless user direction or `docs/live/current-focus.md` overrides it.
+- Use `docs/live/progress.md`'s `Verification Status` before claiming completion or resuming work in a previously touched area.
+- Read `docs/live/todo.md` only when selecting or sequencing among multiple plausible next actions, or when `docs/live/progress.md` does not already make the next step clear.
+- Read `docs/reference/codemap.md` when you need to find where to work, identify likely entrypoints, or map a subsystem.
+- Read `docs/reference/architecture.md` when system boundaries, invariants, or component relationships matter.
+- Read `docs/reference/implementation.md` only for technical execution details.
+- Read `docs/reference/design.md` only for product intent, UX, or behavior rules.
+- Read `docs/reference/memory.md` for durable decisions, policies, or truths that should survive beyond the current task.
+- Read `docs/reference/lessons.md` after mistakes, failed attempts, or surprising outcomes worth reusing.
+
+## Read Order by Task Type
+
+- Start or resume work: `AGENTS.md` → `docs/live/current-focus.md` → `docs/live/progress.md`
+- Pick the next task: `AGENTS.md` → `docs/live/current-focus.md` → `docs/live/progress.md` → `docs/live/todo.md` when prioritization is still needed
+- Find where to work: `AGENTS.md` → `docs/live/current-focus.md` → `docs/live/progress.md` → `docs/reference/codemap.md`
+- Implement or change behavior: `AGENTS.md` → `docs/live/current-focus.md` → `docs/live/progress.md` → `docs/reference/implementation.md`
+- Adjust product or UX behavior: `AGENTS.md` → `docs/live/current-focus.md` → `docs/live/progress.md` → `docs/reference/design.md`
+- Understand system boundaries before changing behavior: `AGENTS.md` → `docs/live/current-focus.md` → `docs/live/progress.md` → `docs/reference/architecture.md`
+- Recover durable decisions or repo truths: `AGENTS.md` → `docs/live/current-focus.md` → `docs/live/progress.md` → `docs/reference/memory.md`
+- Learn from prior mistakes or failed attempts: `AGENTS.md` → `docs/live/current-focus.md` → `docs/live/progress.md` → `docs/reference/lessons.md`
+- Cross-cutting work: read `docs/reference/architecture.md` first, then `docs/reference/implementation.md` and `docs/reference/design.md` as needed after the live docs.
+
+## Pre-Implementation Alignment Check
+
+Before writing code or creating files, answer these questions aloud:
+
+1. **Objective Match**: Which line in `docs/live/current-focus.md` Objective defines this work?
+2. **Scope Boundary**: Which "Explicitly Out of Scope" item prevents something I might otherwise do?
+3. **Minimal Change**: What's the smallest change that achieves the objective?
+
+If you cannot answer all three with specific references, read `docs/live/current-focus.md` again.
+
+## Drift Detection During Implementation
+
+If any of these occur, pause and re-read `docs/live/current-focus.md`:
+
+- Implementation requires creating files not listed in Scope
+- You're editing files outside the touched-files history in `docs/live/progress.md`
+- A "small fix" has expanded to touch 3+ additional files
+- You're adding "helpful" features not requested in the objective
+
+State aloud: "This work [is|is not] in scope because [specific reason]."
+
+## Update Rules After Meaningful Work
+
+- Update `docs/live/current-focus.md` when the active objective, scope, constraints, or success criteria change.
+- Update `docs/live/progress.md` after meaningful work with current state, completed work, blockers, touched files, verification, and next recommended action.
+- Update `docs/live/todo.md` when priorities or next actions change.
+- Update `docs/reference/architecture.md` when boundaries, invariants, or major component relationships change.
+- Update `docs/reference/codemap.md` when high-value paths, entrypoints, or subsystem locations change materially.
+- Update `docs/reference/memory.md` when a decision, policy, or truth should persist beyond the current session.
+- Update `docs/reference/lessons.md` when a mistake, anti-pattern, failed attempt, or hard-won fix is worth preserving.
+- Keep every update concise so the next session can recover state quickly.
 
 ## Reference Writeback Gate
-
-- Before yielding after meaningful work, decide whether any `docs/reference/*` file must change to keep durable truth aligned.
-- If no reference-doc update is needed, record that conclusion explicitly in your working notes.
-- Do not describe planned or optional surfaces as shipped truth.
-
-## Cross-System Precedence
-
-- Root constitutional rules win over subtree guides.
-- A deeper local guide may narrow behavior inside its durable boundary, but it does not own root-level policy.
-- When a copied repo localizes these templates, explicit copied-repo truth beats template placeholder content.
-
-## Discovery Index
-
-| Topic | Location |
-|-------|----------|
-| Portable router manifest | `.agents/router-manifest.json` |
-| Agent package boundary | `.agents/AGENTS.md` |
-| Shipped skill package rules | `.agents/skills/AGENTS.md` |
-| Optional skill package rules | `.agents/skills-optional/AGENTS.md` |
-| Documentation workflow rules | `docs/AGENTS.md` |
-| Live-doc scaffold rules | `docs/live/AGENTS.md` |
-| Reference-doc rules | `docs/reference/AGENTS.md` |
+- Before yielding after meaningful work, explicitly decide whether any `docs/reference/*` file must change; do not leave this to user prompting or memory.
+- If the change introduces or revises a durable default, policy, packaging rule, routing rule, or repo truth, update `docs/reference/memory.md`.
+- If the change introduces or revises a reusable mistake pattern, false start, migration regret, anti-pattern, or hard-won fix, update `docs/reference/lessons.md`.
+- If the change alters system boundaries, family ownership, component relationships, or other invariants, update `docs/reference/architecture.md`.
+- If the change alters high-value entrypoints, package locations, router locations, or where a subsystem lives, update `docs/reference/codemap.md`.
+- If none of those files need changes, state that conclusion explicitly in your working notes before completion: `No reference-doc update needed because ...`.
+- Path-based default: if you changed skill packages, router metadata, or package layout under `.agents/skills/`, assume a `docs/reference/*` review is required and write down why each relevant reference doc did or did not change.

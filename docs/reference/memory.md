@@ -14,18 +14,6 @@ Read for durable truths worth preserving across sessions. Do not store transient
 - Revisit only if:
 
 
-- Decision: Keep root `AGENTS.md` as a lean router/index and push subtree-specific behavior into local `AGENTS.md` boundary contracts plus `.agents/skills/using-agents-md/SKILL.md`.
-- Preserve because: this keeps the always-loaded root small enough to stay useful while still giving leaf guides and the governance skill one clear job each.
-- Revisit only if: the repository abandons hierarchical guides entirely or replaces them with a different always-loaded routing mechanism.
-
-- Decision: Keep `.agents/router-manifest.json` as the machine-readable source of truth for root governance-surface routing, and verify it with `scripts/validate_agents_router.py` plus `scripts/tests/test_agents_router.py`.
-- Preserve because: routing and boundary drift become mechanically detectable instead of living only in prose.
-- Revisit only if: a stronger built-in router format replaces the manifest/validator/test trio.
-
-- Decision: Keep repo-local AGENTS-governance workflow in `.agents/skills/using-agents-md/SKILL.md`, with `AGENTS.md` owning boundary rules, `docs/reference/*` owning durable truth, and `docs/live/*` owning session state.
-- Preserve because: this keeps the root skill-discovery pointer honest and prevents boundary rules, durable policy, and live progress from collapsing into the same file.
-- Revisit only if: the repository intentionally retires repo-local skills or folds the same decision procedure directly into the root `AGENTS.md` without losing clarity.
-
 - Decision: When creating a new bundled router family around existing first-party skills, default to moving those bundled leaves under the router package in the same change instead of routing to external top-level leaves first.
 - Preserve because: the one-step cutover keeps the package boundary honest, avoids duplicated migration work, and prevents stale path references from surviving a temporary external-child phase.
 - Revisit only if: a leaf is intentionally shared across multiple families or the runtime cannot discover nested children reliably enough to support the bundled layout.

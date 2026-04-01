@@ -9,11 +9,6 @@ Read when system shape, boundaries, or invariants matter. Keep this focused on s
 - Boundary note: `using-design` owns design-family selection when the design boundary itself is the hard problem, while ordinary hand-authored web implementation stays outside this template suite.
 - Boundary note: `using-reasoning` owns reasoning-family selection for analytical requests, while `startup-pressure-test` stays separate for harsh commercial survivability work.
 - Boundary note: `delivery-control` owns delivery-control routing and independent frontend acceptance selection for non-trivial software feature work.
-- Boundary note: repo-local guidance for maintaining this repository's `AGENTS.md` hierarchy belongs in `.agents/skills/using-agents-md/`, while `AGENTS.md` files remain the canonical boundary rules and `docs/reference/*`/`docs/live/*` keep durable truth and session state.
-- Boundary note: root `AGENTS.md` now acts as the lean repo router/index for active repository work, while `templates/base/AGENTS.md` remains the constitutional root only inside the template subtree.
-- Boundary note: root local guides under `.agents/` and `docs/` own boundary contracts inside their subtree; they narrow root behavior but do not replace root routing.
-
-
 
 ## Invariants
 
@@ -29,31 +24,11 @@ Read when system shape, boundaries, or invariants matter. Keep this focused on s
 - Why it must hold: baton state and acceptance evidence must survive session resets and role changes in one predictable place.
 - Failure signal: runtime mode, baton owner, evidence, or verdict only live in chat transcripts or ad hoc files.
 
-- Invariant: root repo live docs and template live-doc scaffolds must never be treated as the same truth surface.
-- Why it must hold: the root repo carries active state, while `templates/base/docs/live/*` remains inert until a copied repo localizes it.
-- Failure signal: agents read or update template live docs when the task only concerns active root repo work.
-
-- Invariant: `.agents/router-manifest.json` and `scripts/validate_agents_router.py` must stay aligned with root `AGENTS.md`, root local guides, and the real repo entrypoints they advertise.
-- Why it must hold: prose-only routing drifts silently; the manifest/validator pair is the mechanical contract that keeps the router honest.
-- Failure signal: a root discovery pointer, local guide, or manifest child path stops matching the filesystem or startup flow.
-
 - Invariant: `using-labs21-suite` may claim only the currently shipped top-level families and direct leaves; deleted or moved families must disappear from the router in the same change.
 - Why it must hold: a top-level suite router that advertises deleted or external families lies about what the template actually ships and produces bad first-hop routing.
 - Failure signal: the category map, child inventory, or evals still mention removed families such as `project-founding`, or omit newly shipped families such as `using-design` or `using-reasoning`.
 
 ## Major Components
-
-- Component: `.agents/router-manifest.json`
-- Responsibility: machine-readable inventory of root governance surfaces, startup paths, and route selection order for repo-vs-template work.
-- Key dependency: root `AGENTS.md`, root local guides under `.agents/` and `docs/`, and the validator script that enforces alignment.
-
-- Component: `scripts/validate_agents_router.py`
-- Responsibility: validates the root router contract, local-guide boundary shape, manifest schema, and discovery-pointer integrity.
-- Key dependency: `.agents/router-manifest.json` plus `scripts/tests/test_agents_router.py`.
-
-- Component: `.agents/skills/using-agents-md/`
-- Responsibility: guides repo-local decisions about when changes belong in `AGENTS.md`, `docs/reference/*`, `docs/live/*`, or a skill package, and insists that discovery pointers move with AGENTS-boundary changes.
-- Key dependency: root `AGENTS.md` plus the live/reference writeback surfaces it triages.
 
 - Component: `templates/base/.agents/skills/delivery-control/`
 - Responsibility: routes non-trivial software work across discovery, harness control, plan review, implementation handoff, independent frontend evaluation, and readiness reflection.

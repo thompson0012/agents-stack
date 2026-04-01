@@ -4,52 +4,56 @@ Read after `docs/live/current-focus.md` to recover the latest state, continuity,
 
 ## Current State
 
-The root repository now has a lean AGENTS router with executable validation, and the portable `templates/base/` subtree now ships only clean root-relative startup assets: a manifest plus boundary guides, with no seeded repo-specific script or command text.
+The next work item is harness goal-lineage hardening: keep template live docs inert, add a roadmap artifact that preserves source/plan/phase goals, and make phased execution rehydrate from stored truth after compaction instead of drifting from the original objective.
 
 ## Latest Completed Work
 
-- changed the template hierarchy test first and watched it fail red until the portable template no longer shipped a seeded validator script or `templates/base/` path text
-- kept `templates/base/.agents/router-manifest.json` inside the template as the portable machine-readable router artifact, but removed the seeded `templates/base/scripts/validate_agents_router.py` script
-- cleaned `templates/base/AGENTS.md` so its Operational Commands section is startup-safe and command-free by default; downstream repos must localize their own real toolchain commands after copy
-- removed remaining `templates/base/` path leakage from the copied template docs and references so the template now reads as root-relative after copy
-- updated `templates/base/.agents/AGENTS.md` and `templates/base/docs/reference/{architecture,codemap,memory}.md` so the portable manifest and clean copied-root contract remain truthful
-- reran the template hierarchy and goal-lineage tests and confirmed they pass after the cleanup
-- verified with a grep sweep that no seeded `templates/base/`, repo test command, audit command, or copied-root validator command text remains anywhere under `templates/base/`
-- verified whitespace cleanliness with `git diff --check`
+- captured the user requirement that `template/` must be a true template with no prefilled content
+- identified the recurring failure mode where roadmap execution loses the source goal after phase 1 and compaction
+- drafted `docs/superpowers/plans/2026-03-27-harness-goal-lineage-hardening.md` to harden template inertness, goal lineage, and resume behavior
+- refreshed `using-labs21-suite` so the shipped top-level router now includes `using-design` and `using-reasoning`, and removes deleted `project-founding` claims from its child inventory, category map, and evals
+- updated active reference docs so the template suite boundary matches the actual shipped skill tree instead of stale family history
+- rebuilt `templates/base/.agents/skills/labs21-product-suite/` into the canonical router-package shape with router metadata, relationship docs, a bundled validator, and canonical trigger-evals schema
+- added the canonical bundled router assets under `templates/base/.agents/skills/labs21-product-suite/assets/` and revalidated the router package after the cutover
+- refreshed `labs21-chief-architect` so the product framework now uses Now / Next / Later plus landscape, pain, blind spots, and add / refine / defer / drop decisions
 
 ## In Progress
 
-None.
+Harness goal-lineage hardening plan drafted; implementation pending.
+- goal-lineage hardening remains the main pending implementation track; the top-level suite router now matches the shipped `using-design`, `using-reasoning`, and `delivery-control` families
 
 ## Blockers
 
-None for this cleanup task.
+None recorded.
 
 ## Next Recommended Action
 
-No further cleanup is required for `templates/base/` itself. If desired later, the separate pre-existing `delivery-control` audit issue can still be repaired in its own task.
+Review and execute `docs/superpowers/plans/2026-03-27-harness-goal-lineage-hardening.md`.
 
 ## Touched Files
 
-- `templates/base/AGENTS.md`
-- `templates/base/.agents/AGENTS.md`
-- `templates/base/.agents/router-manifest.json`
-- `templates/base/.agents/skills/using-labs21-suite/references/category-map.md`
-- `templates/base/docs/AGENTS.md`
-- `templates/base/docs/reference/architecture.md`
-- `templates/base/docs/reference/codemap.md`
-- `templates/base/docs/reference/memory.md`
-- `scripts/tests/test_template_agents_hierarchy.py`
+- `docs/superpowers/plans/2026-03-27-harness-goal-lineage-hardening.md`
+- `docs/live/current-focus.md`
 - `docs/live/progress.md`
+- `templates/base/.agents/skills/{using-labs21-suite,using-design,using-reasoning}/`
+- `docs/live/progress.md`
+- `docs/reference/{architecture.md,codemap.md,memory.md}`
+- `templates/base/.agents/skills/labs21-product-suite/{SKILL.md,evals/,references/{children.json,router-metadata.md,relationship-types.md},scripts/validate_router.py}`
+- `templates/base/.agents/skills/labs21-product-suite/assets/{router-skill-template.md,children-template.json}`
+- `templates/base/.agents/skills/labs21-product-suite/labs21-chief-architect/SKILL.md`
 
 ## Verification Status
 
-- RED first: `python3 -m unittest scripts.tests.test_template_agents_hierarchy` failed because the template still shipped a seeded validator script and repo-specific path text
-- GREEN: `python3 -m unittest scripts.tests.test_template_agents_hierarchy`
-- GREEN: `python3 -m unittest scripts.tests.test_goal_lineage_templates`
-- GREEN: grep sweep over `templates/base/` found no remaining `templates/base/`, repo test command, audit command, or copied-root validator-command text in `.md`, `.json`, or `.py` files
-- GREEN: `git diff --check`
+- `python3 templates/base/.agents/skills/create-router-skill/scripts/validate_router.py templates/base/.agents/skills/using-labs21-suite --strict`
+- `python3 templates/base/.agents/skills/using-design/scripts/validate_router.py templates/base/.agents/skills/using-design --strict`
+- `python3 templates/base/.agents/skills/using-reasoning/scripts/validate_router.py templates/base/.agents/skills/using-reasoning --strict`
+- `python3 templates/base/.agents/skills/labs21-product-suite/scripts/validate_router.py templates/base/.agents/skills/labs21-product-suite --strict`
+- `python3 templates/base/.agents/skills/labs21-product-suite/scripts/validate_router.py templates/base/.agents/skills/labs21-product-suite --strict` (post-asset cutover)
+- `git diff --check`
+- verified `templates/base/.agents/skills/labs21-product-suite/evals/trigger-evals.json` as a top-level array with four entries
 
 ## Hand-off Note
 
-`templates/base/` now behaves like a clean startup template: it ships root-relative guidance, inert live-doc scaffolds, and a portable manifest, but no seeded repo-specific validator script or maintenance command text. No `docs/live/current-focus.md` update was needed because the active objective and scope did not change. Reference docs were updated because the portable template contract changed durably.
+The next session should implement the harness goal-lineage hardening plan and keep the roadmap as the authoritative source for phased work. The shipped `using-labs21-suite` boundary now reflects `using-design`, `using-reasoning`, and `delivery-control`; deleted `project-founding` should not be reintroduced unless that family is deliberately restored.
+The Labs21 product-suite router is now rebuilt into the canonical router shape; the next recommended action remains the harness goal-lineage hardening plan.
+The Labs21 product-suite router is now rebuilt into the canonical router shape, including the bundled asset templates; the next recommended action remains the harness goal-lineage hardening plan.
