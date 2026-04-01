@@ -1,5 +1,7 @@
 # Current Focus
 
+Read after `AGENTS.md` when starting or resuming work. Keep this file limited to the current objective and the bounds for active work.
+
 ## Objective
 
 - Objective:
@@ -7,8 +9,11 @@
 
 ## Scope
 
+In scope:
 - In scope:
-- Expected outcome:
+
+Out of scope:
+- Out of scope:
 
 ## Constraints
 

@@ -1,5 +1,7 @@
 # Progress
 
+Read after `current-focus.md` to recover the latest state and hand-off details. Keep each section concise.
+
 ## Current State
 
 - State:
@@ -8,26 +10,18 @@
 
 - Work:
 
-## In Progress
-
-- Item:
-
 ## Blockers
 
 - Blocker:
-
-## Next Recommended Action
-
-- Action:
 
 ## Touched Files
 
 - File:
 
-## Verification Status
+## Verification
 
 - Check:
 
-## Hand-off Note
+## Next Recommended Action
 
-- Note:
+- Action:
