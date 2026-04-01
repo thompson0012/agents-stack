@@ -4,7 +4,11 @@ Read when selecting or sequencing next actions. Keep the list short — only cur
 
 ## Current Actions
 
-No current actions. This cutover is complete; see `roadmap.md` for the completed phase history.
+- [ ] Align `templates/base/docs/live/` scaffolds to mirror the root standard (same headings, inert fields).
+- [ ] Align `templates/base/docs/reference/` scaffolds to mirror the root standard (task-first, honest, no fake content).
+- [ ] Update `templates/base/AGENTS.md`: replace `software-delivery` with `delivery-control`, align progressive-disclosure rules.
+- [ ] Update root `AGENTS.md`: remove remaining `software-delivery` wording.
+- [ ] Cross-surface verification: no overlap, no stale references, no contradictions between root and template.
 
 ## Rules
 

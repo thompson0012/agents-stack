@@ -1,5 +1,11 @@
 # Code Map
 
+## If you want to…
+
+| Goal | Start here |
+|------|-----------|
+| | |
+
 ## Key Paths
 
 -
@@ -8,6 +14,6 @@
 
 -
 
-## High-Value Files
+## Router metadata
 
 -

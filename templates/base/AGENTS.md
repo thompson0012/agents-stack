@@ -62,7 +62,7 @@ These thoughts indicate you are rationalizing away skill usage:
 - **ALWAYS** check `.agents/skills/` FIRST when a task type might have repository-specific guidance.
 - Read `.agents/skills/using-labs21-suite/SKILL.md` as the router index whenever the right project-local skill or family router is not obvious.
 - Use the most specific relevant skill available; do not fall back to model knowledge when a skill exists.
-- For non-trivial software feature work that still needs discovery, planning, delivery-control decisions, or independent frontend signoff, consider `.agents/skills/software-delivery/SKILL.md` before jumping straight to implementation; keep trivial or already-clear work on the direct skill path.
+- For non-trivial software feature work that still needs discovery, planning, delivery-control decisions, or independent frontend signoff, consider `.agents/skills/delivery-control/SKILL.md` before jumping straight to implementation; keep trivial or already-clear work on the direct skill path.
 - Read only the smallest relevant skill or subdirectory needed for the task; do not preload the entire project skill tree.
 
 ## Progressive Disclosure Rules

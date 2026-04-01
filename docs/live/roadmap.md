@@ -4,28 +4,28 @@ Canonical carrier for phased-work goal lineage. Read after `current-focus.md` to
 
 ## Source Goal
 
-- Source goal: Harden the agents-docs-kits documentation surfaces so each surface owns exactly one job, with no overlapping authority, no obsolete references, and no placeholder content.
-- Origin: recurring drift between README/AGENTS onboarding, stale family names in active surfaces, live-doc conflicts (progress vs. todo), and scaffold-only reference docs.
+- Source goal: Every generated repo should ship the same docs-control-plane standard that the root repo uses — live docs, reference scaffolds, and agent/router contracts — so agents resuming in any generated project find the same surfaces, same conventions, same progressive-disclosure contract.
+- Origin: the root cutover established the standard (five surfaces, one job each, no overlap), but `templates/base/` still carries the old shape: different scaffold fields, missing conventions, and `AGENTS.md` prose referencing the obsolete `software-delivery` name.
 
 ## Plan Goal
 
-- Plan goal: Execute a single-batch cutover that splits human onboarding (README) from agent contract (AGENTS), aligns live docs, replaces reference placeholders, and deduplicates router prose — then verify coherence across all five surfaces.
+- Plan goal: Single-batch cutover that aligns template scaffolds (live, reference), updates template and root `AGENTS.md` to remove `software-delivery`, and verifies cross-surface coherence — without filling scaffolds with real content.
 
 ## Phase Ledger
 
 | Phase | Description | Status |
 | --- | --- | --- |
-| 1 | Live-doc alignment: rewrite current-focus, progress, todo; create roadmap | Completed |
-| 2 | Onboarding split: rewrite README (human-first) and AGENTS (agent-first), remove obsolete families | Completed |
-| 3 | Reference docs: replace `docs/reference/memory.md` placeholder with real durable truths | Completed |
-| 4 | Router deduplication: trim SKILL.md prose in `using-labs21-suite` and `labs21-product-suite` to not restate metadata | Completed |
-| 5 | Cross-surface verification: confirm no overlap, no stale references, no contradictions | Completed |
+| 0 | Recast root live docs to describe the template-cutover objective | Completed |
+| 1 | Align `templates/base/docs/live/` scaffolds to the root standard | Not started |
+| 2 | Align `templates/base/docs/reference/` scaffolds to the root standard | Not started |
+| 3 | Update `templates/base/AGENTS.md` and root `AGENTS.md` — remove `software-delivery`, align contract | Not started |
+| 4 | Cross-surface verification: no overlap, stale references, or contradictions | Not started |
 
 ## Goal Changes
 
 | Date | Change | Reason |
 | --- | --- | --- |
-| 2026-04-01 | Initial roadmap created from docs control-plane cutover objective | Live docs lacked a lineage artifact; progress and todo were drifting |
+| 2026-04-01 | New batch: template cutover replaces completed root cutover as the active objective | Root cutover is done; templates still carry the old shape |
 
 ## Resume Rules
 
