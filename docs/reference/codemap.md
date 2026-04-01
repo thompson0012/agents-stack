@@ -4,6 +4,10 @@ Read when you need to find where to work. Prefer only high-value paths.
 
 ## Key Paths
 
+- Path: `.agents/skills/using-agents-md/`
+- Purpose: repo-local procedural guidance for when to add, update, localize, or leave alone `AGENTS.md` files and adjacent documentation-governance surfaces.
+- Update when: the AGENTS-maintenance decision workflow, doc-surface split, or paired discovery-update rules change.
+
 - Path: `templates/base/.agents/skills/using-labs21-suite/`
 - Purpose: top-level router, child inventory, and category-map surface for the shipped Labs21 template suite, including `using-design`, `using-reasoning`, and `delivery-control` while excluding deleted or moved external families.
 - Update when: the shipped suite boundary, first-hop routing, or category descriptions change.
@@ -50,6 +54,10 @@ Read when you need to find where to work. Prefer only high-value paths.
 - Update when: the live-doc contract or required handoff artifacts change.
 
 ## Entrypoints
+
+- Entrypoint: `.agents/skills/using-agents-md/SKILL.md`
+- Consumer: agents deciding whether repo-guidance changes belong in `AGENTS.md`, `docs/reference/*`, `docs/live/*`, or a skill package.
+- Notes: enter here before adding a local `AGENTS.md`, changing a discovery pointer, or concluding that no AGENTS/reference update is needed.
 
 - Entrypoint: `templates/base/.agents/skills/using-labs21-suite/SKILL.md`
 - Consumer: agents choosing the right shipped top-level Labs21 skill or family router before any narrower handoff.

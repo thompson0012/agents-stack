@@ -60,7 +60,7 @@ These thoughts indicate you are rationalizing away skill usage:
 ## Project-Local Skills
 
 - **ALWAYS** check `.agents/skills/` FIRST when a task type might have repository-specific guidance.
-- Read `.agents/skills/using-labs21-suite/SKILL.md` as the router index whenever the right project-local skill or family router is not obvious.
+- Read `.agents/skills/using-agents-md/SKILL.md` when deciding how to add, update, or localize `AGENTS.md` files or adjacent doc-governance boundaries.
 - Use the most specific relevant skill available; do not fall back to model knowledge when a skill exists.
 - Read only the smallest relevant skill or subdirectory needed for the task; do not preload the entire project skill tree.
 

@@ -4,13 +4,15 @@ Read after `docs/live/current-focus.md` to recover the latest state, continuity,
 
 ## Current State
 
-The template AGENTS hierarchy rollout is complete in this worktree: the hierarchy suite now asserts the reference-doc truth, the template reference docs encode the approved boundaries, and verification is green aside from the known pre-existing `delivery-control` audit blocker.
+The repo now has a repo-local AGENTS-governance skill at `.agents/skills/using-agents-md/SKILL.md`, and the root discovery pointer now truthfully routes AGENTS/doc-governance decisions to it.
 
 ## Latest Completed Work
 
-- extended `scripts/tests/test_template_agents_hierarchy.py` with a reference-doc truth assertion and ran it red before updating docs
-- updated `templates/base/docs/reference/{architecture,codemap,memory,lessons}.md` so they record the approved hierarchy truth: constitutional root, approved local boundaries, root indexing duty, inert template live docs, shipped-vs-optional separation, and hierarchy anti-patterns
-- reran the hierarchy suite and inert live-doc suite, then checked the base-template audit and confirmed it still reports only the known `delivery-control` blocker
+- ran a read-only baseline pressure test that confirmed the repo lacked an explicit AGENTS-maintenance decision procedure and still pointed root startup guidance at a missing repo-local skill surface
+- created `.agents/skills/using-agents-md/SKILL.md` as the narrow procedural guide for when to change `AGENTS.md`, `docs/reference/*`, `docs/live/*`, or a skill package
+- updated root `AGENTS.md` so the project-local skills section points to `.agents/skills/using-agents-md/SKILL.md` instead of a stale missing path
+- updated `docs/reference/{architecture,codemap,memory,lessons}.md` so the new skill path, durable policy split, and stale-root-pointer anti-pattern are preserved
+- ran a post-skill verification task, fixed the only remaining ambiguity in the skill workflow (nearest-parent vs root discovery updates, plus rule-vs-procedure dual updates), and rechecked that the clarification passed
 - verified whitespace cleanliness with `git diff --check`
 
 ## In Progress
@@ -19,29 +21,29 @@ None.
 
 ## Blockers
 
-- `python3 scripts/audit_base_template_skills.py` remains red only because of the pre-existing `templates/base/.agents/skills/delivery-control` eval-schema failure.
+None.
 
 ## Next Recommended Action
 
-Review the committed hierarchy rollout in the context of the broader harness goal-lineage work; no further action is required for this task itself.
+Use `.agents/skills/using-agents-md/SKILL.md` for future repo AGENTS-hierarchy or doc-governance changes; no additional follow-up is required for this task.
 
 ## Touched Files
 
-- `scripts/tests/test_template_agents_hierarchy.py`
-- `templates/base/docs/reference/architecture.md`
-- `templates/base/docs/reference/codemap.md`
-- `templates/base/docs/reference/memory.md`
-- `templates/base/docs/reference/lessons.md`
+- `.agents/skills/using-agents-md/SKILL.md`
+- `AGENTS.md`
+- `docs/reference/architecture.md`
+- `docs/reference/codemap.md`
+- `docs/reference/memory.md`
+- `docs/reference/lessons.md`
 - `docs/live/progress.md`
 
 ## Verification Status
 
-- `python3 -m unittest scripts.tests.test_template_agents_hierarchy.TemplateAgentsHierarchyTests.test_reference_docs_encode_the_template_agents_hierarchy_truth` failed first, then passed after the reference-doc updates
-- `python3 -m unittest scripts.tests.test_template_agents_hierarchy`
-- `python3 -m unittest scripts.tests.test_goal_lineage_templates`
-- `python3 scripts/audit_base_template_skills.py` (fails only for the known pre-existing `delivery-control` eval-schema blocker)
+- baseline read-only pressure test (`task` subagent) found the missing AGENTS-governance procedure and stale root skill pointer before implementation
+- post-skill verification (`task` subagent) confirmed the new discovery pointer and AGENTS/reference/live-doc split, then identified one workflow ambiguity that was fixed
+- follow-up recheck (`quick_task` subagent) returned `pass` after the skill clarification
 - `git diff --check`
 
 ## Hand-off Note
 
-Task 3 is done in this worktree. Keep the `delivery-control` audit failure treated as pre-existing until that package is repaired in its own task.
+The repo-local AGENTS-governance surface is now in place and documented. No `docs/live/current-focus.md` update was needed because the active objective and scope did not change. No further reference-doc update is pending for this task.

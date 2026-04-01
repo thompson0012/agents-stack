@@ -9,6 +9,8 @@ Read when system shape, boundaries, or invariants matter. Keep this focused on s
 - Boundary note: `using-design` owns design-family selection when the design boundary itself is the hard problem, while ordinary hand-authored web implementation stays outside this template suite.
 - Boundary note: `using-reasoning` owns reasoning-family selection for analytical requests, while `startup-pressure-test` stays separate for harsh commercial survivability work.
 - Boundary note: `delivery-control` owns delivery-control routing and independent frontend acceptance selection for non-trivial software feature work.
+- Boundary note: repo-local guidance for maintaining this repository's `AGENTS.md` hierarchy belongs in `.agents/skills/using-agents-md/`, while `AGENTS.md` files remain the canonical boundary rules and `docs/reference/*`/`docs/live/*` keep durable truth and session state.
+
 
 ## Invariants
 
@@ -29,6 +31,10 @@ Read when system shape, boundaries, or invariants matter. Keep this focused on s
 - Failure signal: the category map, child inventory, or evals still mention removed families such as `project-founding`, or omit newly shipped families such as `using-design` or `using-reasoning`.
 
 ## Major Components
+
+- Component: `.agents/skills/using-agents-md/`
+- Responsibility: guides repo-local decisions about when changes belong in `AGENTS.md`, `docs/reference/*`, `docs/live/*`, or a skill package, and insists that discovery pointers move with AGENTS-boundary changes.
+- Key dependency: root `AGENTS.md` plus the live/reference writeback surfaces it triages.
 
 - Component: `templates/base/.agents/skills/delivery-control/`
 - Responsibility: routes non-trivial software work across discovery, harness control, plan review, implementation handoff, independent frontend evaluation, and readiness reflection.
