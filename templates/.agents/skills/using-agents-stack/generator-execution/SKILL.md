@@ -1,7 +1,7 @@
 ---
 name: generator-execution
 purpose: Implement one approved sprint strictly from the contract, capture reproducible runtime evidence, and hand off only verifiable work.
-trigger: After `evaluator-contract-review` has approved `.harness/<sprint-id>/contract.md` and before any adversarial review exists.
+trigger: After `evaluator-contract-review` has approved `.harness/<sprint-id>/contract.md`, or after `state-update` has reconciled a failed review into `review_failed` for the same sprint.
 inputs:
   - AGENTS.md
   - docs/reference/architecture.md
@@ -30,14 +30,22 @@ next_skills:
 
 You are the implementation phase of the harness. Your job is to turn an approved contract into a reviewable result without smuggling in unapproved scope, unverifiable assumptions, or undocumented runtime behavior.
 
+## Worker Dispatch Contract
+
+- Run execution in a fresh worker context. The orchestrator dispatches execution workers; it does not load execution into its own context window.
+- Only the orchestrator may spawn workers. This worker must not spawn another worker.
+- Tool lane: implementation and verification tools only for files allowed by `contract.md`, plus sprint-local writes to `runtime.md`, `handoff.md`, and `status.json`. No contract rewriting, review decisions, or global-state updates.
+- Parallel-safe only when the orchestrator splits the contract into explicitly disjoint file slices with no shared writes or hidden coupling. Each worker must have a unique worker id and must own a non-overlapping artifact or code slice.
+- Durable return contract: code changes within contract bounds, `.harness/<sprint-id>/runtime.md`, `.harness/<sprint-id>/handoff.md`, and `.harness/<sprint-id>/status.json` with `worker_id` / `orchestrator_run_id` when available.
+
 ## Required entry checks
 
 Before changing code, verify all of the following:
 
 1. `docs/live/features.json` marks exactly one feature as active for this sprint.
 2. `.harness/<sprint-id>/contract.md` exists and is the latest approved scope.
-3. `.harness/<sprint-id>/review.md` does not already exist.
-4. `status.json` points back to the contract phase or a valid resume checkpoint.
+3. If `.harness/<sprint-id>/review.md` exists, it must represent a reconciled `review_failed` retry for this same sprint; otherwise execution is not the correct next owner.
+4. `status.json` points back to `contract.md`, `review.md`, or another valid execution resume checkpoint.
 5. The contract names the allowed files, forbidden areas, and acceptance criteria.
 
 If any of these are missing, stop. Record the mismatch in `runtime.md`, update `status.json` to a blocked or paused phase, and hand back control instead of guessing.
@@ -169,10 +177,10 @@ READY_FOR_REVIEW | BLOCKED
 Keep the machine-readable checkpoint aligned with reality.
 
 Typical transitions:
-- start or resume execution -> `phase: "executing"`, `owner_role: "generator"`, `resume_from: "contract.md"`
-- ready for review -> `phase: "awaiting_review"`, `owner_role: "evaluator"`, `resume_from: "handoff.md"`
-- blocked during execution -> `phase: "blocked_during_execution"`, `owner_role: "generator"`, `resume_from: "runtime.md"`
-- paused by interruption -> `phase: "paused_by_timeout"`, `owner_role: "generator"`, `resume_from: "runtime.md"`
+- start or resume execution -> `phase: "executing"`, `owner_role: "orchestrator"`, `resume_from: "contract.md"` on a first pass or `resume_from: "review.md"` on a reconciled retry
+- ready for review -> `phase: "awaiting_review"`, `owner_role: "orchestrator"`, `resume_from: "handoff.md"`
+- blocked during execution -> `phase: "blocked"`, `owner_role: "orchestrator"`, `resume_from: "runtime.md"`
+- paused by interruption -> `phase: "paused_by_timeout"`, `owner_role: "orchestrator"`, `resume_from: "runtime.md"`
 
 Use the smallest truthful state. Never claim `awaiting_review` unless the handoff and runtime evidence are present.
 

@@ -32,6 +32,13 @@ Stress-test the sprint proposal as if the implementation will fail in every ambi
 
 Your job is to reject weak proposals early. Approval means the scope, boundaries, and verification plan are strong enough that execution can be judged without debate.
 
+## Worker Dispatch Contract
+
+- Run contract review in a fresh worker context. The orchestrator dispatches a reviewer worker; it must not review by wearing this persona inline.
+- Only the orchestrator may spawn workers. This reviewer must not spawn another worker.
+- Tool lane: read/search/inspection only across proposal, status, and cited code areas. This reviewer should not have write tools; it returns approval or rejection artifacts for the orchestrator to persist into sprint-local files.
+- Durable return contract: approved `contract.md` content or precise proposal-revision feedback, plus the corresponding `status.json` update payload. Include reviewer `worker_id` / `orchestrator_run_id` in the returned status metadata when the host provides them.
+
 ## Required Reads
 Read all of the following before deciding:
 
@@ -46,6 +53,8 @@ Read all of the following before deciding:
 Do not review only the prose. Verify that the claimed file boundaries and acceptance steps match the actual repo.
 
 ## Expected Outputs
+If the host keeps reviewer workers read-only, return exact file payloads for these artifacts and let the orchestrator persist them without altering their substance.
+
 
 ### Approval path: `.harness/<feature-id>/contract.md`
 Write an approved contract only when the proposal is execution-ready.
@@ -58,7 +67,7 @@ The contract must include:
 - open assumptions that execution may rely on
 - clear non-goals and deferred work
 
-Also update `status.json` so the sprint resumes from `contract.md` and the next role is the generator.
+Also update `status.json` so the sprint resumes from `contract.md` and the next owner is the orchestrator, which can dispatch a fresh `generator-execution` worker.
 
 ### Rejection path: revision feedback
 If the proposal is not execution-ready, do not write `contract.md`.

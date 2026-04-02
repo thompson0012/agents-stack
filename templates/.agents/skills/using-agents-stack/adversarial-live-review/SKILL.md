@@ -1,7 +1,7 @@
 ---
 name: adversarial-live-review
-purpose: Run a skeptical QA pass against the actual implementation and contract, then issue a decisive PASS or FAIL with corrective directives.
-trigger: After generator execution has produced `.harness/<sprint-id>/handoff.md` and `.harness/<sprint-id>/runtime.md`.
+purpose: Run a skeptical QA pass against the actual implementation and contract, then issue a decisive PASS, FAIL, or BLOCKED verdict with corrective or recovery directives.
+trigger: After generator execution has produced `.harness/<sprint-id>/handoff.md` and `.harness/<sprint-id>/runtime.md`, and before `state-update` has reconciled the review outcome.
 inputs:
   - AGENTS.md
   - docs/reference/architecture.md
@@ -30,6 +30,14 @@ You are the skeptical evaluator. Assume the implementation is wrong, incomplete,
 
 Your job is to judge the observable result against the contract, not to admire the effort that produced it.
 
+## Worker Dispatch Contract
+
+- Run live review in a fresh worker context. The orchestrator dispatches a reviewer worker; it does not swap into review mode inline.
+- Only the orchestrator may spawn workers. This reviewer must not spawn another worker.
+- Tool lane: read, runtime reproduction, browser/QA inspection, and evidence capture only. This reviewer should not have write tools to product code or live state; it returns `qa.md`, `review.md`, and `status.json` payloads for the orchestrator to persist.
+- Parallel-safe only for independent acceptance checks that share no mutable environment and write to separate evidence fragments. The orchestrator must merge those fragments into one decisive review record.
+- Durable return contract: `.harness/<sprint-id>/qa.md`, `.harness/<sprint-id>/review.md`, and `.harness/<sprint-id>/status.json`, each traceable with reviewer `worker_id` / `orchestrator_run_id` when the host provides them.
+
 ## Preconditions
 
 Review starts only when these files exist:
@@ -37,7 +45,7 @@ Review starts only when these files exist:
 - `.harness/<sprint-id>/handoff.md`
 - `.harness/<sprint-id>/runtime.md`
 
-If `handoff.md` says the sprint is blocked, do not invent a PASS path. Produce a FAIL review that explains the missing preconditions and route to `state-update`.
+If `handoff.md` says the sprint is blocked, do not invent a PASS path. Produce a BLOCKED review that explains the missing preconditions and route to `state-update`.
 
 ## Review standard
 
@@ -102,6 +110,8 @@ Even if the feature appears to work, FAIL the sprint when you observe any of the
 - the implementation regressed adjacent behavior the contract implicitly depends on
 
 ## Required outputs
+If the host keeps reviewer workers read-only, return exact file payloads for these artifacts and let the orchestrator persist them without altering their substance.
+
 
 ## `.harness/<sprint-id>/qa.md`
 
@@ -139,7 +149,7 @@ This is the decision memo. Use a structure like:
 # Adversarial Review: <SPRINT-ID>
 
 ## Status
-PASS | FAIL
+PASS | FAIL | BLOCKED
 
 ## Decision Summary
 - ...
@@ -155,13 +165,13 @@ PASS | FAIL
 2. ...
 ```
 
-Every FAIL must include corrective directives that are specific enough for the next generator to act on without reopening the problem framing.
+Every FAIL or BLOCKED outcome must include recovery directives that are specific enough for the next orchestrator decision or generator retry to act on without reopening the problem framing.
 
 ## `.harness/<sprint-id>/status.json`
 
 At review completion:
-- set `phase: "reviewed_pass"` or `phase: "reviewed_fail"`
-- set `owner_role: "state_manager"`
+- set `phase: "reviewed_pass"`, `"reviewed_fail"`, or `"reviewed_blocked"`
+- set `owner_role: "orchestrator"`
 - set `resume_from: "review.md"`
 - update timestamps and any review artifact pointers the harness uses
 
@@ -191,7 +201,7 @@ If the feature works but the generator touched out-of-contract files or behavior
 - FAIL the sprint unless the contract was formally amended before execution
 - direct the next generator either to revert the extra work or to obtain a revised contract
 
-## PASS / FAIL routing
+## PASS / FAIL / BLOCKED routing
 
 ### PASS
 PASS means the implementation is verifiably complete. It does not mean “looks good enough.”
@@ -208,6 +218,15 @@ On FAIL:
 - keep the sprint artifacts intact
 - name the failing criteria and reproduction steps
 - issue corrective directives ordered by importance
+- route immediately to `state-update`
+
+### BLOCKED
+BLOCKED means the reviewer could not truthfully reach PASS or FAIL because an environment, dependency, or missing-evidence problem prevented judgment.
+
+On BLOCKED:
+- keep the sprint artifacts intact
+- name the blocking condition and the exact missing prerequisite or failing command
+- issue recovery steps ordered by importance
 - route immediately to `state-update`
 
 Never erase evidence to make the next pass look cleaner.

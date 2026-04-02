@@ -1,18 +1,20 @@
 {
   "router_name": "using-agents-stack",
-  "purpose": "Route agents-stack harness requests to the correct workflow phase without hiding the leaf-skill boundary.",
+  "purpose": "Route agents-stack harness requests to the correct workflow phase, then dispatch that child as a fresh worker instead of doing the phase inline in the orchestrator.",
   "selection_order": [
     "Initialize missing or unusable live state before any sprint routing.",
     "If a single active sprint exists, resume it from the strongest durable artifact before proposing new work.",
     "When review or contradictory state is not yet reconciled, prefer state-update over new execution.",
-    "Choose the narrowest phase child that matches the current artifact gate."
+    "Choose the narrowest phase child that matches the current artifact gate.",
+    "After selecting a child, dispatch a fresh worker, sub-agent, Task agent, or equivalent runtime delegate with phase-scoped tools and explicit artifact targets.",
+    "Do not load the child prompt into the orchestrator context and continue inline."
   ],
   "children": [
     {
       "name": "project-initializer",
       "target": "using-agents-stack/project-initializer",
       "relationship": "routes_to",
-      "summary": "Bootstraps durable live and reference state when the repository cannot yet support honest sprint routing.",
+      "summary": "Dispatches a fresh initializer worker to bootstrap durable live and reference state when the repository cannot yet support honest sprint routing.",
       "route_when": [
         "`docs/live/features.json` is missing, empty, unparsable, or lacks durable backlog truth.",
         "The repository follows the agents-stack layout but has no trustworthy live state for selecting or resuming work."
@@ -26,14 +28,14 @@
       "fallbacks_to": [],
       "install_if_missing": {
         "package": "using-agents-stack/project-initializer",
-        "notes": "Install the nested child path before routing if the runtime cannot discover bundled children automatically."
+        "notes": "Install the nested child path before routing if the runtime cannot discover bundled children automatically, then dispatch it as a fresh worker."
       }
     },
     {
       "name": "generator-proposal",
       "target": "using-agents-stack/generator-proposal",
       "relationship": "routes_to",
-      "summary": "Turns one backlog item into the next bounded sprint proposal when no approved contract exists yet.",
+      "summary": "Dispatches a fresh proposal worker to turn one backlog item into the next bounded sprint proposal when no approved contract exists yet.",
       "route_when": [
         "Exactly one pending backlog item should become the next active sprint and no approved contract exists yet.",
         "Live state is trustworthy, but the active feature has no local sprint proposal or the proposal was explicitly reset."
@@ -47,14 +49,14 @@
       "fallbacks_to": [],
       "install_if_missing": {
         "package": "using-agents-stack/generator-proposal",
-        "notes": "Install the nested child path before routing if the runtime cannot discover bundled children automatically."
+        "notes": "Install the nested child path before routing if the runtime cannot discover bundled children automatically, then dispatch it as a fresh worker."
       }
     },
     {
       "name": "evaluator-contract-review",
       "target": "using-agents-stack/evaluator-contract-review",
       "relationship": "routes_to",
-      "summary": "Independently approves or rejects a sprint proposal before any implementation begins.",
+      "summary": "Dispatches a fresh contract-review worker to independently approve or reject a sprint proposal before any implementation begins.",
       "route_when": [
         "`.harness/<feature>/sprint_proposal.md` exists without an approved `contract.md`.",
         "`status.json.resume_from` points to `sprint_proposal.md` after an interrupted proposal-review pass."
@@ -70,14 +72,14 @@
       "fallbacks_to": [],
       "install_if_missing": {
         "package": "using-agents-stack/evaluator-contract-review",
-        "notes": "Install the nested child path before routing if the runtime cannot discover bundled children automatically."
+        "notes": "Install the nested child path before routing if the runtime cannot discover bundled children automatically, then dispatch it as a fresh worker."
       }
     },
     {
       "name": "generator-execution",
       "target": "using-agents-stack/generator-execution",
       "relationship": "routes_to",
-      "summary": "Implements the approved contract or retries the same sprint after a reconciled failed review.",
+      "summary": "Dispatches a fresh execution worker to implement the approved contract or retry the same sprint after a reconciled failed review.",
       "route_when": [
         "`.harness/<feature>/contract.md` exists and no later handoff/review gate is waiting.",
         "Local and live state already reconcile a failed review into `review_failed`, so the same sprint must be retried from `review.md`.",
@@ -95,14 +97,14 @@
       "fallbacks_to": [],
       "install_if_missing": {
         "package": "using-agents-stack/generator-execution",
-        "notes": "Install the nested child path before routing if the runtime cannot discover bundled children automatically."
+        "notes": "Install the nested child path before routing if the runtime cannot discover bundled children automatically, then dispatch it as a fresh worker."
       }
     },
     {
       "name": "adversarial-live-review",
       "target": "using-agents-stack/adversarial-live-review",
       "relationship": "routes_to",
-      "summary": "Runs the independent PASS/FAIL/BLOCKED review once execution leaves a reproducible handoff.",
+      "summary": "Dispatches a fresh review worker to run the independent PASS/FAIL/BLOCKED review once execution leaves a reproducible handoff.",
       "route_when": [
         "`handoff.md` and `runtime.md` exist and the work is ready for independent review.",
         "`status.json` points to `handoff.md` or indicates `in_review`."
@@ -119,29 +121,30 @@
       "fallbacks_to": [],
       "install_if_missing": {
         "package": "using-agents-stack/adversarial-live-review",
-        "notes": "Install the nested child path before routing if the runtime cannot discover bundled children automatically."
+        "notes": "Install the nested child path before routing if the runtime cannot discover bundled children automatically, then dispatch it as a fresh worker."
       }
     },
     {
       "name": "state-update",
       "target": "using-agents-stack/state-update",
       "relationship": "routes_to",
-      "summary": "Reconciles review outcomes or contradictory state into durable live truth and archive history.",
+      "summary": "Dispatches a fresh state-update worker to reconcile review outcomes or contradictory state into durable live truth and archive history.",
       "route_when": [
         "`review.md` exists and the outcome has not yet been reconciled into live state.",
-        "`status.json` is `blocked` or active/live state contradict each other.",
+        "`status.json` is `blocked` and the blocker has not yet been published or reconciled in live state, or active/live state contradict each other.",
         "A passed sprint must be archived or a failed sprint must be reopened truthfully."
       ],
       "avoid_when": [
         "No review or contradiction exists and an earlier phase still owns the sprint.",
-        "The repository is merely uninitialized and needs bootstrap, not reconciliation."
+        "The repository is merely uninitialized and needs bootstrap, not reconciliation.",
+        "The sprint is already blocked and the blocker is fully reflected in local and live state; surface the blocked state instead of dispatching another state-update worker."
       ],
       "requires": [],
       "recommends": [],
       "fallbacks_to": [],
       "install_if_missing": {
         "package": "using-agents-stack/state-update",
-        "notes": "Install the nested child path before routing if the runtime cannot discover bundled children automatically."
+        "notes": "Install the nested child path before routing if the runtime cannot discover bundled children automatically, then dispatch it as a fresh worker."
       }
     }
   ]

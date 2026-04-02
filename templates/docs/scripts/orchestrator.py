@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""Reference harness watchdog for starter repositories.
+"""Reference harness orchestrator helper for starter repositories.
 
-The script scans `.harness/*/status.json`, enforces the single-active-sprint
-rule, and records timeout recovery state for stale active sprints.
+The helper scans `.harness/*/status.json`, enforces the single-active-sprint
+rule, and records resume metadata that a top-level orchestrator can use to
+dispatch a fresh worker. It does not perform child phase work inline, and the
+state files remain the source of truth.
 """
 
 from __future__ import annotations
@@ -28,7 +30,7 @@ ARTIFACT_FILES = (
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Inspect harness sprint status files and recover stale work."
+        description="Inspect harness sprint status files and prepare fresh-worker dispatch for stale work."
     )
     parser.add_argument(
         "--root",
@@ -39,12 +41,12 @@ def parse_args() -> argparse.Namespace:
         "--timeout-seconds",
         type=int,
         default=DEFAULT_TIMEOUT_SECONDS,
-        help="Maximum age for an active heartbeat before recovery triggers.",
+        help="Maximum age for an active heartbeat before the orchestrator records a fresh-worker resume checkpoint.",
     )
     parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="Report what would change without rewriting status files.",
+        help="Report the worker dispatch plan without rewriting status files."
     )
     return parser.parse_args()
 
@@ -89,6 +91,7 @@ def infer_resume_target(
     status: dict[str, Any],
     sprint_dir: Path,
 ) -> tuple[str, str, str]:
+    """Return the artifact and worker phase the orchestrator should dispatch next."""
     review_path = sprint_dir / "review.md"
     handoff_path = sprint_dir / "handoff.md"
     contract_path = sprint_dir / "contract.md"
@@ -99,42 +102,42 @@ def infer_resume_target(
         return (
             resume_from,
             "adversarial_live_review",
-            "Read the generator handoff, verify the workspace matches it, then rerun the adversarial review.",
+            "Dispatch a fresh adversarial-live-review worker. It must read the generator handoff, verify the workspace matches it, then rerun the review.",
         )
 
     if review_path.exists() and status.get("review_status") == "fail":
         return (
             "review.md",
             "generator_execution",
-            "Read review.md, apply the failing directives within the contract boundary, then refresh handoff.md for another review pass.",
+            "Dispatch a fresh generator-execution worker. It must read review.md, apply the failing directives within the contract boundary, then refresh handoff.md for another review pass.",
         )
 
     if handoff_path.exists():
         return (
             "handoff.md",
             "adversarial_live_review",
-            "Read handoff.md, confirm the checkpoint against the repo, then continue the pending review.",
+            "Dispatch a fresh adversarial-live-review worker. It must read handoff.md, confirm the checkpoint against the repo, then continue the pending review.",
         )
 
     if contract_path.exists():
         return (
             "contract.md",
             "generator_execution",
-            "Read contract.md, confirm the allowed files, and resume implementation from the last verified checkpoint.",
+            "Dispatch a fresh generator-execution worker. It must read contract.md, confirm the allowed files, and resume implementation from the last verified checkpoint.",
         )
 
     if proposal_path.exists():
         return (
             "sprint_proposal.md",
             "evaluator_contract_review",
-            "Read sprint_proposal.md and decide whether the sprint should be approved, revised, or cancelled.",
+            "Dispatch a fresh evaluator-contract-review worker. It must read sprint_proposal.md and decide whether the sprint should be approved, revised, or cancelled.",
         )
 
     fallback = status.get("resume_from") or "status.json"
     return (
         str(fallback),
         "generator_proposal",
-        "Reconstruct the sprint intent from the remaining state files before resuming work.",
+        "Dispatch a fresh generator-proposal worker. It must reconstruct the sprint intent from the remaining state files before resuming work.",
     )
 
 
@@ -144,6 +147,7 @@ def recover_stale_sprint(
     timeout_seconds: int,
     dry_run: bool,
 ) -> dict[str, Any]:
+    """Record the next fresh-worker dispatch plan for a stale active sprint."""
     status = dict(entry["status"])
     previous_phase = str(status.get("phase", "unknown"))
     last_updated_at = int(status.get("last_updated_at", 0) or 0)
@@ -157,12 +161,16 @@ def recover_stale_sprint(
     recovered_status.update(
         {
             "phase": "paused_by_timeout",
-            "owner_role": "state_manager",
+            "owner_role": "orchestrator",
             "last_updated_at": now,
             "resume_from": resume_from,
             "resume_phase": resume_phase,
             "next_checkpoint": next_checkpoint,
             "active_pids": [],
+            "worker_subject": f"Resume {status.get('sprint_id', entry['sprint_dir'].name)} via {resume_phase}",
+            "tool_scope_profile": f"{resume_phase}_scoped",
+            "spawn_depth": 1,
+            "parent_worker_id": "orchestrator",
             "timeout_recovery": {
                 "recovered_at": now,
                 "timeout_seconds": timeout_seconds,
@@ -245,11 +253,11 @@ def main() -> int:
         args.dry_run,
     )
 
-    action = "Would recover" if args.dry_run else "Recovered"
+    action = "Would prepare fresh-worker dispatch for" if args.dry_run else "Prepared fresh-worker dispatch for"
     print(f"{action} stale sprint {recovery['sprint_id']}.")
-    print(f"Resume from: {recovery['resume_from']}")
-    print(f"Resume phase: {recovery['resume_phase']}")
-    print(f"Next checkpoint: {recovery['next_checkpoint']}")
+    print(f"Worker resume from: {recovery['resume_from']}")
+    print(f"Worker phase: {recovery['resume_phase']}")
+    print(f"Worker checkpoint: {recovery['next_checkpoint']}")
     return 0
 
 

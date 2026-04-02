@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This repository uses the agents-stack harness. The harness is stateful, resumable, and adversarial by design: files are the source of truth, one sprint is active at a time, and review is a separate phase from execution.
+This repository uses the agents-stack harness. The harness is stateful, resumable, and adversarial by design: files are the source of truth, one sprint is active at a time, and the top-level router acts as an orchestrator that dispatches fresh worker agents for each phase instead of swapping personas inline.
 
 ## Canonical Topology
 
@@ -85,12 +85,12 @@ This folder is where proposal, contract, execution evidence, review evidence, an
 Repository-local harness utilities.
 
 - `init.sh`: safe bootstrap that creates missing baseline directories and files without overwriting user work.
-- `orchestrator.py`: optional automation for stale-sprint detection or other local harness helpers.
+- `orchestrator.py`: optional helper that inspects durable state and prepares or records worker dispatch and resume decisions. It is not the source of truth and it must not turn the orchestrator into an inline executor.
 
 ### `.agents/skills/using-agents-stack/*`
 Router-style skill package for the harness.
 
-The root skill chooses exactly one child skill based on durable state. The canonical children are:
+The root skill is the orchestrator. It dispatches exactly one fresh child worker/sub-agent/Task agent based on durable state and the host runtime's delegation primitive. The canonical children are worker prompts with phase-scoped tool access:
 - `project-initializer`
 - `generator-proposal`
 - `evaluator-contract-review`
@@ -105,6 +105,9 @@ The root skill chooses exactly one child skill based on durable state. The canon
 3. **Execution does not self-approve.** Code or artifact generation cannot mark itself complete.
 4. **Archive only after PASS.** Failed or interrupted work stays in `.harness/` with its evidence intact.
 5. **State must stay resumable.** A cold-start agent must be able to continue from files alone.
+6. **The orchestrator dispatches fresh workers.** Child phase work runs in a fresh worker/sub-agent/Task agent with a clean context window, not as an inline persona swap inside the orchestrator.
+7. **Only the orchestrator may delegate.** Workers must not spawn nested workers.
+8. **Tool walls are hard boundaries.** Evaluators and reviewers must not get broad repo write tools; if the runtime exposes a narrow artifact-return primitive, scope it only to the evaluator-owned artifact. Every other worker gets only the minimum tool scope for its phase.
 
 ## State Roles and Precedence
 
@@ -165,6 +168,18 @@ A valid active state looks like this:
 
 Do not open `.harness/FEAT-002/` while `.harness/FEAT-001/` is still active. Finish, fail, cancel, or archive the current sprint first.
 
+## Orchestrator-worker execution model
+
+The `using-agents-stack` root skill is the only orchestrator in this starter. It reads durable state, decides the next phase, and dispatches a fresh worker for that phase.
+
+Execution rules:
+- Use the host runtime's delegation primitive when available (`sub-agent`, `Task agent`, parallel worker, or equivalent). Do not require a literal `spawn_subagent` API.
+- The orchestrator never performs child phase work inline. It hands a fresh worker the feature id, subject, allowed files, tool-scope profile, and required artifact outputs, then waits for durable artifacts.
+- Workers return through files first: `contract.md`, `runtime.md`, `handoff.md`, `review.md`, `status.json`, and other sprint artifacts remain the canonical trace.
+- Workers do not reinterpret their tool wall. Evaluation and review workers stay read-only except for any narrowly scoped artifact-return path; execution and state-update workers get only the write access their phase requires.
+- Workers must not spawn nested workers. Delegation depth stops at the orchestrator.
+- Parallel workers are allowed only for independent, non-overlapping work that the orchestrator can reconcile without hidden chat state or conflicting writes.
+
 ## Phase Model
 
 The lifecycle is explicit. Typical state flow:
@@ -205,7 +220,7 @@ When a sprint is interrupted by timeout, crash, human pause, or failed review re
 1. Read `AGENTS.md`.
 2. Read `docs/live/features.json`, `docs/live/progress.md`, and `docs/live/memory.md`.
 3. Identify the single active feature, if any, and confirm it matches the non-terminal `.harness/<FEAT-ID>/` folder.
-4. Read `.harness/<FEAT-ID>/status.json` and capture the claimed `phase`, `owner_role`, `resume_from`, `last_verified_step`, `local_url`, `active_pids`, and `blocked_on` fields.
+4. Read `.harness/<FEAT-ID>/status.json` and capture the claimed `phase`, `owner_role`, `resume_from`, `last_verified_step`, `local_url`, `active_pids`, `blocked_on`, `worker_id`, `worker_subject`, `tool_scope_profile`, `spawn_depth`, and `parent_worker_id` fields.
 5. Read local artifacts in evidence order: `review.md`, `handoff.md`, `contract.md`, `sprint_proposal.md`.
 6. Verify that the claimed checkpoint matches reality on disk and in any running process before trusting it.
 7. If processes were recorded in `status.json` or `runtime.md`, verify whether they still exist before reusing them.
@@ -224,6 +239,11 @@ Add these fields when they apply:
 - `local_url` when a running artifact exists
 - `active_pids` when processes are live
 - `blocked_on` when a sprint cannot safely continue
+- `worker_id` when the next worker has an explicit dispatch identity
+- `worker_subject` when the next worker needs a terse, durable task label
+- `tool_scope_profile` when the orchestrator intentionally narrows tool access for that worker
+- `spawn_depth` for dispatch traceability; the orchestrator is depth `0` and workers must remain at depth `1`
+- `parent_worker_id` when the handoff needs to name the orchestrator dispatch that created the worker
 ## Archive Policy
 
 Archive only after all of the following are true:
@@ -250,25 +270,28 @@ Any script-driven mutation must be reflected back into the documented file contr
 ## Role Responsibilities
 
 ### Router: `using-agents-stack`
-Reads durable state and selects exactly one child skill. It routes; it does not implement, review, or rewrite history.
+Reads durable state, chooses the next phase, and dispatches exactly one fresh worker/sub-agent/Task agent with explicit worker metadata and phase-appropriate tool scope. It routes; it does not implement, review, or rewrite history inline.
+
+All leaf roles below are worker prompts run in fresh workers. None of them may spawn additional workers.
 
 ### `project-initializer`
-Creates or repairs `docs/live/*` and `docs/reference/*` so the repo has truthful durable state. It does not open an execution sprint unless a human explicitly chose one.
+Worker prompt. Creates or repairs `docs/live/*` and `docs/reference/*` so the repo has truthful durable state. It does not open an execution sprint unless a human explicitly chose one.
 
 ### `generator-proposal`
-Turns one backlog item into a bounded sprint proposal with explicit scope, allowed files, forbidden areas, acceptance checks, and risks. It does not write implementation code.
+Worker prompt. Turns one backlog item into a bounded sprint proposal with explicit scope, allowed files, forbidden areas, acceptance checks, and risks. It does not write implementation code.
 
 ### `evaluator-contract-review`
-Attacks the proposal. It either writes `contract.md` as the approved execution boundary or rejects the proposal with specific revision demands.
+Worker prompt. Attacks the proposal. It either returns or materializes `contract.md` as the approved execution boundary, or rejects the proposal with specific revision demands. It must not receive broad repo write access outside that artifact path.
 
 ### `generator-execution`
-Implements only the approved contract, records reproducible runtime details, and writes `handoff.md`. It does not self-approve and does not widen scope silently.
+Worker prompt. Implements only the approved contract, records reproducible runtime details, and writes `handoff.md`. It does not self-approve, does not widen scope silently, and does not spawn helpers.
 
 ### `adversarial-live-review`
-Reproduces the result against the contract and issues exactly one of `PASS`, `FAIL`, or `BLOCKED` with evidence. It does not update global state.
+Worker prompt. Reproduces the result against the contract and issues exactly one of `PASS`, `FAIL`, or `BLOCKED` with evidence. It does not update global state and must not receive broad write access.
 
 ### `state-update`
-Makes the repo tell the truth after review. It updates `docs/live/*`, preserves failed sprint evidence, archives PASS results, and routes the next action.
+Worker prompt. Makes the repo tell the truth after review. It updates `docs/live/*`, preserves failed sprint evidence, archives PASS results, and routes the next action through durable state.
+
 
 ## Review Verdict Contract
 Every independent review must end with exactly one verdict: `PASS`, `FAIL`, or `BLOCKED`.

@@ -30,6 +30,14 @@ Turn a selected feature into a reviewable sprint proposal with explicit scope, o
 
 A proposal is not a wish list. It is a contract candidate that should survive hostile review.
 
+## Worker Dispatch Contract
+
+- Run proposal drafting in a fresh worker context. The orchestrator dispatches this worker; it does not swap into proposal mode inline.
+- Only the orchestrator may spawn workers. This worker must not spawn another worker.
+- Tool lane: repo discovery, sprint-local planning writes under `.harness/<feature-id>/`, and the narrow `docs/live/features.json` reservation update when needed. No product-code edits.
+- Parallel-safe only for read-only research across clearly disjoint code areas. One worker owns `.harness/<feature-id>/sprint_proposal.md` and `status.json`; parallel helpers must not write those same files or overlap target areas.
+- Durable return contract: `.harness/<feature-id>/sprint_proposal.md`, `.harness/<feature-id>/status.json`, and optional `docs/live/features.json`. Include `worker_id` and `orchestrator_run_id` in `status.json` when the host provides them.
+
 ## Required Reads
 Read these before drafting:
 

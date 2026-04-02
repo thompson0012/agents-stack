@@ -28,6 +28,13 @@ Create the minimum durable state needed for the harness to operate truthfully.
 
 This phase establishes the repo's current facts, not a fictional project narrative. Its job is to make future planning resumable from files alone.
 
+## Worker Dispatch Contract
+
+- Run this phase in a fresh worker context selected by the orchestrator, not by loading initialization into the orchestrator's own window.
+- Only the orchestrator may spawn workers. This worker must not spawn another worker.
+- Tool lane: repository discovery plus writes to `docs/live/*` and `docs/reference/*` only. No product-code edits, no `.harness/<feature-id>/` execution work, no archive writes.
+- Durable return contract: `docs/live/features.json`, `docs/live/progress.md`, `docs/live/memory.md`, `docs/reference/architecture.md`, and `docs/reference/design.md`. If the host provides worker metadata, record `worker_id` / `orchestrator_run_id` in the initialization ledger entry or equivalent durable note.
+
 ## Required Reads
 Read these before writing anything:
 

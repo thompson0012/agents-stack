@@ -1,6 +1,6 @@
 # Architecture Reference
 
-This starter assumes an agent-operated product repository with durable file-based state. Chat history is disposable; the repository is not.
+This starter uses a file-backed orchestrator-worker harness. Repository files are durable state. Chat context, inline persona swaps, and script memory are disposable.
 
 ## Canonical topology
 
@@ -14,30 +14,38 @@ This starter assumes an agent-operated product repository with durable file-base
 - `docs/archive/<feature-id>_timestamp/`: immutable historical sprint artifacts after closure.
 - `docs/scripts/*`: optional helpers; never the source of truth for state.
 
-## Stack assumptions
+## Orchestrator-worker model
 
-- The product surface is a modern app with UI work that benefits from browser-based verification.
-- Framework specifics belong in sprint contracts and code, not in the harness itself; the harness stays portable across React/Vite/Next-style repos.
-- UI flows should expose deterministic selectors or hooks so browser QA can verify behavior without relying on brittle copy.
-- Agents may use scripts and tooling, but must write outcomes back into repository state files.
+The `using-agents-stack` router is an orchestrator, not a phase worker.
 
-## Routing boundaries
+- The orchestrator reads durable state, selects the next phase, and dispatches a fresh worker with a clean context window.
+- If the host runtime does not expose a literal `spawn_subagent` API, use its delegation primitive instead: sub-agent, Task agent, parallel worker, or equivalent.
+- The orchestrator never performs child phase work inline. Proposal, execution, review, and state publication each run in their own fresh worker.
+- Workers return structured results through durable artifacts in `.harness/<feature-id>/` and `docs/live/*`; those files remain the source of truth.
+- Only the orchestrator may delegate. Workers must not spawn nested workers.
+- Every worker dispatch should be traceable in state with a worker id, subject, tool-scope profile, and spawn depth when those fields matter.
 
-The `using-agents-stack` skill package should route work across these boundaries:
+## Tool-scope lanes
 
-- `project-initializer`: create or normalize the repo operating skeleton.
-- `generator-proposal`: shape a backlog item into a bounded sprint proposal and contract.
-- `generator-execution`: implement only the approved active sprint.
-- `adversarial-live-review`: verify the result from observable behavior and record pass/fail.
-- `evaluator-contract-review`: challenge scope, acceptance criteria, and contract quality before or after execution.
-- `state-update`: synchronize local sprint outcomes back to `docs/live/*` and archive folders.
+Tool access is a hard boundary, not a suggestion.
 
-No skill should skip the file handoff between those phases. Planning, execution, review, and state publication are separate concerns even when performed by one agent.
+- The orchestrator gets state inspection and delegation tools only.
+- `project-initializer`, `generator-proposal`, `generator-execution`, and `state-update` get only the write surface needed for the files they own.
+- `evaluator-contract-review` and `adversarial-live-review` are evaluators. They must not receive general write access to product code or global state; if they need to return an artifact, the path must be narrowed to that artifact only.
+- Workers do not widen their own scope, reach across phase boundaries, or keep hidden state outside the file handoff.
+
+## Parallel work rules
+
+Parallel workers are allowed only when the work is independent and non-overlapping.
+
+- File ownership must not overlap unless the orchestrator can merge outputs without ambiguity.
+- Parallel review or evaluation is safe only when each worker writes to its own artifact or returns structured findings for the orchestrator to reconcile.
+- Do not use parallel workers to simulate nested delegation inside a worker. Parallelism still starts at the orchestrator.
 
 ## State locations and precedence
 
 1. Human edits and explicit user instructions.
-2. Active sprint-local state in `.harness/<active-feature>/`, especially `contract.md` and `status.json`.
+2. Active sprint-local state in `.harness/<active-feature>/`, especially `contract.md`, `handoff.md`, `review.md`, and `status.json`.
 3. Global live state in `docs/live/features.json`, `docs/live/progress.md`, and `docs/live/memory.md`.
 4. Stable reference intent in `docs/reference/*`.
 5. Derived outputs from `docs/scripts/*` or ad hoc tooling.
@@ -54,6 +62,7 @@ Exactly one feature may be active in `.harness/` at a time. New work stays pendi
 ## Resume and archive procedure
 
 - Resume by reading `docs/live/features.json`, then `.harness/<feature-id>/status.json`, then the file named by `resume_from`.
-- Keep implementation notes, handoff context, and review findings inside the active sprint folder while work is live.
+- Treat `status.json` as dispatch metadata for the next fresh worker, not as permission for the orchestrator to do that worker's phase inline.
+- Keep implementation notes, handoff context, worker trace metadata, and review findings inside the active sprint folder while work is live.
 - After a sprint is complete and state is updated, copy or move the final local artifacts to `docs/archive/<feature-id>_timestamp/`.
 - Never mix archived artifacts back into `.harness/`; active and historical state must stay separate.

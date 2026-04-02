@@ -6,7 +6,15 @@ Repair the dark-mode contrast and toggle design issues that failed review, witho
 
 ## Current checkpoint
 
-Paused after a processed FAIL. Resume from `review.md` and re-enter generator-execution on the same sprint; the review evidence stays intact.
+Paused after a processed FAIL. Resume from `review.md` by dispatching a fresh `generator-execution` worker on the same sprint; the review evidence stays intact.
+
+## Worker dispatch metadata
+
+- Worker id: `worker-FEAT-001-generator-execution-retry-01`
+- Parent orchestrator id: `orchestrator-FEAT-001`
+- Worker subject: `FEAT-001 execution retry after failed review`
+- Tool scope profile: `generator_execution_scoped`
+- Spawn depth: `1`
 
 ## Files changed in this slice
 
@@ -24,9 +32,9 @@ Paused after a processed FAIL. Resume from `review.md` and re-enter generator-ex
 - No technical blocker was found.
 - `review.md` is authoritative and must remain intact for the retry.
 
-## First step for the next agent
+## First step for the next worker
 
-Open `review.md`, apply the two corrective directives within the original contract boundary, then refresh `runtime.md` and this handoff before returning to review.
+Open `review.md`, apply the two corrective directives within the original contract boundary, then refresh `runtime.md` and this handoff before returning to review. Do not spawn more workers from inside the execution worker.
 
 ## Evidence supporting this status
 
@@ -34,4 +42,4 @@ Open `review.md`, apply the two corrective directives within the original contra
 - `runtime.md` captures the reproduction setup used for the failed pass.
 - `qa.md` records the checked criteria and the failure evidence.
 - `review.md` records the FAIL and the exact generator directives.
-- `status.json` marks the sprint as `review_failed`, keeps `generator` as the owner, and points the next agent at `review.md`.
+- `status.json` marks the sprint as `review_failed`, assigns orchestration back to the router, and records the next worker's scope and trace metadata.
