@@ -2,11 +2,12 @@
 
 This family uses a lead orchestrator plus fresh workers. The orchestrator reads durable state, chooses the next child skill, dispatches a new worker through whatever delegation primitive the host runtime provides, and then waits for structured outputs. It does not swap personas inline and continue inside the same context window.
 
-Use the runtime's native primitive if it is called `sub-agent`, `Task agent`, `parallel agent`, or something else. The rule is behavioral, not API-specific: once the phase is chosen, continue in a fresh worker context.
+Use the runtime's native primitive if it is called `sub-agent`, `Task agent`, `parallel agent`, or something else. The rule is behavioral, not API-specific: when delegation is useful, gather evidence in a fresh worker context and bring the results back to the orchestrator for the routing decision. If delegation would not materially help, or durable state already settles the answer, the orchestrator may keep the step direct.
 
 ## Lead orchestrator protections
 
 - Keep the orchestrator thin. Its job is route, dispatch, merge, and retry orchestration.
+- Prefer delegation first when the decision is ambiguous, evidence-heavy, or otherwise benefits from independent investigation. Dispatch the narrowest fresh worker or parallel workers that can gather the missing evidence, then merge their outputs before choosing the next child.
 - Do not paste the full child phase prompt into the orchestrator and keep working there.
 - Read durable state before dispatch. Workers should inherit the minimum exact context they need, not the entire session transcript.
 - Preserve the file-based state model. The canonical outputs are still `sprint_proposal.md`, `contract.md`, `runtime.md`, `handoff.md`, `review.md`, `status.json`, and the live/archive files.

@@ -7,7 +7,7 @@ description: Use when a repository follows the agents-stack harness and the orch
 
 Use this router when the hard problem is choosing the next harness phase in a repository that uses the agents-stack starter layout. If the repository does not use this harness family, or the request is ordinary implementation outside the harness workflow, no family child fits.
 
-Do not perform the child workflow here. Choose the narrowest correct phase skill, then dispatch a fresh worker, sub-agent, Task agent, or equivalent delegation primitive for that child. Do not load the child phase into the orchestrator's own context and continue inline.
+Do not perform the child workflow here. Prefer dispatching a fresh worker, sub-agent, Task agent, or useful parallel workers first when the route depends on ambiguous or evidence-heavy investigation, then merge the returned outputs here and decide the next dispatch. If delegation would not materially help, or durable state already makes the answer clear, keep the step direct. Do not load the child phase into the orchestrator's own context and continue inline.
 
 ## Core Contract
 
@@ -22,7 +22,7 @@ Do not perform the child workflow here. Choose the narrowest correct phase skill
 - `docs/live/features.json` remains the authoritative tracked-work ledger. `docs/live/ideas.md` is exploration detail, not the runnable schedule.
 - Brainstorm and Compound are explicit non-runnable phases. They may be the next router action, but they must not claim `runnable_active_sprint_id`.
 - When no runnable active sprint exists, drain `compound_pending_feature_ids` first, then choose the highest-priority dependency-ready `needs_brainstorm` backlog item, then the highest-priority dependency-ready `pending` item.
-- Protect the orchestrator context: it selects, dispatches, and waits for structured worker outputs; it does not implement, review, or rewrite state inline.
+- Protect the orchestrator context: it selects, merges worker evidence, dispatches, and waits for structured outputs; it does not implement, review, or rewrite state inline.
 - If the best child is missing, say to install it rather than quietly doing weaker work under the wrong child.
 
 ## Decision Order
@@ -38,7 +38,7 @@ Do not perform the child workflow here. Choose the narrowest correct phase skill
 9. If no dependency-ready `needs_brainstorm` item exists, choose the highest-priority dependency-ready `pending` backlog item for `generator-proposal`.
 10. Pick the narrowest child that matches the strongest durable evidence.
 11. If the selected child is missing, install it when possible or disclose the fallback.
-12. Dispatch a fresh worker for the selected child with a stable worker ID, phase-appropriate tools, and explicit artifact return targets.
+12. Dispatch a fresh worker for the selected child with a stable worker ID, phase-appropriate tools, and explicit artifact return targets after any useful evidence-gathering workers have returned and been merged.
 
 ## Family Workflow Boundary
 

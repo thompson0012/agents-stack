@@ -118,7 +118,7 @@ The root skill is the orchestrator. It dispatches exactly one fresh child worker
 9. **Attempt budgets are finite.** Automatic retries require durable `attempt_count` and `max_attempts`. Once the budget is exhausted or recovery is unsafe, the sprint must move to `escalated_to_human` instead of looping.
 10. **Archive only after PASS.** Failed, parked, escalated, or interrupted work stays in `.harness/` with its evidence intact.
 11. **State must stay resumable.** A cold-start agent must be able to continue from files alone.
-12. **The orchestrator dispatches fresh workers.** Child phase work runs in a fresh worker/sub-agent/Task agent with a clean context window, not as an inline persona swap inside the orchestrator.
+12. **The orchestrator dispatches fresh workers.** Prefer a fresh worker/sub-agent/Task agent first when independent investigation would materially improve the decision; if durable state already makes the answer clear, keep the step direct. Child phase work still runs in a fresh worker with a clean context window, not as an inline persona swap inside the orchestrator.
 13. **Only the orchestrator may delegate.** Workers must not spawn nested workers.
 14. **Tool walls are hard boundaries.** Evaluators and reviewers must not get broad repo write tools; if the runtime exposes a narrow artifact-return primitive, scope it only to the evaluator-owned artifact. Every other worker gets only the minimum tool scope for its phase.
 
@@ -195,10 +195,12 @@ Do not open a second runnable sprint while another runnable sprint is still live
 
 ## Orchestrator-worker execution model
 
-The `using-agents-stack` root skill is the only orchestrator in this starter. It reads durable state, decides the next phase, and dispatches a fresh worker for that phase.
+The `using-agents-stack` root skill is the only orchestrator in this starter. It reads durable state, merges returned worker evidence, makes the routing decision, and dispatches the next fresh worker for that phase.
 
 Execution rules:
 - Use the host runtime's delegation primitive when available (`sub-agent`, `Task agent`, parallel worker, or equivalent). Do not require a literal `spawn_subagent` API.
+- Prefer delegation first when ambiguous, evidence-heavy, or otherwise likely to benefit from independent investigation. The orchestrator may dispatch a fresh sub-agent or parallel workers to gather that evidence, then it merges those outputs and decides the next dispatch.
+- If delegation would not materially help, or the durable state already makes the answer clear, keep the step direct.
 - The orchestrator never performs child phase work inline. It hands a fresh worker the feature id, subject, allowed files, tool-scope profile, and required artifact outputs, then waits for durable artifacts.
 - Workers return through files first: `contract.md`, `runtime.md`, `handoff.md`, `review.md`, `status.json`, and other sprint artifacts remain the canonical trace.
 - Workers do not reinterpret their tool wall. Evaluation and review workers stay read-only except for any narrowly scoped artifact-return path; execution and state-update workers get only the write access their phase requires.
