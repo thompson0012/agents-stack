@@ -14,6 +14,8 @@ Use the runtime's native primitive if it is called `sub-agent`, `Task agent`, `p
 - Drain `compound_pending_feature_ids` before runnable sprint resume or new backlog selection. Compounding is explicit work, not background magic.
 - Distinguish runnable active work from non-runnable brainstorm and parked work. `needs_brainstorm`, `awaiting_human`, and `escalated_to_human` stay visible, but they must not be mistaken for the one runnable active sprint.
 - When no runnable active sprint exists and the compound queue is empty, choose the highest-priority dependency-ready `needs_brainstorm` item before ordinary `pending` proposal work.
+- Treat `docs/live/current-focus.md` as the live goal-lineage and next-owner resume anchor. It helps the orchestrator re-enter cold, but it must always point back to `.harness/<feature-id>/contract.md` or stronger local evidence instead of becoming a second contract.
+
 
 ## Lane walls and tool scope
 
@@ -68,6 +70,17 @@ Retries after `build_failed` or reconciled `review_failed` are explicit orchestr
 - A clean retry starts a fresh execution worker. It does not reuse the previous worker context.
 - If the retry is unsafe or out of budget, park the sprint in `awaiting_human` or `escalated_to_human` instead of looping.
 
+## Failure-owner shorthand
+
+Use these classifications when choosing the next lane after a decisive outcome:
+
+- Implementation defect: the approved slice stands, but execution or review proved the implementation inside it is wrong. Route through `state-update`, drain `compound-capture`, then retry with `generator-execution` from a clean restore boundary.
+- Slice-contract defect: the slice, file bounds, or acceptance criteria were wrong or incomplete. Freeze the evidence, then route to `evaluator-contract-review` or `generator-proposal` instead of patching in execution.
+- Orchestration/state defect: live state, local artifacts, or resume metadata disagree. Route to `state-update`; use `project-initializer` only when the live state model itself is untrustworthy.
+- Environment blocker: external runtime, credential, dependency, or operator conditions prevented honest judgment. Park or escalate until a human or a named recovery path owns it.
+- Goal-lineage drift: `docs/live/current-focus.md` or stronger evidence shows the sprint is no longer the right slice for the active objective. Refresh the focus anchor and route back to brainstorm or proposal rather than forcing execution to absorb the drift.
+
+
 ## Build/startup triage before live review
 
 Execution owns the first honest build/startup check.
@@ -117,11 +130,11 @@ A worker that only proves a final static condition has not proved the contract.
 
 Fresh-worker orchestration does not change the file contracts.
 
-- Resume from the strongest durable artifact, not from remembered chat state.
+- Resume from the strongest durable artifact, using `docs/live/current-focus.md` only as a goal-lineage and next-owner pointer.
 - Retries keep the same sprint folder and preserve evidence already on disk.
 - PASS still archives the full sprint record, then queues explicit compounding before the next work-selection pass.
 - FAIL or BLOCKED still preserves local evidence, reconciles state first, and may queue compounding before the next retry or parked-state decision.
 - Parked `awaiting_human` and `escalated_to_human` sprints remain non-terminal evidence until a human decision changes them.
-- Clearing `compound_pending_feature_ids` is the durable signal that the Compound phase is finished. It does not change runnable ownership by itself.
+- Clearing `compound_pending_feature_ids` is the durable signal that the Compound phase is finished. That may mean durable learning was extracted or that extraction was deliberately skipped because no durable lesson survived.
 
 The worker model exists to protect context quality and role boundaries, not to replace the existing file-based state machine.

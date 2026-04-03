@@ -33,6 +33,7 @@ This repository uses the agents-stack harness. The harness is stateful, resumabl
     ├── live/
     │   ├── features.json
     │   ├── ideas.md
+    │   ├── current-focus.md
     │   ├── progress.md
     │   └── memory.md
     ├── archive/
@@ -60,6 +61,7 @@ Global durable state for the whole repo.
 
 - `features.json`: the authoritative tracked-work ledger, dependency graph, idea backlog pointer, compound queue, and runnable active sprint pointer.
 - `ideas.md`: durable pre-proposal exploration. It stores brainstorm detail and rejected directions, but it does not choose the runnable sprint.
+- `current-focus.md`: the live current-objective, goal-lineage, and next-owner resume anchor. It points a cold-start agent at the active or parked lane and the strongest artifact to read next, but it does not replace the backlog ledger, outcome ledger, or cross-sprint memory.
 - `progress.md`: append-only ledger of reviewed outcomes, failures, pauses, escalations, compound publication, and next actions.
 - `memory.md`: durable cross-sprint learning written by the explicit Compound phase, not a dump of routine state reconciliation.
 
@@ -75,6 +77,8 @@ Reference docs guide decisions, but they do not override an approved sprint cont
 For an active sprint, the only canonical execution contract is `.harness/<FEAT-ID>/contract.md`. `docs/live/features.json` may point to the active feature, local sprint folder, phase, and resume checkpoint, but it must not become a second contract.
 
 Generators and reviewers build from the approved local contract on disk, not from remembered proposal text or paraphrased scope in chat. If the live state points at a sprint whose local contract is missing, execution must stop until the checkpoint is re-established.
+`docs/live/current-focus.md` may summarize why the sprint matters and who should act next, but it must point back to `.harness/<FEAT-ID>/contract.md` for slice truth and must never become a second execution contract.
+
 
 ### `docs/archive/*`
 Historical evidence for completed sprints.
@@ -135,13 +139,15 @@ Use this precedence when files disagree:
    - `sprint_proposal.md`
 3. `.harness/<FEAT-ID>/status.json`
 4. `docs/live/features.json`
-5. `docs/live/progress.md` and `docs/live/memory.md`
-6. `docs/reference/*`
-7. `docs/archive/*` as historical evidence only
+5. `docs/live/current-focus.md`
+6. `docs/live/progress.md` and `docs/live/memory.md`
+7. `docs/reference/*`
+8. `docs/archive/*` as historical evidence only
 
 Interpretation rules:
 - For an active or parked sprint, the strongest local artifact defines the real phase even if `status.json` is stale.
 - `docs/live/features.json` is the project-wide selector for whether any sprint should be runnable and for which pending work is dependency-ready next.
+- `docs/live/current-focus.md` is a live resume aid. If it drifts from stronger local artifacts or `features.json`, refresh it; do not treat it as an alternate contract.
 - Archive files never override active live or local state.
 
 ## What To Do When State Disagrees
@@ -166,6 +172,19 @@ Stop and repair the parked checkpoint. A parked sprint without a durable gate is
 
 ### Review exists but status is stale
 Trust `review.md` over `status.json`. The next owner is `state-update`.
+
+## Failure ownership taxonomy
+
+Use the strongest sprint artifact plus `docs/live/current-focus.md` to classify failures before routing the next owner.
+
+| Failure class | What it means | Next owner / lane |
+| --- | --- | --- |
+| Implementation defect | The approved slice still stands, but the code, integration, or verification inside that slice failed. | `state-update` publishes the truth, `compound-capture` drains, then `generator-execution` retries from a named clean restore boundary. |
+| Slice-contract defect | Proposal, contract, or review evidence shows the slice, file bounds, or acceptance criteria are wrong or incomplete. | `state-update` freezes the evidence, then route to `evaluator-contract-review` for contract repair or `generator-proposal` when the slice itself must be re-cut. |
+| Orchestration/state defect | Local artifacts, `status.json`, `features.json`, or archive/live state disagree, or the resume checkpoint is missing. | `state-update` reconciles it; if live state itself is untrustworthy, route `project-initializer`. |
+| Environment blocker | External dependency, credential, runtime, or operator condition prevented an honest PASS/FAIL. | `state-update` parks or escalates; resume only through human action or a named clean execution retry when recovery is explicitly owned. |
+| Goal-lineage drift | `current-focus.md` or stronger evidence shows the sprint no longer matches the active objective or dependency order. | `state-update` refreshes the focus anchor and freezes the evidence, then route to `generator-brainstorm` or `generator-proposal`; execution must not patch around drift. |
+
 
 ## Deterministic startup routing rules
 At session start, route using these rules in order:
@@ -234,7 +253,7 @@ The lifecycle is explicit. Typical state flow:
 11. **Escalated to human**  
    Automatic retry must stop because the attempt budget is exhausted or safe recovery cannot be established. Owner: human.
 12. **Compound pending**  
-   `docs/live/features.json` queues the feature id in `compound_pending_feature_ids` after `state-update`. `compound-capture` records durable learning and clears the queue without claiming the runnable sprint slot.
+   `docs/live/features.json` queues the feature id in `compound_pending_feature_ids` after `state-update`. `compound-capture` records durable learning or deliberately skips extraction when no durable residue survives, then clears the queue without claiming the runnable sprint slot.
 13. **Archived PASS**  
    State-update synchronizes live state, preserves the sprint record under `docs/archive/<FEAT-ID>_<timestamp>/`, queues compounding, and clears the runnable active sprint before the next work-selection pass.
 
@@ -251,7 +270,7 @@ The lifecycle is explicit. Typical state flow:
 | `review_failed` | `state-update` then orchestrator | `review.md`, preserved `.harness/<FEAT-ID>/`, updated live state, retry metadata | FAIL is reconciled into durable state without deleting evidence, compounding is queued explicitly, and a clean restore boundary plus remaining budget make the next execution pass honest | `compound_pending`, `in_progress`, or `escalated_to_human` |
 | `awaiting_human` | human then orchestrator | `status.json`, relevant local artifact, and explicit human instructions or edits | the human action is durably recorded, the resume checkpoint is updated, and any queued compounding is drained before automatic work resumes | `needs_brainstorm`, `pending`, `proposed`, `contracted`, `in_progress`, or `in_review` |
 | `escalated_to_human` | human | `status.json`, `progress.md`, and preserved local evidence | a human explicitly changes the plan, resets the budget, replaces the restore boundary, or closes the sprint | `needs_brainstorm`, `pending`, `contracted`, `in_progress`, or `cancelled` |
-| `compound_pending` | `compound-capture` | `compound_pending_feature_ids`, decisive evidence, and `docs/live/memory.md` | durable learning is captured or explicitly deemed unnecessary, and the queue entry is cleared without changing runnable ownership | runnable sprint resume or backlog selection |
+| `compound_pending` | `compound-capture` | `compound_pending_feature_ids`, decisive evidence, and `docs/live/memory.md` | durable learning is captured or extraction is deliberately skipped because no durable residue survived, and the queue entry is cleared without changing runnable ownership | runnable sprint resume or backlog selection |
 | `passed` | `state-update` | `review.md`, updated `docs/live/*`, archive copy | PASS is synchronized into live state, the sprint artifact set is preserved under `docs/archive/<FEAT-ID>_<timestamp>/`, and the feature is queued for explicit compounding | `compound_pending` |
 
 `BLOCKED` is a review verdict, not a license to keep looping. State-update must translate a blocked review into either `awaiting_human` when a human can unblock and resume from files, or `escalated_to_human` when automation must stop.
@@ -261,8 +280,8 @@ The lifecycle is explicit. Typical state flow:
 When a sprint is interrupted by timeout, crash, human pause, failed build triage, or failed review retry:
 
 1. Read `AGENTS.md`.
-2. Read `docs/live/features.json`, `docs/live/ideas.md`, `docs/live/progress.md`, and `docs/live/memory.md`.
-3. Capture any queued `compound_pending_feature_ids`, identify the one runnable active feature if any, and list any parked `awaiting_human` or `escalated_to_human` sprint folders separately.
+2. Read `docs/live/features.json`, `docs/live/current-focus.md`, `docs/live/ideas.md`, `docs/live/progress.md`, and `docs/live/memory.md`.
+3. Capture any queued `compound_pending_feature_ids`, identify the one runnable active feature if any, list any parked `awaiting_human` or `escalated_to_human` sprint folders separately, and note the current objective, goal lineage, and next-owner hint from `docs/live/current-focus.md`.
 4. If no runnable sprint exists, note any dependency-ready `needs_brainstorm` candidates before ordinary `pending` backlog items.
 5. Read `.harness/<FEAT-ID>/status.json` and capture the claimed `phase`, `owner_role`, `resume_from`, `last_verified_step`, `local_url`, `active_pids`, `blocked_on`, `worker_id`, `worker_subject`, `tool_scope_profile`, `spawn_depth`, `parent_worker_id`, `attempt_count`, `max_attempts`, and `clean_restore_ref` fields.
 6. When the phase is `awaiting_human` or `escalated_to_human`, also capture the pause or escalation metadata that explains what changed, what the human must do, and which phase resumes next.
@@ -270,7 +289,7 @@ When a sprint is interrupted by timeout, crash, human pause, failed build triage
 8. Verify that the claimed checkpoint matches reality on disk and in any running process before trusting it.
 9. If processes were recorded in `status.json` or `runtime.md`, verify whether they still exist before reusing them.
 10. Before retrying from `review_failed` or `build_failed`, verify the clean restore boundary named by `clean_restore_ref`. Use a disposable worktree, VCS snapshot, or equivalent restore reference that tells the truth about what will be retried. Do not assume an unconditional destructive reset.
-11. Resume from the strongest valid checkpoint, not from guesswork or a stale phase field. If compounding is queued, drain it before runnable sprint resume or new backlog selection.
+11. Resume from the strongest valid checkpoint, using `docs/live/current-focus.md` as a pointer rather than as a second contract. If compounding is queued, drain it before runnable sprint resume or new backlog selection.
 
 Every active sprint `status.json` must include at minimum:
 - `sprint_id`
@@ -350,10 +369,10 @@ Worker prompt. Implements only the approved contract, records reproducible runti
 Worker prompt. Reproduces the result against the contract and issues exactly one of `PASS`, `FAIL`, or `BLOCKED` with evidence. It does not update global state, must not receive broad write access, and must reject hardcoded or static pass conditions that do not prove a real state transition.
 
 ### `state-update`
-Worker prompt. Makes the repo tell the truth after review or blocked retry. It updates `docs/live/features.json` and `docs/live/progress.md`, preserves failed sprint evidence, archives PASS results, and queues explicit compounding when the outcome has been durably published.
+Worker prompt. Makes the repo tell the truth after review or blocked retry. It updates `docs/live/features.json`, refreshes `docs/live/current-focus.md`, updates `docs/live/progress.md`, preserves failed sprint evidence, archives PASS results, and queues explicit compounding when the outcome has been durably published.
 
 ### `compound-capture`
-Worker prompt. Consumes `compound_pending_feature_ids`, distills durable cross-sprint learning into `docs/live/memory.md`, updates reference docs only when the lesson became stable truth, and clears the queue without reopening earlier phases.
+Worker prompt. Consumes `compound_pending_feature_ids`, distills durable cross-sprint learning into `docs/live/memory.md` when real residue survives, explicitly skips extraction when none does, updates reference docs only when the lesson became stable truth, and clears the queue without reopening earlier phases.
 
 ## Review Verdict Contract
 Every independent review must end with exactly one verdict: `PASS`, `FAIL`, or `BLOCKED`.

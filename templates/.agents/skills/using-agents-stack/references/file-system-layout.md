@@ -82,6 +82,20 @@ Rules:
 - it may justify creating or refining one backlog item in `docs/live/features.json`, but it must not claim `runnable_active_sprint_id`
 - it should stay at the idea, problem, and tradeoff level rather than becoming a hidden sprint proposal
 
+### `docs/live/current-focus.md`
+
+Purpose:
+
+- live current objective, goal lineage, and next-owner resume anchor
+- points a cold-start agent at the active sprint, parked blocker, or next backlog lane plus the strongest artifact to read next
+
+Rules:
+
+- it complements `docs/live/features.json`, `docs/live/progress.md`, and `docs/live/memory.md`; it does not replace any of them
+- when an active or parked sprint exists, it must point back to `.harness/<feature-id>/contract.md` for slice truth instead of becoming a second contract
+- keep it concise and refresh it when decisive state changes so resume routing does not depend on chat memory
+
+
 ### `docs/live/progress.md`
 
 Purpose:
@@ -219,6 +233,7 @@ Scripts may inspect or update state, but the durable truth still lives in the st
 | `AGENTS.md` | repository-wide | human maintainers | every worker |
 | `docs/live/features.json` | global | initializer, brainstorm, state-update, and compound-capture workers | router, brainstorm, proposal, state-update, and compound-capture workers |
 | `docs/live/ideas.md` | global | generator-brainstorm worker | router, brainstorm, and proposal workers |
+| `docs/live/current-focus.md` | global | state-update worker | router, humans, and any worker resuming from durable state |
 | `docs/live/progress.md` | global | state-update worker | router, proposal workers, humans |
 | `docs/live/memory.md` | global | initializer and compound-capture workers | router, proposal, execution, and review workers |
 | `.harness/<feature-id>/sprint_proposal.md` | sprint-local | generator-proposal worker | contract-review worker |
@@ -230,6 +245,8 @@ Scripts may inspect or update state, but the durable truth still lives in the st
 | `docs/archive/<feature-id>_<timestamp>/` | historical | state-update worker | humans, audits, future planning |
 
 ## Routing implications
+
+- `docs/live/current-focus.md` is the live resume anchor for goal lineage and next owner, but `docs/live/features.json` plus the strongest local artifact still decide runnable truth.
 
 - Missing or empty live state means initialize.
 - Non-empty `compound_pending_feature_ids` means compound before any runnable sprint resume or new backlog selection.

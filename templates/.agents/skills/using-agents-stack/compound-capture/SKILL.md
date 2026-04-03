@@ -13,6 +13,7 @@ inputs:
   - docs/archive/<feature-id>_<timestamp>/* when the sprint has already been archived
 outputs:
   - updated docs/live/memory.md when durable learning survives
+  - unchanged docs/live/memory.md when extraction is deliberately skipped because no durable lesson survived
   - optional precise update to docs/reference/architecture.md or docs/reference/design.md when the lesson is now stable reference truth
   - updated docs/live/features.json with the processed feature id removed from `compound_pending_feature_ids`
 boundaries:
@@ -41,9 +42,9 @@ Compounding is explicit, non-runnable phase work. It does not reopen execution o
 
 - Run compounding in a fresh worker context after `state-update`; do not fold it into reconciliation.
 - Only the orchestrator may spawn workers. This worker must not spawn another worker.
-- Tool lane: read the decisive evidence, write `docs/live/memory.md`, optionally patch stable reference docs, and clear the processed queue entry in `docs/live/features.json`. No product-code edits, no `.harness/<feature-id>/status.json` rewrites, no archive moves.
+- Tool lane: read the decisive evidence, write `docs/live/memory.md` only when durable residue survives, optionally patch stable reference docs, and clear the processed queue entry in `docs/live/features.json`. No product-code edits, no `.harness/<feature-id>/status.json` rewrites, no archive moves.
 - Not parallel-safe against another worker touching `docs/live/memory.md`, the same reference doc, or `docs/live/features.json`. Process one queued feature id at a time.
-- Durable return contract: truthful `docs/live/memory.md` and optional reference-doc updates, plus `docs/live/features.json` with the processed feature removed from `compound_pending_feature_ids`.
+- Durable return contract: truthful `docs/live/memory.md` when extraction happens, or a deliberate no-edit skip when no durable learning survives, plus `docs/live/features.json` with the processed feature removed from `compound_pending_feature_ids`.
 
 ## Required Reads
 Read these before writing anything:
@@ -105,18 +106,18 @@ For each candidate lesson, ask:
 
 If the answer is no, do not record it.
 
-### 4. Write only the durable residue
-When a learning survives, append or refine a concise note in `docs/live/memory.md`.
+### 4. Extract durable residue or skip extraction
+When a learning survives, append or refine a concise note in `docs/live/memory.md`. When no durable cross-sprint lesson survives, explicitly skip extraction: leave `docs/live/memory.md` unchanged and do not add placeholder text.
 
-Write in project-truth terms:
+Write in project-truth terms when you do extract:
 - what was learned
 - why it matters for future work
 - enough context to apply it without rereading the old sprint
+- only the residue that survives beyond this sprint, not the whole sprint story
 
-Do not duplicate the entire sprint story. `progress.md` already owns the outcome ledger.
+`progress.md` already owns the outcome ledger. `memory.md` should either gain durable residue or remain unchanged on purpose. Do not blur those roles.
 
 ### 5. Update reference docs only when the lesson is now stable
-Touch `docs/reference/architecture.md` or `docs/reference/design.md` only when the lesson has crossed from sprint-local evidence into durable system truth.
 
 Examples:
 - a verified integration boundary that future proposals must respect
@@ -125,12 +126,12 @@ Examples:
 Do not patch reference docs for tentative lessons, retries, or one-off failures.
 
 ### 6. Clear the compound queue truthfully
-After capturing durable learning, or after deciding none survives:
+After extracting durable learning, or after deliberately skipping extraction because none survives:
 - remove the feature id from `compound_pending_feature_ids`
 - leave `runnable_active_sprint_id` unchanged
 - do not change the sprint phase, retry budget, archive state, or parked-state metadata
 
-Clearing the queue means the compounding phase for that feature is finished. It does not mean the sprint outcome changed.
+Clearing the queue is the durable record that the extract-or-skip decision for that feature is finished. It does not mean the sprint outcome changed.
 
 ## Stop Conditions
 Stop and preserve the queue entry when:
@@ -147,7 +148,7 @@ A good compounding pass:
 - keeps reference docs reserved for stable truths
 - clears the queue entry so the orchestrator does not compound the same feature twice
 - never steals ownership of execution, review, or backlog publication
-- tells the truth even when the answer is that nothing durable was learned
+- tells the truth even when the answer is to skip extraction because nothing durable survived
 
 ## Done Definition
-This skill is done when the queued feature has been evaluated for durable learning, any real cross-sprint lesson has been captured in `docs/live/memory.md` and optional reference docs, and the feature id has been removed from `compound_pending_feature_ids` without altering runnable-sprint ownership or reopening prior phases.
+This skill is done when the queued feature has been evaluated for durable learning, any real cross-sprint lesson has been captured in `docs/live/memory.md` and optional reference docs, or extraction has been deliberately skipped because no durable residue survived, and the feature id has been removed from `compound_pending_feature_ids` without altering runnable-sprint ownership or reopening prior phases.
