@@ -36,13 +36,15 @@ Purpose:
 Expected router children:
 
 - `project-initializer`
+- `generator-brainstorm`
 - `generator-proposal`
 - `evaluator-contract-review`
 - `generator-execution`
 - `adversarial-live-review`
 - `state-update`
+- `compound-capture`
 
-The router stays thin. It chooses one child and dispatches that child as a fresh worker instead of doing the phase inline.
+The router stays thin. It chooses one child and dispatches that child as a fresh worker instead of doing the phase inline. Brainstorm and Compound are explicit non-runnable phases in the same family.
 
 ## `docs/live/`
 
@@ -59,28 +61,44 @@ Purpose:
 Rules:
 
 - empty or missing means the repo is not initialized yet
+- `idea_backlog_path` should point at `docs/live/ideas.md` for durable pre-proposal exploration
+- `compound_pending_feature_ids` is a non-runnable queue that drains before runnable sprint resume or new backlog selection
 - more than one runnable active feature is invalid
 - parked `awaiting_human` and `escalated_to_human` features may remain listed, but they must not also be marked as the runnable active sprint
 - a feature marked runnable-active should have a matching `.harness/<feature-id>/` folder unless the proposal has not been created yet
-- when no runnable active sprint exists, routing may choose the highest-priority pending feature whose dependencies are satisfied
+- when no runnable active sprint exists, routing chooses the highest-priority dependency-ready `needs_brainstorm` item before ordinary `pending` proposal work
+
+### `docs/live/ideas.md`
+
+Purpose:
+
+- durable pre-proposal exploration backlog
+- refinement notes for tracked `needs_brainstorm` work
+- rejected directions and open questions that should survive chat-context loss
+
+Rules:
+
+- it is not the runnable sprint selector
+- it may justify creating or refining one backlog item in `docs/live/features.json`, but it must not claim `runnable_active_sprint_id`
+- it should stay at the idea, problem, and tradeoff level rather than becoming a hidden sprint proposal
 
 ### `docs/live/progress.md`
 
 Purpose:
 
 - append-only-ish project ledger of visible outcomes
-- links sprint IDs to archive artifacts, retries, human gates, and next recommended action
+- links sprint IDs to archive artifacts, retries, human gates, compound publication, and next recommended action
 
-Use it to understand the latest completed, failed, or parked sprint without reading chat logs.
+Use it to understand the latest completed, failed, parked, or freshly reconciled sprint without reading chat logs.
 
 ### `docs/live/memory.md`
 
 Purpose:
 
 - durable lessons, known pitfalls, environment notes, and recovery context
-- the place to preserve facts that matter beyond one sprint
+- the place to preserve facts that matter beyond one sprint after explicit compounding
 
-This is not scratch space. It should store information the next agent actually needs.
+This is not scratch space. It should store information the next agent actually needs, and it should usually be written by `compound-capture` rather than by routine state reconciliation.
 
 ## `.harness/<feature-id>/`
 
@@ -199,9 +217,10 @@ Scripts may inspect or update state, but the durable truth still lives in the st
 | Path | Scope | Typical writer | Typical reader |
 | --- | --- | --- | --- |
 | `AGENTS.md` | repository-wide | human maintainers | every worker |
-| `docs/live/features.json` | global | initializer, state-update workers | router, proposal, state-update workers |
+| `docs/live/features.json` | global | initializer, brainstorm, state-update, and compound-capture workers | router, brainstorm, proposal, state-update, and compound-capture workers |
+| `docs/live/ideas.md` | global | generator-brainstorm worker | router, brainstorm, and proposal workers |
 | `docs/live/progress.md` | global | state-update worker | router, proposal workers, humans |
-| `docs/live/memory.md` | global | initializer, execution, state-update workers | router, proposal, execution workers |
+| `docs/live/memory.md` | global | initializer and compound-capture workers | router, proposal, execution, and review workers |
 | `.harness/<feature-id>/sprint_proposal.md` | sprint-local | generator-proposal worker | contract-review worker |
 | `.harness/<feature-id>/contract.md` | sprint-local | evaluator-contract-review worker | execution and review workers |
 | `.harness/<feature-id>/runtime.md` | sprint-local | generator-execution worker | execution, review, and resume logic |
@@ -213,7 +232,9 @@ Scripts may inspect or update state, but the durable truth still lives in the st
 ## Routing implications
 
 - Missing or empty live state means initialize.
-- No runnable active sprint but dependency-ready pending work means propose.
+- Non-empty `compound_pending_feature_ids` means compound before any runnable sprint resume or new backlog selection.
+- No runnable active sprint but dependency-ready `needs_brainstorm` work means brainstorm.
+- No runnable active sprint, no compound queue, and dependency-ready `pending` work means propose.
 - Proposal without contract means contract review.
 - Contract without handoff means execution.
 - `build_failed` and reconciled `review_failed` still belong to execution when retry budget and restore metadata allow a safe retry.

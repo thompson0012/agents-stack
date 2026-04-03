@@ -15,7 +15,7 @@ Create the minimum truthful starter state so the next sprint can begin from file
 
 ## In Scope
 - write `AGENTS.md` for the harness lifecycle, state precedence, and role boundaries
-- create `docs/live/features.json` with FEAT-001 queued and no active sprint yet
+- create `docs/live/features.json` with FEAT-001 queued and no runnable active sprint yet
 - create `docs/live/progress.md` and `docs/live/memory.md`
 - create `docs/reference/architecture.md` and `docs/reference/design.md`
 - record any verified bootstrap caveats the next sprint must know

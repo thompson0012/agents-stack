@@ -3,9 +3,10 @@
   "purpose": "Route agents-stack harness requests to the correct workflow phase, then dispatch that child as a fresh worker instead of doing the phase inline in the orchestrator.",
   "selection_order": [
     "Initialize missing or unusable live state before any sprint routing.",
+    "If compound_pending_feature_ids is non-empty, drain it with compound-capture before resuming or opening sprint work.",
     "If one runnable active sprint exists, resume it from the strongest durable artifact before proposing new work.",
     "Parked `awaiting_human` and `escalated_to_human` sprints remain visible but do not count as the runnable active sprint.",
-    "When no runnable active sprint exists, pick the highest-priority pending backlog item whose dependencies are already satisfied.",
+    "When no runnable active sprint exists, pick the highest-priority dependency-ready `needs_brainstorm` backlog item before considering `pending` proposal work.",
     "When review or contradictory state is not yet reconciled, prefer state-update over new execution.",
     "Route `build_failed` and reconciled `review_failed` retries to generator-execution only when attempts remain and `clean_restore_ref` names a safe restore boundary.",
     "Choose the narrowest phase child that matches the current artifact gate.",
@@ -17,14 +18,14 @@
       "name": "project-initializer",
       "target": "using-agents-stack/project-initializer",
       "relationship": "routes_to",
-      "summary": "Dispatches a fresh initializer worker to bootstrap durable live and reference state when the repository cannot yet support honest sprint routing.",
+      "summary": "Dispatches a fresh initializer worker to bootstrap durable live and reference state when the repository cannot yet support honest routing.",
       "route_when": [
         "`docs/live/features.json` is missing, empty, unparsable, or lacks durable backlog truth.",
         "The repository follows the agents-stack layout but has no trustworthy live state for selecting or resuming work."
       ],
       "avoid_when": [
         "A runnable active sprint already exists and should be resumed instead.",
-        "Durable live state already names pending, parked, or active work truthfully."
+        "Durable live state already names pending, brainstorm, compound, parked, or active work truthfully."
       ],
       "requires": [],
       "recommends": [],
@@ -35,23 +36,50 @@
       }
     },
     {
+      "name": "generator-brainstorm",
+      "target": "using-agents-stack/generator-brainstorm",
+      "relationship": "routes_to",
+      "summary": "Dispatches a fresh brainstorm worker to deepen a dependency-ready `needs_brainstorm` backlog item in `docs/live/ideas.md` and, when justified, promote it into proposal-ready backlog state without claiming the runnable sprint slot.",
+      "route_when": [
+        "No runnable active sprint exists, `compound_pending_feature_ids` is empty, and the highest-priority dependency-ready backlog item is `needs_brainstorm`.",
+        "An idea needs exploration or framing before a truthful sprint proposal can be written.",
+        "The brainstorm result should update `docs/live/ideas.md` and may promote the same feature into `pending` in `docs/live/features.json`."
+      ],
+      "avoid_when": [
+        "A runnable active sprint exists and should be resumed instead.",
+        "Compound work is queued and must be drained first.",
+        "The candidate backlog item is already `pending`, `proposed`, or later.",
+        "The brainstorm would need to claim `runnable_active_sprint_id` or open a sprint workspace directly."
+      ],
+      "requires": [],
+      "recommends": [],
+      "fallbacks_to": [],
+      "install_if_missing": {
+        "package": "using-agents-stack/generator-brainstorm",
+        "notes": "Install the nested child path before routing if the runtime cannot discover bundled children automatically, then dispatch it as a fresh worker."
+      }
+    },
+    {
       "name": "generator-proposal",
       "target": "using-agents-stack/generator-proposal",
       "relationship": "routes_to",
-      "summary": "Dispatches a fresh proposal worker to turn the highest-priority dependency-ready backlog item into the next bounded sprint proposal when no approved contract exists yet.",
+      "summary": "Dispatches a fresh proposal worker to turn the highest-priority dependency-ready pending backlog item into the next bounded sprint proposal when no approved contract exists yet.",
       "route_when": [
-        "No runnable active sprint exists and the next highest-priority pending backlog item has all declared dependencies satisfied.",
-        "Only parked `awaiting_human` or `escalated_to_human` sprint folders remain in `.harness/`, so the backlog may advance on a different ready feature.",
+        "No runnable active sprint exists, `compound_pending_feature_ids` is empty, and no dependency-ready `needs_brainstorm` item outranks the pending proposal lane.",
+        "The highest-priority dependency-ready `pending` backlog item should become the next sprint proposal.",
         "Live state is trustworthy, but the selected feature has no local sprint proposal or the proposal was explicitly reset."
       ],
       "avoid_when": [
         "A runnable active sprint already exists.",
+        "A dependency-ready `needs_brainstorm` item should be explored first.",
         "The candidate backlog item still has unsatisfied dependencies.",
         "`sprint_proposal.md` already exists and still needs contract review.",
         "`contract.md`, `handoff.md`, or `review.md` already exists for the runnable active sprint."
       ],
       "requires": [],
-      "recommends": [],
+      "recommends": [
+        "generator-brainstorm"
+      ],
       "fallbacks_to": [],
       "install_if_missing": {
         "package": "using-agents-stack/generator-proposal",
@@ -138,10 +166,10 @@
       "name": "state-update",
       "target": "using-agents-stack/state-update",
       "relationship": "routes_to",
-      "summary": "Dispatches a fresh state-update worker to reconcile review outcomes, blocker publication, retry eligibility, parked human gates, and archive history into durable live truth.",
+      "summary": "Dispatches a fresh state-update worker to reconcile review outcomes, blocker publication, retry eligibility, parked human gates, archive history, and compound queue publication into durable live truth.",
       "route_when": [
         "`review.md` exists and the outcome has not yet been reconciled into local and live state.",
-        "A PASS must be archived, a FAIL must be reopened truthfully, or a BLOCKED verdict must be published into `awaiting_human` or `escalated_to_human`.",
+        "A PASS must be archived and queued into `compound_pending_feature_ids`, a FAIL must be reopened truthfully, or a BLOCKED verdict must be published into `awaiting_human` or `escalated_to_human`.",
         "`status.json.phase` is `build_failed` or `review_failed` but automatic retry cannot proceed yet because reconciliation, attempt budgeting, or clean-restore decisions are still missing.",
         "Local and live state contradict each other, or active and parked sprint semantics are not yet reflected truthfully."
       ],
@@ -151,10 +179,37 @@
         "The sprint is already parked in `awaiting_human` or `escalated_to_human`, that parked state is fully reflected in local and live files, and no new human edits have changed the checkpoint."
       ],
       "requires": [],
-      "recommends": [],
+      "recommends": [
+        "compound-capture"
+      ],
       "fallbacks_to": [],
       "install_if_missing": {
         "package": "using-agents-stack/state-update",
+        "notes": "Install the nested child path before routing if the runtime cannot discover bundled children automatically, then dispatch it as a fresh worker."
+      }
+    },
+    {
+      "name": "compound-capture",
+      "target": "using-agents-stack/compound-capture",
+      "relationship": "routes_to",
+      "summary": "Dispatches a fresh compound worker to capture durable learnings after state publication, update `docs/live/memory.md` and optional reference docs, and clear `compound_pending_feature_ids`.",
+      "route_when": [
+        "`docs/live/features.json` contains one or more ids in `compound_pending_feature_ids`.",
+        "A PASS result has already been published and archived, but durable learning capture has not yet been completed.",
+        "The next truthful action is to update `docs/live/memory.md` and any reference docs before opening or resuming sprint work."
+      ],
+      "avoid_when": [
+        "The queue is empty.",
+        "The router would need to reopen or claim a runnable sprint to do the compound work.",
+        "Review reconciliation has not happened yet and `state-update` still owns the truth publication."
+      ],
+      "requires": [
+        "state-update"
+      ],
+      "recommends": [],
+      "fallbacks_to": [],
+      "install_if_missing": {
+        "package": "using-agents-stack/compound-capture",
         "notes": "Install the nested child path before routing if the runtime cannot discover bundled children automatically, then dispatch it as a fresh worker."
       }
     }

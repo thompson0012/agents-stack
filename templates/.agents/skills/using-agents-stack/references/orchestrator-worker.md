@@ -10,19 +10,28 @@ Use the runtime's native primitive if it is called `sub-agent`, `Task agent`, `p
 - Do not paste the full child phase prompt into the orchestrator and keep working there.
 - Read durable state before dispatch. Workers should inherit the minimum exact context they need, not the entire session transcript.
 - Preserve the file-based state model. The canonical outputs are still `sprint_proposal.md`, `contract.md`, `runtime.md`, `handoff.md`, `review.md`, `status.json`, and the live/archive files.
-- Distinguish runnable active work from parked work. `awaiting_human` and `escalated_to_human` stay visible, but they must not be mistaken for the one runnable active sprint.
-- When no runnable active sprint exists, route backlog work dependency-first instead of reviving a parked sprint by accident.
+- Drain `compound_pending_feature_ids` before runnable sprint resume or new backlog selection. Compounding is explicit work, not background magic.
+- Distinguish runnable active work from non-runnable brainstorm and parked work. `needs_brainstorm`, `awaiting_human`, and `escalated_to_human` stay visible, but they must not be mistaken for the one runnable active sprint.
+- When no runnable active sprint exists and the compound queue is empty, choose the highest-priority dependency-ready `needs_brainstorm` item before ordinary `pending` proposal work.
 
 ## Lane walls and tool scope
 
 Workers get only the tools their phase needs.
 
+- Brainstorm workers may read `docs/live/*` and `docs/reference/*`, and write only `docs/live/ideas.md` plus the narrow `docs/live/features.json` update needed to track or promote the candidate.
 - Proposal workers may inspect backlog and reference files, but they are not execution workers.
 - Contract-review and live-review workers must stay independent and must not receive write access to implementation files.
 - Execution workers may change only the approved contract scope, must perform build/startup triage before requesting review, and must not mark their own work approved.
-- State-update workers reconcile state and archive history, but they do not silently redo proposal, execution, or review work.
+- State-update workers reconcile state and archive history, but they do not silently redo proposal, execution, review, or durable learning capture.
+- Compound workers may write `docs/live/memory.md`, optional stable reference docs, and the queue-clearing update in `docs/live/features.json`. They do not reopen sprint state or claim the runnable slot.
 
 Treat tool scope as part of the contract. If the runtime supports per-worker tool restrictions, use them. If it does not, the orchestrator must still instruct the worker to stay inside its lane and reject mixed-phase work.
+
+## Explicit non-runnable phase ordering
+
+- `compound-capture` runs before runnable sprint resume or new backlog selection when `compound_pending_feature_ids` is non-empty.
+- `generator-brainstorm` runs only when no runnable sprint exists and the highest-priority dependency-ready candidate still says `needs_brainstorm`.
+- Neither Brainstorm nor Compound may claim `runnable_active_sprint_id` or open a second runnable sprint.
 
 ## Parallel-safe dispatch
 
@@ -109,8 +118,9 @@ Fresh-worker orchestration does not change the file contracts.
 
 - Resume from the strongest durable artifact, not from remembered chat state.
 - Retries keep the same sprint folder and preserve evidence already on disk.
-- PASS still archives the full sprint record.
-- FAIL or BLOCKED still preserves local evidence and routes back through the correct phase owner.
+- PASS still archives the full sprint record, then queues explicit compounding before the next work-selection pass.
+- FAIL or BLOCKED still preserves local evidence, reconciles state first, and may queue compounding before the next retry or parked-state decision.
 - Parked `awaiting_human` and `escalated_to_human` sprints remain non-terminal evidence until a human decision changes them.
+- Clearing `compound_pending_feature_ids` is the durable signal that the Compound phase is finished. It does not change runnable ownership by itself.
 
 The worker model exists to protect context quality and role boundaries, not to replace the existing file-based state machine.

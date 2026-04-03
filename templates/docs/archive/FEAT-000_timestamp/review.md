@@ -17,7 +17,7 @@ PASS. The sprint stayed inside the approved documentation and state files. No ap
 1. **Canonical harness contract in `AGENTS.md`** — PASS  
    The file defines topology, lifecycle, state precedence, and explicit role boundaries.
 2. **Valid live backlog state** — PASS  
-   `features.json` parses and leaves FEAT-001 pending with no active sprint.
+   `features.json` parses and leaves FEAT-001 pending with no runnable active sprint.
 3. **Truthful progress ledger** — PASS  
    `progress.md` records FEAT-000 as initialization work and names FEAT-001 as the next step.
 4. **Durable operational memory** — PASS  

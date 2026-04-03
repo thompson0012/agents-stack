@@ -9,6 +9,7 @@ inputs:
   - docs/reference/* if present
 outputs:
   - docs/live/features.json
+  - docs/live/ideas.md
   - docs/live/progress.md
   - docs/live/memory.md
   - docs/reference/architecture.md
@@ -28,12 +29,16 @@ Create the minimum durable state needed for the harness to operate truthfully.
 
 This phase establishes the repo's current facts, not a fictional project narrative. Its job is to make future planning resumable from files alone.
 
+That durable state now includes two distinct backlog layers:
+- `docs/live/features.json` for authoritative tracked work and runnable truth
+- `docs/live/ideas.md` for open exploration, rough candidates, and pre-proposal refinement that must survive across sessions
+
 ## Worker Dispatch Contract
 
 - Run this phase in a fresh worker context selected by the orchestrator, not by loading initialization into the orchestrator's own window.
 - Only the orchestrator may spawn workers. This worker must not spawn another worker.
 - Tool lane: repository discovery plus writes to `docs/live/*` and `docs/reference/*` only. No product-code edits, no `.harness/<feature-id>/` execution work, no archive writes.
-- Durable return contract: `docs/live/features.json`, `docs/live/progress.md`, `docs/live/memory.md`, `docs/reference/architecture.md`, and `docs/reference/design.md`. If the host provides worker metadata, record `worker_id` / `orchestrator_run_id` in the initialization ledger entry or equivalent durable note.
+- Durable return contract: `docs/live/features.json`, `docs/live/ideas.md`, `docs/live/progress.md`, `docs/live/memory.md`, `docs/reference/architecture.md`, and `docs/reference/design.md`. If the host provides worker metadata, record `worker_id` / `orchestrator_run_id` in the initialization ledger entry or equivalent durable note.
 
 ## Required Reads
 Read these before writing anything:
@@ -53,6 +58,14 @@ A truthful backlog snapshot.
 - If the human already named features, record them.
 - If no backlog is known yet, write an empty backlog or a clearly minimal seed set derived from explicit user goals only.
 - Never fabricate completed items or pretend a feature has already been selected.
+- Use `status: "needs_brainstorm"` when a tracked item is real enough to keep visible but not yet ready for proposal.
+
+### `docs/live/ideas.md`
+A durable exploration ledger for pre-proposal thinking.
+- Put rough ideas, candidate refinements, constraints, rejected directions, and open questions here.
+- This file is not the runnable sprint selector; it does not claim `runnable_active_sprint_id`.
+- If the repo has known ideas that are not ready for proposal, seed them here instead of overstuffing `features.json`.
+- If there are no concrete ideas yet, create the structure and usage guidance without inventing fake candidate work.
 
 ### `docs/live/progress.md`
 A ledger of known project progress.
@@ -89,6 +102,8 @@ A short description of the current product or UI intent.
 ### 3. Create truthful global state
 - Write `features.json` from explicit user goals or verified backlog items only.
 - If there is not enough information to define backlog priorities responsibly, leave the backlog small and honest.
+- Create `ideas.md` as the durable home for open exploration and raw candidates that are not ready for proposal.
+- Use `needs_brainstorm` for tracked items that still require ideation before proposal; use `pending` only when proposal work is the next honest step.
 - Record the current baseline in `progress.md` without backfilling fake history.
 
 ### 4. Capture durable references for future agents
@@ -100,11 +115,14 @@ A short description of the current product or UI intent.
 Confirm a future planner could answer all of the following from files alone:
 - What project is this?
 - What features are candidates for work?
+- Which items still need brainstorm versus proposal?
 - What is already known about architecture and design?
 - What is still unknown and must be discovered later?
 
 ## File Write Expectations
 - Write only global durable state in this phase.
+- `docs/live/features.json` remains the authoritative tracked-work ledger.
+- `docs/live/ideas.md` stores exploration detail and idea refinement, not runnable sprint selection.
 - Do not create `.harness/<feature-id>/` yet unless the user explicitly instructed you to open a sprint immediately.
 - Do not create anything under `docs/archive/` during initialization.
 - When updating existing files, preserve observed facts and replace only stale boilerplate.
@@ -112,7 +130,7 @@ Confirm a future planner could answer all of the following from files alone:
 ## Refusal and Stop Conditions
 Stop and report the gap instead of inventing content when:
 - The repo contents are too sparse to infer architecture truthfully.
-- The user goal is too vague to seed even a minimal backlog.
+- The user goal is too vague to seed even a minimal backlog or idea ledger.
 - Existing state files contradict the codebase and you cannot resolve which is authoritative.
 - Initialization would require selecting a feature or architecture direction the human has not chosen.
 
@@ -122,9 +140,9 @@ In those cases, write the uncertainty into the durable files if appropriate; do 
 A good initialization pass:
 - tells the truth about what is known vs unknown
 - creates no fake project history
-- leaves the backlog usable for planning without overcommitting
+- leaves the backlog usable for brainstorm or proposal without overcommitting
 - reflects the real repo topology and current architecture
-- gives the next agent enough durable context to start proposal work without chat history
+- gives the next agent enough durable context to start the correct pre-sprint phase without chat history
 
 ## Done Definition
-This skill is done when the repo has coherent global state, no active sprint has been fabricated, and the next phase can select a real feature from durable files.
+This skill is done when the repo has coherent global state, `docs/live/ideas.md` exists as durable exploration state, no runnable active sprint has been fabricated, and the next phase can truthfully choose brainstorm or proposal from files alone.

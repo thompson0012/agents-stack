@@ -24,15 +24,16 @@ Evidence precedence for routing:
 5. `status.json`
 6. `docs/live/features.json`
 
-## Scheduling rule when no runnable sprint exists
+## Scheduling order when no runnable sprint exists
 
-If no runnable active sprint exists, the orchestrator may select the next backlog item only when:
+When no runnable active sprint exists, the orchestrator chooses the next non-runnable or backlog phase in this order:
 
-- its dependencies in `docs/live/features.json` are satisfied
-- no stronger local evidence says that same feature is already in a later phase
-- any parked sprints are explicitly marked `awaiting_human` or `escalated_to_human`
+1. drain `compound_pending_feature_ids` via `compound-capture`
+2. choose the highest-priority dependency-ready `needs_brainstorm` item
+3. choose the highest-priority dependency-ready `pending` item
+4. otherwise surface parked or dependency blockers honestly
 
-This lets the backlog advance around parked work without pretending the parked sprint is complete.
+This lets explicit compounding run before new work and lets the backlog advance around parked work without pretending the parked sprint is complete.
 
 ## Orchestrator-worker execution model
 
@@ -47,38 +48,37 @@ This lets the backlog advance around parked work without pretending the parked s
 | Phase | Durable evidence | Owner skill | Meaning | Normal next step |
 | --- | --- | --- | --- | --- |
 | `uninitialized` | `docs/live/features.json` missing, empty, or unusable | `project-initializer` worker | Repo is not ready for sprint routing yet. | Seed durable live state. |
+| `needs_brainstorm` | `docs/live/features.json` tracks a dependency-ready item as `needs_brainstorm`, optionally with supporting notes in `docs/live/ideas.md` | `generator-brainstorm` worker | The candidate is real enough to track, but still too vague for honest proposal work. | Refine or promote it to `pending`. |
 | `proposal_needed` | No runnable active sprint and at least one dependency-ready pending feature | `generator-proposal` worker | A ready backlog item exists but no local sprint has been proposed. | Create `.harness/<feature>/sprint_proposal.md`. |
 | `proposal_ready` | `sprint_proposal.md` exists | `evaluator-contract-review` worker | Proposed scope exists and needs adversarial contract review. | Approve into `contract.md` or reject with revisions. |
 | `contracted` | `contract.md` exists and no later artifact exists | `generator-execution` worker | Boundaries and QA criteria are approved; implementation can begin. | Execute or resume work. |
 | `executing` | `status.json` shows active execution, no later artifact exists | `generator-execution` worker | Work is underway. | Finish implementation, or record an execution-time failure honestly. |
-| `build_failed` | `status.json.phase = build_failed` plus execution notes in `runtime.md` or `handoff.md` | `generator-execution` worker after reconciliation | Build, startup, or smoke-triage failed during execution, so the sprint must retry without paying for live review. | Clean-restore and retry, park for human input, or escalate. |
+| `build_failed` | `status.json.phase = build_failed` plus execution notes in `runtime.md` or `handoff.md` | `state-update` worker, then `compound-capture`, then orchestrator | Build, startup, or smoke-triage failed during execution, so the sprint must reconcile, compound, and then retry or escalate. | Clean-restore and retry, park for human input, or escalate. |
 | `paused_by_timeout` | `status.json.phase = paused_by_timeout` | Route by `resume_from`, usually a fresh phase worker | Prior session stopped without a clean finish. | Resume from the last trustworthy checkpoint. |
 | `awaiting_review` | `handoff.md` exists and `review.md` does not | `adversarial-live-review` worker | Execution claims completion and is waiting for independent review. | Review observable behavior and state transitions. |
 | `review_recorded` | `review.md` exists | `state-update` worker | Review outcome exists and must be synchronized into durable state. | Archive on PASS, reopen on FAIL, or park/escalate on BLOCKED. |
-| `review_failed` | `review.md` remains on disk; `status.json.phase = review_failed` after `state-update` reconciles a FAIL review | `generator-execution` worker after reconciliation | The failure is durable, the evidence stays attached, and the next execution loop owns the sprint if attempts remain. | Clean-restore and retry, park for human input, or escalate. |
+| `review_failed` | `review.md` remains on disk; `status.json.phase = review_failed` after `state-update` reconciles a FAIL review | `state-update` worker, then `compound-capture`, then orchestrator | The failure is durable, the evidence stays attached, and the next execution loop owns the sprint only after compounding and retry gates are satisfied. | Clean-restore and retry, park for human input, or escalate. |
 | `awaiting_human` | `status.json.phase = awaiting_human` plus explicit human action fields | no automatic child until human input changes files | Automation is paused at a durable file boundary for human edits, approvals, or environment intervention. | Wait for human edits, then resume from `resume_from`. |
 | `escalated_to_human` | `status.json.phase = escalated_to_human` plus escalation reason | no automatic child until human decision changes files | Automatic retry must stop because attempt budget is exhausted or recovery is unsafe. | Human decides whether to reset, cancel, or re-scope. |
-| `archived` | Artifacts moved or copied to `docs/archive/...` and live state updated | `generator-proposal` worker for the next item | Sprint is complete and no longer active. | Select the next dependency-ready pending feature. |
+| `compound_pending` | `docs/live/features.json` lists the feature id in `compound_pending_feature_ids` | `compound-capture` worker | Explicit durable-learning capture must run before new work selection or runnable resume. | Capture the durable lesson or clear the queue truthfully. |
+| `archived` | Artifacts moved or copied to `docs/archive/...` and live state updated | `generator-brainstorm` or `generator-proposal` worker for the next item | Sprint is complete and no longer active. | Select the next dependency-ready `needs_brainstorm` or `pending` feature. |
 
 ## Transition rules
 
-### Initialization and proposal
+### Initialization, brainstorm, and proposal
 
-- `uninitialized` -> `proposal_needed`
-  - Trigger: `project-initializer` worker seeds `docs/live/features.json`, `progress.md`, and related live files.
+- `uninitialized` -> `needs_brainstorm` or `proposal_needed`
+  - Trigger: `project-initializer` worker seeds `docs/live/features.json`, `docs/live/ideas.md`, `progress.md`, and related live files truthfully.
+- `needs_brainstorm` -> `proposal_needed`
+  - Trigger: `generator-brainstorm` worker clarifies the candidate enough to promote it into `pending` backlog state.
+- `needs_brainstorm` -> `needs_brainstorm`
+  - Trigger: the idea is still too vague for honest proposal work, so brainstorming leaves it tracked but non-runnable.
 - `proposal_needed` -> `proposal_ready`
   - Trigger: `generator-proposal` worker creates `.harness/<feature-id>/sprint_proposal.md` and marks the sprint as proposed.
+- `proposal_needed` -> `needs_brainstorm`
+  - Trigger: proposal discovery proves the candidate is still too vague or forked, so it is explicitly returned to brainstorming instead of getting a mushy proposal.
 - `proposal_needed` -> `proposal_needed`
   - Trigger: the highest-priority pending feature is not dependency-ready, so backlog traversal continues until a ready item is found or the queue is exhausted.
-
-### Contract review
-
-- `proposal_ready` -> `contracted`
-  - Trigger: `evaluator-contract-review` worker approves scope and writes `contract.md`.
-- `proposal_ready` -> `proposal_needed`
-  - Trigger: proposal is rejected and explicitly reset for rewrite.
-- `proposal_ready` -> `proposal_ready`
-  - Trigger: proposal remains under revision, but no execution starts until a contract exists.
 
 ### Execution loop
 
@@ -104,7 +104,7 @@ This lets the backlog advance around parked work without pretending the parked s
 - Timeout does not discard work. The sprint remains active until state is reconciled.
 - Preserve prior evidence across retries. A resume creates a new worker assignment; it does not delete the earlier handoff or review trail.
 
-### Review and state update
+### Review, state update, and compounding
 
 - `awaiting_review` -> `review_recorded`
   - Trigger: `adversarial-live-review` worker writes `review.md` with explicit PASS, FAIL, or BLOCKED.
@@ -116,13 +116,15 @@ This lets the backlog advance around parked work without pretending the parked s
   - Trigger: `state-update` worker processes a BLOCKED review that requires human edits, approvals, credentials, or other intervention at a file-described pause boundary.
 - `review_recorded` -> `escalated_to_human`
   - Trigger: `state-update` worker processes a BLOCKED review that cannot be retried safely or honestly by automation.
+- `archived`, `review_failed`, `awaiting_human`, or `escalated_to_human` -> `compound_pending`
+  - Trigger: `state-update` queues the feature id in `compound_pending_feature_ids` after reconciling the decisive outcome.
 
-### Retry, pause, and escalation
+### Retry, pause, escalation, and post-compound routing
 
 - `build_failed` -> `executing`
-  - Trigger: retry metadata is fully recorded, `attempt_count < max_attempts`, and `clean_restore_ref` names a safe restore boundary for a fresh execution worker.
+  - Trigger: retry metadata is fully recorded, `attempt_count < max_attempts`, `clean_restore_ref` names a safe restore boundary, and any queued compounding has been drained.
 - `review_failed` -> `executing`
-  - Trigger: local and live state agree that the failure is reconciled, `attempt_count < max_attempts`, and `clean_restore_ref` names a safe restore boundary for a fresh execution worker.
+  - Trigger: local and live state agree that the failure is reconciled, `attempt_count < max_attempts`, `clean_restore_ref` names a safe restore boundary, and any queued compounding has been drained.
 - `build_failed` -> `awaiting_human`
   - Trigger: retry is not yet safe because a human must edit files, repair the environment, or confirm the restore boundary, but escalation is not yet required.
 - `review_failed` -> `awaiting_human`
@@ -135,6 +137,10 @@ This lets the backlog advance around parked work without pretending the parked s
   - Trigger: a human changes the named files, updates the pause metadata, or otherwise records that the durable gate is cleared.
 - `escalated_to_human` -> route by explicit human decision
   - Trigger: a human records a reset, cancellation, rescope, or new restore boundary in the files.
+- `compound_pending` -> `executing`
+  - Trigger: the queue entry is cleared and the same sprint still remains the single runnable active sprint.
+- `compound_pending` -> `needs_brainstorm` or `proposal_needed`
+  - Trigger: the queue entry is cleared and no runnable sprint remains, so the orchestrator returns to dependency-ready backlog selection.
 
 ## PASS / FAIL / BLOCKED routing
 
@@ -145,10 +151,10 @@ This lets the backlog advance around parked work without pretending the parked s
 3. `state-update` worker:
    - updates `docs/live/features.json`
    - appends outcome to `docs/live/progress.md`
-   - preserves learnings in `docs/live/memory.md` if needed
    - archives the sprint to `docs/archive/<feature-id>_<timestamp>/`
    - clears runnable active-sprint status
-4. The next router pass selects `generator-proposal` for the next dependency-ready pending feature, or `project-initializer` only if the repo was never properly initialized.
+   - queues the feature id in `compound_pending_feature_ids`
+4. The next router pass selects `compound-capture`. Only after the queue is drained may the harness select new proposal work or another runnable sprint.
 
 ### FAIL path
 
@@ -160,9 +166,10 @@ This lets the backlog advance around parked work without pretending the parked s
    - increments `attempt_count` and confirms `max_attempts`
    - preserves directives and evidence
    - records or validates `clean_restore_ref` before any automatic retry
+   - queues the feature id in `compound_pending_feature_ids`
    - leaves `review.md` on disk as evidence for the retry
    - updates global progress so the failure is visible outside the sprint folder
-4. The next router pass selects `generator-execution` only if the retry is reconciled, attempts remain, and the restore boundary is safe. Otherwise the sprint moves to `awaiting_human` or `escalated_to_human`.
+4. The next router pass selects `compound-capture` first. After the queue is drained, it selects `generator-execution` only if the retry is reconciled, attempts remain, and the restore boundary is safe. Otherwise the sprint moves to `awaiting_human` or `escalated_to_human`.
 
 FAIL is not terminal. It is a new execution loop with stricter evidence, and the retry is driven by durable state instead of deleting review evidence.
 
@@ -174,9 +181,10 @@ FAIL is not terminal. It is a new execution loop with stricter evidence, and the
    - keeps the sprint visible in `.harness/`
    - records the blocker in durable state
    - decides between `awaiting_human` and `escalated_to_human`
+   - queues the feature id in `compound_pending_feature_ids` so durable lessons can be captured before future routing
    - leaves `review.md` on disk as evidence for the stalled checkpoint
    - updates global progress so the blocker is visible outside the sprint folder
-4. The orchestrator does not dispatch another automatic phase worker until human edits change the checkpoint or the escalation is explicitly resolved.
+4. The next router pass selects `compound-capture` first, then either waits on the human gate or routes around parked work through dependency-ready backlog selection.
 
 ## Build/startup triage rule
 

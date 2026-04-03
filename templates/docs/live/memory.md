@@ -1,5 +1,9 @@
 # Live Memory
 
+This file is the durable output of the explicit Compound phase.
+
+`state-update` reconciles outcomes and queues features for compounding; `compound-capture` writes here only when a reviewed or reconciled sprint leaves behind a cross-sprint lesson worth keeping. If no durable lesson survives, the compound worker clears the queue without changing this file.
+
 Store only durable learnings here. Append dated notes when a fact will help a future agent avoid rediscovery. Do not copy transient sprint logs into this file.
 
 ## Verified learnings
@@ -14,7 +18,7 @@ Store only durable learnings here. Append dated notes when a fact will help a fu
 
 ## Team conventions
 
-- [2026-04-02] Only one active sprint is allowed at a time. Everything else stays pending in `docs/live/features.json`.
+- [2026-04-02] Only one runnable active sprint is allowed at a time. Other tracked work may remain `needs_brainstorm`, pending, parked, archived, or queued for compounding in `docs/live/features.json`.
 - [2026-04-02] Failed review does not close a sprint; keep the sprint live, preserve artifacts, and propagate corrective next actions back into the backlog.
 - [2026-04-02] Put cross-sprint facts here only after they are observed more than once or clearly affect future work.
 
@@ -23,4 +27,5 @@ Store only durable learnings here. Append dated notes when a fact will help a fu
 - one-off shell output,
 - temporary blockers already captured in a sprint handoff,
 - duplicate copies of contracts or reviews,
-- speculative ideas that have not been verified.
+- speculative ideas that have not been verified,
+- routine outcome summaries that already belong in `docs/live/progress.md`.

@@ -8,9 +8,21 @@
       "files": []
     },
     {
+      "id": "queued-compound-before-resume",
+      "prompt": "`docs/live/features.json` contains `compound_pending_feature_ids: [\"FEAT-001\"]`, FEAT-001 is still the runnable active sprint, and the queue has not been cleared yet. Which child should run next?",
+      "expected_output": "Routes to using-agents-stack/compound-capture because explicit compounding drains before runnable sprint resume or new backlog selection.",
+      "files": []
+    },
+    {
+      "id": "direct-brainstorm-needed",
+      "prompt": "No runnable active sprint exists. The highest-priority dependency-ready backlog item is `needs_brainstorm`, `docs/live/ideas.md` exists, and no compound work is queued. Which child should run next?",
+      "expected_output": "Routes to using-agents-stack/generator-brainstorm because the next honest step is explicit pre-proposal ideation, not proposal or execution.",
+      "files": []
+    },
+    {
       "id": "direct-new-proposal",
-      "prompt": "`docs/live/features.json` has one pending high-priority feature, no active sprint, and there is no `.harness/<feature>/contract.md` yet. Which child should run next?",
-      "expected_output": "Routes to using-agents-stack/generator-proposal because the repository has backlog truth but no active approved sprint contract yet.",
+      "prompt": "`docs/live/features.json` has one dependency-ready pending high-priority feature, no runnable active sprint, no `needs_brainstorm` item outranks it, no compound work is queued, and there is no `.harness/<feature>/contract.md` yet. Which child should run next?",
+      "expected_output": "Routes to using-agents-stack/generator-proposal because the repository has proposal-ready backlog truth and nothing in the compound or brainstorm lanes outranks it.",
       "files": []
     },
     {
@@ -21,8 +33,8 @@
     },
     {
       "id": "reconciled-failed-review-retry",
-      "prompt": "`review.md` exists for the active sprint, `status.json.phase` is `review_failed`, and `docs/live/features.json` still points at the same active sprint for retry. Which child should run next?",
-      "expected_output": "Routes to using-agents-stack/generator-execution because the failed review has already been reconciled into durable state and the same sprint now needs a retry implementation pass.",
+      "prompt": "`review.md` exists for the active sprint, `status.json.phase` is `review_failed`, `docs/live/features.json` still points at the same runnable active sprint for retry, `compound_pending_feature_ids` is empty, and durable retry metadata already records remaining budget plus `clean_restore_ref`. Which child should run next?",
+      "expected_output": "Routes to using-agents-stack/generator-execution because the failed review has already been reconciled, compounding is clear, and the same sprint now needs a clean retry implementation pass.",
       "files": []
     },
     {

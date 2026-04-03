@@ -18,8 +18,8 @@ Initialize the repository's durable harness state so future work routes from fil
 - Do not mark any feature `in_progress`.
 
 ## Acceptance Criteria
-1. `AGENTS.md` defines the canonical repository topology, state roles, single-active-sprint rule, lifecycle phases, and role responsibilities.
-2. `docs/live/features.json` parses as valid JSON and records FEAT-001 as pending, with no active sprint.
+1. `AGENTS.md` defines the canonical repository topology, state roles, single-runnable-sprint rule, lifecycle phases, and role responsibilities.
+2. `docs/live/features.json` parses as valid JSON and records FEAT-001 as pending, with no runnable active sprint.
 3. `docs/live/progress.md` records FEAT-000 as an initialization sprint and names FEAT-001 as the next action.
 4. `docs/live/memory.md` preserves at least one durable operational truth the next sprint must remember: verify Tailwind is loaded before browser QA.
 5. `docs/reference/architecture.md` and `docs/reference/design.md` describe the current starter state truthfully and concisely.

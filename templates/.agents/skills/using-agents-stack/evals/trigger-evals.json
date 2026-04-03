@@ -13,9 +13,21 @@
   },
   {
     "id": "should-trigger-bootstrap",
-    "query": "Set up the agents-stack live state, reference docs, and sprint workflow files for a fresh repo.",
+    "query": "Set up the agents-stack live state, reference docs, idea backlog, and sprint workflow files for a fresh repo.",
     "should_trigger": true,
     "why": "This is explicit first-run harness bootstrap work inside the agents-stack family."
+  },
+  {
+    "id": "should-trigger-compound-routing",
+    "query": "The repo already reconciled a sprint outcome and `compound_pending_feature_ids` is non-empty. Decide which harness phase should run next.",
+    "should_trigger": true,
+    "why": "Queued compounding is an explicit agents-stack routing decision, not ordinary implementation work."
+  },
+  {
+    "id": "should-trigger-brainstorm-routing",
+    "query": "No runnable agents-stack sprint exists and the next backlog item is `needs_brainstorm`. Choose the correct harness phase.",
+    "should_trigger": true,
+    "why": "Selecting explicit brainstorm work from durable state is a family routing problem."
   },
   {
     "id": "should-not-trigger-ordinary-implementation",

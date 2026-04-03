@@ -14,25 +14,28 @@ Run the structural validator first, then use the eval files to regression-test r
 
 ### 1. Routing correctness
 
-The root skill should select exactly one child skill from the six allowed children:
+The root skill should select exactly one child skill from the eight allowed children:
 
 - `project-initializer`
+- `generator-brainstorm`
 - `generator-proposal`
 - `evaluator-contract-review`
 - `generator-execution`
 - `adversarial-live-review`
 - `state-update`
+- `compound-capture`
 
 Checks:
 
 - missing or empty `docs/live/features.json` routes to `project-initializer`
-- no active sprint and at least one pending feature routes to `generator-proposal`
+- non-empty `compound_pending_feature_ids` routes to `compound-capture` before runnable resume or backlog selection
+- no runnable sprint and a dependency-ready `needs_brainstorm` item routes to `generator-brainstorm`
+- no runnable sprint, no compound queue, and at least one dependency-ready `pending` feature routes to `generator-proposal`
 - `sprint_proposal.md` without `contract.md` routes to `evaluator-contract-review`
 - `contract.md` without `handoff.md` routes to `generator-execution`
 - `handoff.md` without `review.md` routes to `adversarial-live-review`
 - `review.md` routes to `state-update`
-- `review_failed` routes back to `generator-execution` only after state has been updated
-
+- `review_failed` routes back to `generator-execution` only after state has been updated and queued compounding has been drained
 ### 2. State-file fidelity
 
 The router must read durable files in the documented order and respect file meaning.
@@ -65,58 +68,72 @@ Checks:
 - `docs/live/features.json` missing or empty
 - Expected route: `project-initializer`
 
-### Case B: ready backlog, no active sprint
+### Case B: queued compounding
 
-- `features.json` contains pending feature(s), none active
+- `docs/live/features.json` contains `compound_pending_feature_ids`
+- a runnable sprint may still exist, but the queue is not empty
+- Expected route: `compound-capture`
+
+### Case C: brainstorm-ready backlog
+
+- no runnable active sprint
+- highest-priority dependency-ready backlog item has `status: needs_brainstorm`
+- `docs/live/ideas.md` exists
+- Expected route: `generator-brainstorm`
+
+### Case D: ready backlog, no runnable active sprint
+
+- `features.json` contains dependency-ready `pending` feature(s), none runnable
+- `compound_pending_feature_ids` is empty
 - no `.harness/<feature-id>/` folder yet
 - Expected route: `generator-proposal`
 
-### Case C: proposal awaiting approval
+### Case E: proposal awaiting approval
 
 - active feature exists
 - `sprint_proposal.md` exists
 - `contract.md` absent
 - Expected route: `evaluator-contract-review`
 
-### Case D: contracted sprint in execution
+### Case F: contracted sprint in execution
 
 - `contract.md` exists
 - `handoff.md` absent
 - status says `contracted` or `in_progress`
 - Expected route: `generator-execution`
 
-### Case E: ready for live review
+### Case G: ready for live review
 
 - `handoff.md` exists
 - `review.md` absent
 - Expected route: `adversarial-live-review`
 
-### Case F: review recorded but not yet reconciled
+### Case H: review recorded but not yet reconciled
 
 - `review.md` exists
 - `status.json.phase` is still pre-update or contradictory
 - Expected route: `state-update`
 
-### Case G: failed review already reconciled
+### Case I: failed review already reconciled
 
 - `review.md` exists and records FAIL
 - `status.json.phase = review_failed`
 - `docs/live/features.json` still points at the same active sprint
+- `compound_pending_feature_ids` is empty because compounding already drained
 - Expected route: `generator-execution`
 
-### Case H: contradictory evidence
+### Case J: contradictory evidence
 
 - `review.md` exists
 - `status.json.phase = contracted`
 - `features.json` still says pending
 - Expected route: `state-update`, with contradiction explicitly noted
 
-### Case I: stale timeout
+### Case K: stale timeout
 
 - `status.json.phase = paused_by_timeout`
 - `resume_from = handoff.md`
 - Expected route: `adversarial-live-review`
-
 ## Pass criteria
 
 The package passes evaluation when all of the following are true:
@@ -124,7 +141,7 @@ The package passes evaluation when all of the following are true:
 - the router can be followed without chat context
 - every state transition has a single owning child skill
 - contradictory state is surfaced instead of normalized away
-- the package reinforces the single-active-sprint rule
+- the package reinforces the single-runnable-sprint rule
 - PASS reviews still archive via state-update, and FAIL reviews resume execution only after state-update has reconciled them.
 
 ## Failure criteria

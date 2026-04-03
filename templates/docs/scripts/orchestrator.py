@@ -301,6 +301,29 @@ def runnable_active_pointer(features: dict[str, Any]) -> Any:
     return pointer
 
 
+def compound_queue_ids(
+    features: dict[str, Any], features_path: Path
+ ) -> tuple[list[str] | None, str | None]:
+    raw_queue = features.get("compound_pending_feature_ids", [])
+    if raw_queue is None:
+        raw_queue = []
+    if not isinstance(raw_queue, list):
+        return None, f"Expected compound_pending_feature_ids array in {features_path}"
+    queue: list[str] = []
+    seen: set[str] = set()
+    for index, item in enumerate(raw_queue):
+        item_id = str(item).strip()
+        if not item_id:
+            return None, (
+                f"compound_pending_feature_ids entry #{index} in {features_path} is empty."
+            )
+        if item_id in seen:
+            return None, f"compound_pending_feature_ids contains duplicate id {item_id}."
+        seen.add(item_id)
+        queue.append(item_id)
+    return queue, None
+
+
 def get_backlog(features: dict[str, Any], features_path: Path) -> tuple[list[dict[str, Any]] | None, str | None]:
     backlog = features.get("backlog")
     if not isinstance(backlog, list):
@@ -334,9 +357,10 @@ def dependency_status_satisfied(status: Any) -> bool:
     return str(status).strip().lower() in DEPENDENCY_SATISFIED_STATUSES
 
 
-def select_next_pending_feature(
+def select_next_feature(
     backlog: list[dict[str, Any]],
-) -> tuple[dict[str, Any] | None, list[str], dict[str, list[str]]]:
+    candidate_statuses: set[str],
+ ) -> tuple[dict[str, Any] | None, list[str], dict[str, list[str]]]:
     errors: list[str] = []
     blocked_reasons: dict[str, list[str]] = {}
     ready: list[tuple[tuple[int, int], dict[str, Any]]] = []
@@ -353,7 +377,7 @@ def select_next_pending_feature(
             continue
 
         status = str(item.get("status", "")).strip().lower()
-        if status != "pending":
+        if status not in candidate_statuses:
             continue
 
         dependencies = item.get("dependencies", [])
@@ -408,11 +432,63 @@ def report_parked_sprints(parked_entries: list[dict[str, Any]]) -> None:
             print(f"  human action required: {human_action}")
 
 
-def report_next_pending_feature(
+def report_compound_queue(
     features: dict[str, Any] | None,
     features_error: str | None,
     features_path: Path,
-) -> int:
+ ) -> int | None:
+    if features_error or features is None:
+        return None
+
+    backlog, backlog_error = get_backlog(features, features_path)
+    if backlog_error:
+        print(f"ERROR: {backlog_error}")
+        return 2
+    assert backlog is not None
+
+    queue, queue_error = compound_queue_ids(features, features_path)
+    if queue_error:
+        print(f"ERROR: {queue_error}")
+        return 2
+    assert queue is not None
+    if not queue:
+        return None
+
+    by_id = backlog_index(backlog)
+    missing = [item_id for item_id in queue if item_id not in by_id]
+    if missing:
+        print(
+            "ERROR: compound_pending_feature_ids references missing backlog items: "
+            + ", ".join(missing)
+        )
+        return 2
+
+    print(f"Compound queue pending: {', '.join(queue)}")
+    first_item = by_id[queue[0]]
+    print(
+        f"First queued feature: {queue[0]} - {first_item.get('title', 'untitled')}"
+    )
+    evidence_path = (
+        first_item.get("evidence_path")
+        or first_item.get("archive_path")
+        or first_item.get("local_state_path")
+    )
+    if evidence_path:
+        print(f"Evidence path: {evidence_path}")
+    active_pointer = runnable_active_pointer(features)
+    if active_pointer not in (None, ""):
+        print(f"Runnable sprint remains: {active_pointer}")
+    print(
+        "Route: compound-capture should record durable learning and clear the queue before runnable sprint resume or new backlog selection."
+    )
+    return 0
+
+
+def report_next_backlog_feature(
+    features: dict[str, Any] | None,
+    features_error: str | None,
+    features_path: Path,
+ ) -> int:
     if features_error:
         print(f"ERROR: {features_error}")
         return 2
@@ -433,27 +509,49 @@ def report_next_pending_feature(
         return 2
     assert backlog is not None
 
-    next_item, errors, blocked_reasons = select_next_pending_feature(backlog)
+    brainstorm_item, errors, blocked_brainstorm = select_next_feature(
+        backlog, {"needs_brainstorm"}
+    )
     if errors:
         print("ERROR: backlog is inconsistent:")
         for error in errors:
             print(f"- {error}")
         return 2
 
-    if next_item is None:
-        print("No dependency-ready pending feature found.")
-        if blocked_reasons:
-            print("Pending items are blocked by:")
-            for item_id, blockers in sorted(blocked_reasons.items()):
-                print(f"- {item_id}: {', '.join(blockers)}")
+    pending_item, errors, blocked_pending = select_next_feature(backlog, {"pending"})
+    if errors:
+        print("ERROR: backlog is inconsistent:")
+        for error in errors:
+            print(f"- {error}")
+        return 2
+
+    if brainstorm_item is not None:
+        print(
+            f"Next dependency-ready brainstorm candidate: {brainstorm_item.get('id')} - {brainstorm_item.get('title', 'untitled')}"
+        )
+        print(
+            "Route: generator-brainstorm should refine docs/live/ideas.md and/or promote this candidate because no runnable active sprint exists."
+        )
         return 0
 
-    print(
-        f"Next dependency-ready feature: {next_item.get('id')} - {next_item.get('title', 'untitled')}"
-    )
-    print(
-        "Route: generator-proposal should open a sprint proposal for this feature because no runnable active sprint exists."
-    )
+    if pending_item is not None:
+        print(
+            f"Next dependency-ready feature: {pending_item.get('id')} - {pending_item.get('title', 'untitled')}"
+        )
+        print(
+            "Route: generator-proposal should open a sprint proposal for this feature because no compound or brainstorm work outranks it."
+        )
+        return 0
+
+    print("No dependency-ready `needs_brainstorm` or `pending` feature found.")
+    blocked_reasons: dict[str, list[str]] = {}
+    for source in (blocked_brainstorm, blocked_pending):
+        for item_id, blockers in source.items():
+            blocked_reasons.setdefault(item_id, []).extend(blockers)
+    if blocked_reasons:
+        print("Tracked items are blocked by:")
+        for item_id, blockers in sorted(blocked_reasons.items()):
+            print(f"- {item_id}: {', '.join(blockers)}")
     return 0
 
 
@@ -573,8 +671,11 @@ def main() -> int:
         return 2
 
     if not entries:
+        compound_result = report_compound_queue(features, features_error, features_path)
+        if compound_result is not None:
+            return compound_result
         print("No sprint status files found under .harness/.")
-        return report_next_pending_feature(features, features_error, features_path)
+        return report_next_backlog_feature(features, features_error, features_path)
 
     runnable_entries = find_runnable_sprints(entries)
     parked_entries = find_parked_sprints(entries)
@@ -586,10 +687,15 @@ def main() -> int:
         report_parked_sprints(parked_entries)
         return 2
 
+    compound_result = report_compound_queue(features, features_error, features_path)
+    if compound_result is not None:
+        report_parked_sprints(parked_entries)
+        return compound_result
+
     if not runnable_entries:
         print("No runnable active sprint found.")
         report_parked_sprints(parked_entries)
-        return report_next_pending_feature(features, features_error, features_path)
+        return report_next_backlog_feature(features, features_error, features_path)
 
     active_entry = runnable_entries[0]
     active_status = active_entry["status"]
