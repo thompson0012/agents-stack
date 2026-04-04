@@ -1,3 +1,3 @@
 [
-  { "action": "remove", "files": ["README.md"] }
+  { "action": "clone", "files": ["templates/"] }
 ]
