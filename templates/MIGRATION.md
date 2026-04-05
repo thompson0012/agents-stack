@@ -149,3 +149,22 @@ A migration is done when:
 - no temporary shim remains past its cutover window
 - the audit trail records what changed
 - the repo still tells one coherent story from disk alone
+
+
+## Currency
+- Guide version: v1
+- Review this guide against the current agents-stack template baseline before each migration.
+- If the target harness semantics, folder structure, or registry shape changed since the last review, record the delta explicitly before moving files.
+
+## Migration delta record
+For every migration, append a concise delta note to the project progress ledger or the repo's equivalent audit file. Record:
+- source baseline
+- target baseline
+- semantics changed
+- structure changed
+- compatibility shims used
+- verification result
+- unresolved follow-ups
+- the date and owner of the cutover
+
+This is the changelog-like instruction for upgrades. It is not a second registry and it does not replace `AGENTS.md` or repo-specific state.
