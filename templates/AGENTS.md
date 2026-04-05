@@ -427,6 +427,7 @@ Generator-authored review artifacts are invalid. `review.md` and `qa.md` only co
 2. Read the relevant `docs/live/*` files.
 3. If a sprint is active or parked, read the local `.harness/<FEAT-ID>/` artifacts before touching code.
 4. Stay within the current phase boundary. If the correct fix requires a different phase, hand off instead of smuggling it in.
+5. If the task is a migration, cutover, or topology change, read `MIGRATION.md` after this file and before moving files, schemas, or registry fields.
 
 ## Success Condition
 
