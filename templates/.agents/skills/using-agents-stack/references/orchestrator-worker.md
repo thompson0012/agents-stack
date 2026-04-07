@@ -22,12 +22,12 @@ Use the runtime's native primitive if it is called `sub-agent`, `Task agent`, `p
 
 Workers get only the tools their phase needs.
 
-- Brainstorm workers may read `docs/live/*` and `docs/reference/*`, and write only `docs/live/ideas.md` plus the narrow `docs/live/features.json` update needed to track or promote the candidate.
+- Brainstorm workers may read `docs/live/*` and `docs/reference/*`, and write only `docs/live/ideas.md` plus the narrow `docs/live/tracked-work.json` update needed to track or promote the candidate.
 - Proposal workers may inspect backlog, `docs/live/current-focus.md`, and `docs/live/roadmap.md` to cut one runnable sprint from a broader initiative, and may refresh those live planning files when proposal work legitimately re-slices what comes next, but they are not execution workers.
 - Contract-review and live-review workers must stay independent and must not receive write access to implementation files.
 - Execution workers may change only the approved contract scope, must perform build/startup triage before requesting review, and must not mark their own work approved.
 - State-update workers reconcile state and archive history, refresh `docs/live/current-focus.md` plus `docs/live/roadmap.md` when decisive outcomes change the remaining initiative path or re-authorization boundary, and do not silently redo proposal, execution, review, or durable learning capture.
-- Compound workers may write `docs/live/memory.md`, optional stable reference docs, and the queue-clearing update in `docs/live/features.json`. They do not reopen sprint state or claim the runnable slot.
+- Compound workers may write `docs/live/memory.md`, optional stable reference docs, and the queue-clearing update in `docs/live/tracked-work.json`. They do not reopen sprint state or claim the runnable slot.
 
 Treat tool scope as part of the contract. If the runtime supports per-worker tool restrictions, use them. If it does not, the orchestrator must still instruct the worker to stay inside its lane and reject mixed-phase work.
 

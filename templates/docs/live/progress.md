@@ -2,7 +2,7 @@
 
 Record dated sprint outcomes here. Append new entries; do not rewrite history.
 
-Use this ledger for durable audit events, not as a second registry. `docs/live/features.json` remains the tracked-work source of truth.
+Use this ledger for durable audit events, not as a second registry. `docs/live/tracked-work.json` remains the tracked-work source of truth.
 
 Record transitions such as:
 - sprint start, pause, escalation, build failure, review failure, PASS archive cutover, and next-action decisions

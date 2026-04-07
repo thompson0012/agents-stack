@@ -42,7 +42,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--root",
         default=".",
-        help="Repository root that contains .harness and docs/live/features.json.",
+        help="Repository root that contains .harness and docs/live/tracked-work.json.",
     )
     parser.add_argument(
         "--timeout-seconds",
@@ -435,17 +435,17 @@ def recover_stale_sprint(
     }
 
 
-def load_features(repo_root: Path) -> tuple[dict[str, Any] | None, str | None, Path]:
-    features_path = repo_root / "docs" / "live" / "features.json"
-    if not features_path.exists():
-        return None, f"Missing backlog file: {features_path}", features_path
+def load_tracked_work(repo_root: Path) -> tuple[dict[str, Any] | None, str | None, Path]:
+    tracked_work_path = repo_root / "docs" / "live" / "tracked-work.json"
+    if not tracked_work_path.exists():
+        return None, f"Missing backlog file: {tracked_work_path}", tracked_work_path
     try:
-        data = load_json(features_path)
+        data = load_json(tracked_work_path)
     except json.JSONDecodeError as exc:
-        return None, f"Invalid JSON in {features_path}: {exc}", features_path
+        return None, f"Invalid JSON in {tracked_work_path}: {exc}", tracked_work_path
     if not isinstance(data, dict):
-        return None, f"Expected top-level object in {features_path}", features_path
-    return data, None, features_path
+        return None, f"Expected top-level object in {tracked_work_path}", tracked_work_path
+    return data, None, tracked_work_path
 
 
 def runnable_active_pointer(features: dict[str, Any]) -> Any:
@@ -456,20 +456,20 @@ def runnable_active_pointer(features: dict[str, Any]) -> Any:
 
 
 def compound_queue_ids(
-    features: dict[str, Any], features_path: Path
+    features: dict[str, Any], tracked_work_path: Path
  ) -> tuple[list[str] | None, str | None]:
     raw_queue = features.get("compound_pending_feature_ids", [])
     if raw_queue is None:
         raw_queue = []
     if not isinstance(raw_queue, list):
-        return None, f"Expected compound_pending_feature_ids array in {features_path}"
+        return None, f"Expected compound_pending_feature_ids array in {tracked_work_path}"
     queue: list[str] = []
     seen: set[str] = set()
     for index, item in enumerate(raw_queue):
         item_id = str(item).strip()
         if not item_id:
             return None, (
-                f"compound_pending_feature_ids entry #{index} in {features_path} is empty."
+                f"compound_pending_feature_ids entry #{index} in {tracked_work_path} is empty."
             )
         if item_id in seen:
             return None, f"compound_pending_feature_ids contains duplicate id {item_id}."
@@ -478,14 +478,14 @@ def compound_queue_ids(
     return queue, None
 
 
-def get_backlog(features: dict[str, Any], features_path: Path) -> tuple[list[dict[str, Any]] | None, str | None]:
+def get_backlog(features: dict[str, Any], tracked_work_path: Path) -> tuple[list[dict[str, Any]] | None, str | None]:
     backlog = features.get("backlog")
     if not isinstance(backlog, list):
-        return None, f"Expected backlog array in {features_path}"
+        return None, f"Expected backlog array in {tracked_work_path}"
     entries: list[dict[str, Any]] = []
     for index, item in enumerate(backlog):
         if not isinstance(item, dict):
-            return None, f"Backlog entry #{index} in {features_path} is not an object"
+            return None, f"Backlog entry #{index} in {tracked_work_path} is not an object"
         entries.append(item)
     return entries, None
 
@@ -624,7 +624,7 @@ def report_live_control(control: dict[str, Any]) -> None:
     else:
         print(f"Roadmap status: unavailable (missing {control['roadmap_path']})")
         print(
-            "Remaining work: unavailable until docs/live/roadmap.md exists; routing falls back to docs/live/features.json backlog selection and sprint-local evidence."
+            "Remaining work: unavailable until docs/live/roadmap.md exists; routing falls back to docs/live/tracked-work.json backlog selection and sprint-local evidence."
         )
     print()
 
@@ -649,18 +649,18 @@ def report_parked_sprints(parked_entries: list[dict[str, Any]]) -> None:
 def report_compound_queue(
     features: dict[str, Any] | None,
     features_error: str | None,
-    features_path: Path,
+    tracked_work_path: Path,
  ) -> int | None:
     if features_error or features is None:
         return None
 
-    backlog, backlog_error = get_backlog(features, features_path)
+    backlog, backlog_error = get_backlog(features, tracked_work_path)
     if backlog_error:
         print(f"ERROR: {backlog_error}")
         return 2
     assert backlog is not None
 
-    queue, queue_error = compound_queue_ids(features, features_path)
+    queue, queue_error = compound_queue_ids(features, tracked_work_path)
     if queue_error:
         print(f"ERROR: {queue_error}")
         return 2
@@ -701,23 +701,23 @@ def report_compound_queue(
 def report_next_backlog_feature(
     features: dict[str, Any] | None,
     features_error: str | None,
-    features_path: Path,
+    tracked_work_path: Path,
  ) -> int:
     if features_error:
         print(f"ERROR: {features_error}")
         return 2
     if features is None:
-        print(f"ERROR: missing readable backlog state at {features_path}")
+        print(f"ERROR: missing readable backlog state at {tracked_work_path}")
         return 2
 
     active_pointer = runnable_active_pointer(features)
     if active_pointer not in (None, ""):
         print(
-            f"ERROR: live state at {features_path} still names runnable active sprint {active_pointer} even though no runnable local sprint exists."
+            f"ERROR: live state at {tracked_work_path} still names runnable active sprint {active_pointer} even though no runnable local sprint exists."
         )
         return 2
 
-    backlog, backlog_error = get_backlog(features, features_path)
+    backlog, backlog_error = get_backlog(features, tracked_work_path)
     if backlog_error:
         print(f"ERROR: {backlog_error}")
         return 2
@@ -772,7 +772,7 @@ def report_next_backlog_feature(
 def validate_active_pointer(
     features: dict[str, Any] | None,
     features_error: str | None,
-    features_path: Path,
+    tracked_work_path: Path,
     active_sprint_id: str,
 ) -> tuple[bool, str | None]:
     if features_error or features is None:
@@ -781,7 +781,7 @@ def validate_active_pointer(
     if pointer in (None, ""):
         return (
             False,
-            f"Live state at {features_path} does not name runnable active sprint {active_sprint_id}.",
+            f"Live state at {tracked_work_path} does not name runnable active sprint {active_sprint_id}.",
         )
     if str(pointer) != active_sprint_id:
         return (
@@ -871,7 +871,7 @@ def main() -> int:
     args = parse_args()
     repo_root = Path(args.root).resolve()
     harness_root = repo_root / ".harness"
-    features, features_error, features_path = load_features(repo_root)
+    features, features_error, tracked_work_path = load_tracked_work(repo_root)
     live_control = load_live_control(repo_root)
 
     entries: list[dict[str, Any]] = []
@@ -886,11 +886,11 @@ def main() -> int:
         return 2
     report_live_control(live_control)
     if not entries:
-        compound_result = report_compound_queue(features, features_error, features_path)
+        compound_result = report_compound_queue(features, features_error, tracked_work_path)
         if compound_result is not None:
             return compound_result
         print("No sprint status files found under .harness/.")
-        return report_next_backlog_feature(features, features_error, features_path)
+        return report_next_backlog_feature(features, features_error, tracked_work_path)
 
     runnable_entries = find_runnable_sprints(entries)
     parked_entries = find_parked_sprints(entries)
@@ -902,7 +902,7 @@ def main() -> int:
         report_parked_sprints(parked_entries)
         return 2
 
-    compound_result = report_compound_queue(features, features_error, features_path)
+    compound_result = report_compound_queue(features, features_error, tracked_work_path)
     if compound_result is not None:
         report_parked_sprints(parked_entries)
         return compound_result
@@ -910,7 +910,7 @@ def main() -> int:
     if not runnable_entries:
         print("No runnable active sprint found.")
         report_parked_sprints(parked_entries)
-        return report_next_backlog_feature(features, features_error, features_path)
+        return report_next_backlog_feature(features, features_error, tracked_work_path)
 
     active_entry = runnable_entries[0]
     active_status = active_entry["status"]
@@ -918,7 +918,7 @@ def main() -> int:
     pointer_ok, pointer_error = validate_active_pointer(
         features,
         features_error,
-        features_path,
+        tracked_work_path,
         sprint_id,
     )
     if not pointer_ok and pointer_error:

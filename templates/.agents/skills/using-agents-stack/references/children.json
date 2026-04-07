@@ -20,7 +20,7 @@
       "relationship": "routes_to",
       "summary": "Dispatches a fresh initializer worker to bootstrap durable live and reference state when the repository cannot yet support honest routing.",
       "route_when": [
-        "`docs/live/features.json` is missing, empty, unparsable, or lacks durable backlog truth.",
+        "`docs/live/tracked-work.json` is missing, empty, unparsable, or lacks durable backlog truth.",
         "The repository follows the agents-stack layout but has no trustworthy live state for selecting or resuming work."
       ],
       "avoid_when": [
@@ -43,7 +43,7 @@
       "route_when": [
         "No runnable active sprint exists, `compound_pending_feature_ids` is empty, and the highest-priority dependency-ready backlog item is `needs_brainstorm`.",
         "An idea needs exploration or framing before a truthful sprint proposal can be written.",
-        "The brainstorm result should update `docs/live/ideas.md` and may promote the same workstream into `pending` in `docs/live/features.json`."
+        "The brainstorm result should update `docs/live/ideas.md` and may promote the same workstream into `pending` in `docs/live/tracked-work.json`."
       ],
       "avoid_when": [
         "A runnable active sprint exists and should be resumed instead.",
@@ -194,7 +194,7 @@
       "relationship": "routes_to",
       "summary": "Dispatches a fresh compound worker to capture durable learnings after state publication, update `docs/live/memory.md` and optional reference docs, and clear `compound_pending_feature_ids`.",
       "route_when": [
-        "`docs/live/features.json` contains one or more ids in `compound_pending_feature_ids`.",
+        "`docs/live/tracked-work.json` contains one or more ids in `compound_pending_feature_ids`.",
         "A PASS result has already been published and archived, but durable learning capture has not yet been completed.",
         "The next truthful action is to update `docs/live/memory.md` and any reference docs before opening or resuming sprint work."
       ],

@@ -4,7 +4,7 @@ purpose: Explore pre-proposal work in durable idea artifacts, refine candidate d
 trigger: Use when no runnable active sprint should start yet and a dependency-ready item still needs ideation before proposal, or when the human explicitly asks for backlog brainstorming.
 inputs:
   - AGENTS.md
-  - docs/live/features.json
+  - docs/live/tracked-work.json
   - docs/live/ideas.md
   - docs/live/progress.md
   - docs/live/memory.md
@@ -13,7 +13,7 @@ inputs:
 outputs:
   - updated docs/live/ideas.md
   - optional scoped `docs/records/*` note for an already-tracked feature or initiative
-  - optional precise update to docs/live/features.json
+  - optional precise update to docs/live/tracked-work.json
 boundaries:
   - Operate only on durable idea, record, and backlog artifacts.
   - Do not edit product code, tests, app assets, or `.harness/<feature-id>/` sprint files.
@@ -33,7 +33,7 @@ This phase exists before proposal work. Its job is to clarify problems, constrai
 
 A good brainstorm output makes one of two truths obvious:
 - this candidate still needs more thinking, so it stays in `docs/live/ideas.md` and may remain `needs_brainstorm`
-- this candidate is now concrete enough to promote into `docs/live/features.json` for bounded proposal work
+- this candidate is now concrete enough to promote into `docs/live/tracked-work.json` for bounded proposal work
 
 Brainstorm never claims the single runnable active sprint slot. It prepares work for later selection; it does not open `.harness/<feature-id>/` or start execution.
 
@@ -41,15 +41,15 @@ Brainstorm never claims the single runnable active sprint slot. It prepares work
 
 - Run brainstorming in a fresh worker context. The orchestrator dispatches this worker; it does not brainstorm inline.
 - Only the orchestrator may spawn workers. This worker must not spawn another worker.
-- Tool lane: durable backlog state only. Reads across `docs/live/*`, `docs/reference/*`, `docs/records/*` when linked, and `AGENTS.md`; writes to `docs/live/ideas.md`, optional scoped `docs/records/*`, and the narrow `docs/live/features.json` updates needed to promote or restate candidate backlog truth.
-- Not parallel-safe for writes. This worker owns `docs/live/ideas.md`, any scoped record page it creates or updates for the selected tracked feature, and any related `features.json` update during its run.
-- Durable return contract: an updated `docs/live/ideas.md` plus optional truthful `docs/records/*` and `docs/live/features.json` updates. Include `worker_id` and `orchestrator_run_id` in any durable note only if the host already provides them.
+- Tool lane: durable backlog state only. Reads across `docs/live/*`, `docs/reference/*`, `docs/records/*` when linked, and `AGENTS.md`; writes to `docs/live/ideas.md`, optional scoped `docs/records/*`, and the narrow `docs/live/tracked-work.json` updates needed to promote or restate candidate backlog truth.
+- Not parallel-safe for writes. This worker owns `docs/live/ideas.md`, any scoped record page it creates or updates for the selected tracked feature, and any related `tracked-work.json` update during its run.
+- Durable return contract: an updated `docs/live/ideas.md` plus optional truthful `docs/records/*` and `docs/live/tracked-work.json` updates. Include `worker_id` and `orchestrator_run_id` in any durable note only if the host already provides them.
 
 ## Required Reads
 Read these before changing anything:
 
 1. `AGENTS.md`
-2. `docs/live/features.json`
+2. `docs/live/tracked-work.json`
 3. `docs/live/ideas.md`
 4. `docs/live/progress.md` and `docs/live/memory.md`
 5. Relevant `docs/reference/*` that constrain the idea space
@@ -68,19 +68,19 @@ A durable exploration record that keeps ideation legible across sessions. For th
 - dependencies, constraints, and assumptions
 - rejected or risky directions worth remembering
 - open questions blocking proposal-quality scoping
-- the promotion signal that would justify moving the item into `features.json`
+- the promotion signal that would justify moving the item into `tracked-work.json`
 
 ### Optional `docs/records/*` update
 Use this only when the brainstorm produced durable discussion residue that is too large, too nuanced, or too likely to be revisited for `docs/live/ideas.md` alone.
 
 Valid cases:
-- the candidate already exists as a tracked feature or initiative in `docs/live/features.json`
+- the candidate already exists as a tracked feature or initiative in `docs/live/tracked-work.json`
 - the record captures scoped rationale, option analysis, research residue, or decision context that should survive across sessions but is not stable reference truth
-- `docs/live/features.json` is updated in the same pass so the feature's `record_paths` point back to the record
+- `docs/live/tracked-work.json` is updated in the same pass so the feature's `record_paths` point back to the record
 - `docs/live/ideas.md` keeps a concise summary and promotion signal instead of duplicating the whole record
 
 Invalid cases:
-- using a record to bypass creating or updating the tracked feature entry in `docs/live/features.json`
+- using a record to bypass creating or updating the tracked feature entry in `docs/live/tracked-work.json`
 - storing untracked ideation that still belongs in `docs/live/ideas.md`
 - turning a record into a hidden proposal, sprint contract, or second archive
 - creating record pages for generic brainstorming with no tracked feature anchor
@@ -118,11 +118,11 @@ Update `docs/live/ideas.md` so the next worker can understand:
 Stay at the backlog and product-decision level. Brainstorm is not the place to write sprint file lists, implementation steps, or execution instructions.
 
 ### 3a. Create a scoped record only when the tracked feature already exists
-If the selected item is already tracked in `docs/live/features.json` and the durable discussion is too large or nuanced for `docs/live/ideas.md`, create or update one scoped page under `docs/records/*` in the same pass instead of deferring the residue to chat. Keep the record page-local: note its scope, current status, any supersession relationship, and the sprint or archive evidence it draws from when known.
+If the selected item is already tracked in `docs/live/tracked-work.json` and the durable discussion is too large or nuanced for `docs/live/ideas.md`, create or update one scoped page under `docs/records/*` in the same pass instead of deferring the residue to chat. Keep the record page-local: note its scope, current status, any supersession relationship, and the sprint or archive evidence it draws from when known.
 
 When you do this:
 - keep `docs/live/ideas.md` as the concise idea ledger
-- update the feature entry's `record_paths` in `docs/live/features.json` in the same pass
+- update the feature entry's `record_paths` in `docs/live/tracked-work.json` in the same pass
 - do not create a second registry or a hidden contract; the record is supporting residue, not runnable authority
 - leave untracked ideation in `docs/live/ideas.md` rather than spawning a record page
 
@@ -145,8 +145,8 @@ If the answer is still unclear, that is a failure to refine the idea enough. Fix
 
 ## File Write Expectations
 - `docs/live/ideas.md` is the primary artifact for this phase.
-- `docs/live/features.json` may change only to truthfully track brainstorm-needed or proposal-ready backlog state and to register any linked `record_paths` for the touched feature.
-- Scoped `docs/records/*` pages are optional supporting artifacts only for already-tracked features; they must never replace `ideas.md`, `features.json`, or later sprint-local contracts.
+- `docs/live/tracked-work.json` may change only to truthfully track brainstorm-needed or proposal-ready backlog state and to register any linked `record_paths` for the touched feature.
+- Scoped `docs/records/*` pages are optional supporting artifacts only for already-tracked features; they must never replace `ideas.md`, `tracked-work.json`, or later sprint-local contracts.
 - Do not create `.harness/<feature-id>/` from brainstorming.
 - Do not edit `docs/archive/*` during this phase.
 - Do not touch product code, tests, or runtime assets.
@@ -167,8 +167,8 @@ A good brainstorm pass:
 - captures durable reasons, constraints, and rejected options
 - uses `docs/records/*` only for scoped, feature-linked residue that would otherwise overload `ideas.md`
 - promotes at most one candidate only when proposal work is justified
-- keeps `docs/live/features.json` authoritative for tracked work and record linkage
+- keeps `docs/live/tracked-work.json` authoritative for tracked work and record linkage
 - preserves the single-runnable-sprint rule by staying pre-sprint and non-runnable
 
 ## Done Definition
-This skill is done when `docs/live/ideas.md` truthfully captures the explored candidate, any related backlog item in `docs/live/features.json` accurately says `needs_brainstorm` or `pending`, any optional record is feature-linked through `record_paths` instead of becoming a second registry, and no runnable sprint slot has been claimed.
+This skill is done when `docs/live/ideas.md` truthfully captures the explored candidate, any related backlog item in `docs/live/tracked-work.json` accurately says `needs_brainstorm` or `pending`, any optional record is feature-linked through `record_paths` instead of becoming a second registry, and no runnable sprint slot has been claimed.

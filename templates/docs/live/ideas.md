@@ -16,10 +16,10 @@ This file is durable state. Update it in place so future agents can see what was
 - implementation checklists or code-change plans
 - claims that `.harness/<feature-id>/` should exist already
 
-`docs/live/features.json` remains the authoritative tracked-work ledger. Use that file to track backlog truth, runnable state, and the single runnable active sprint.
+`docs/live/tracked-work.json` remains the authoritative tracked-work ledger. Use that file to track backlog truth, runnable state, and the single runnable active sprint.
 
 ## Promotion guide
-- create or update exactly one backlog entry in `docs/live/features.json`
+- create or update exactly one backlog entry in `docs/live/tracked-work.json`
 - assign a stable `id`, `title`, `summary`, `priority`, and `dependencies`
 - use `status: "needs_brainstorm"` when the item is tracked but still needs ideation before proposal
 - use `status: "pending"` only when the item is ready for proposal

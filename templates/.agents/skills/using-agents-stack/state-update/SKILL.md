@@ -4,7 +4,7 @@ purpose: Synchronize decisive sprint outcomes back into durable project state, p
 trigger: After `adversarial-live-review` has written a decisive review outcome, or after execution has written a decisive non-review state such as `build_failed`, `awaiting_human`, or `escalated_to_human`.
 inputs:
   - AGENTS.md
-  - docs/live/features.json
+  - docs/live/tracked-work.json
   - docs/live/current-focus.md
   - docs/live/roadmap.md
   - docs/live/progress.md
@@ -15,7 +15,7 @@ inputs:
   - .harness/<sprint-id>/review.md
   - .harness/<sprint-id>/status.json
 outputs:
-  - updated docs/live/features.json
+  - updated docs/live/tracked-work.json
   - updated docs/live/current-focus.md
   - updated docs/live/roadmap.md
   - updated docs/live/progress.md
@@ -46,15 +46,15 @@ That means:
 - routing to the next phase is explicit
 - parked human-owned sprints are visible without pretending they are still runnable
 - durable learning capture is queued for the explicit Compound phase instead of being folded into reconciliation
-- each feature entry keeps one canonical `evidence_path`, plus truthful `record_paths` and `reference_paths`, inside `docs/live/features.json` rather than scattering registry state elsewhere
+- each feature entry keeps one canonical `evidence_path`, plus truthful `record_paths` and `reference_paths`, inside `docs/live/tracked-work.json` rather than scattering registry state elsewhere
 
 ## Worker Dispatch Contract
 
 - Run state reconciliation in a fresh worker context. The orchestrator dispatches this worker after review or execution triage; it does not perform state-update inline.
 - Only the orchestrator may spawn workers. This worker must not spawn another worker.
-- Tool lane: durable state and archive operations only: `docs/live/features.json`, `docs/live/current-focus.md`, `docs/live/roadmap.md`, `docs/live/progress.md`, `.harness/<sprint-id>/*`, and `docs/archive/*` as required by the outcome. No product-code edits, no proposal rewriting, no new implementation work, and no `docs/live/memory.md` edits.
+- Tool lane: durable state and archive operations only: `docs/live/tracked-work.json`, `docs/live/current-focus.md`, `docs/live/roadmap.md`, `docs/live/progress.md`, `.harness/<sprint-id>/*`, and `docs/archive/*` as required by the outcome. No product-code edits, no proposal rewriting, no new implementation work, and no `docs/live/memory.md` edits.
 - Not parallel-safe. This worker owns the single runnable active sprint's global reconciliation, archive decision, compounding queue update, roadmap truth, and focus-anchor refresh; do not split or race writes across multiple workers.
-- Durable return contract: updated `docs/live/features.json`, `docs/live/current-focus.md`, `docs/live/roadmap.md`, `docs/live/progress.md`, `.harness/<sprint-id>/status.json`, and PASS-path archive contents. Include `worker_id` / `orchestrator_run_id` in the updated status or ledger entry when the host provides them.
+- Durable return contract: updated `docs/live/tracked-work.json`, `docs/live/current-focus.md`, `docs/live/roadmap.md`, `docs/live/progress.md`, `.harness/<sprint-id>/status.json`, and PASS-path archive contents. Include `worker_id` / `orchestrator_run_id` in the updated status or ledger entry when the host provides them.
 
 ## Mandatory verification before any update
 
@@ -66,7 +66,7 @@ If `status.json` or `review.md` says the sprint was reviewed, confirm all of the
 2. `.harness/<sprint-id>/qa.md` exists or `review.md` explicitly embeds equivalent evidence.
 3. The review decision is unambiguous: `PASS`, `FAIL`, or `BLOCKED`.
 4. `status.json` points to the review checkpoint.
-5. The reviewed sprint matches the backlog item recorded in `docs/live/features.json`.
+5. The reviewed sprint matches the backlog item recorded in `docs/live/tracked-work.json`.
 
 ### Execution-triage outcomes
 If `status.json` says `build_failed`, `awaiting_human`, or `escalated_to_human`, confirm all of the following:
@@ -74,7 +74,7 @@ If `status.json` says `build_failed`, `awaiting_human`, or `escalated_to_human`,
 2. `.harness/<sprint-id>/handoff.md` exists.
 3. The failure, pause, or escalation reason is explicit.
 4. `status.json` includes any relevant `attempt_count`, `max_attempts`, and `clean_restore_ref` fields.
-5. The sprint matches the backlog item recorded in `docs/live/features.json`.
+5. The sprint matches the backlog item recorded in `docs/live/tracked-work.json`.
 
 If the required evidence for the claimed phase is missing, stop. Do not mark the sprint complete, do not archive it, and do not advance the backlog. Missing evidence is a data-integrity problem.
 
@@ -85,7 +85,7 @@ If the required evidence for the claimed phase is missing, stop. Do not mark the
 - `contract.md` defines the scope that was supposed to be delivered.
 - `runtime.md` and `handoff.md` explain how the result was produced, where triage failed, or how a human can resume.
 - `status.json` carries the current local routing truth, including attempt budgeting and clean restore metadata.
-- `docs/live/features.json` is the authoritative tracked-work ledger that must now be synchronized.
+- `docs/live/tracked-work.json` is the authoritative tracked-work ledger that must now be synchronized.
 - `docs/live/progress.md` is the reviewed-outcome ledger that must record what changed.
 
 ## Failure-owner classification
@@ -94,7 +94,7 @@ Before publishing `next_action` or refreshing `docs/live/current-focus.md` / `do
 
 - Implementation defect: the approved slice still stands, but execution or review proved the implementation inside it is wrong. Next owner: `generator-execution` after reconciliation and explicit compounding.
 - Slice-contract defect: the strongest evidence shows the slice, file bounds, or acceptance criteria were wrong or incomplete. Next owner: `evaluator-contract-review` for contract repair, or `generator-proposal` when the slice itself must be re-cut.
-- Orchestration/state defect: local artifacts, `status.json`, `features.json`, `current-focus.md`, or `roadmap.md` disagree, or the resume checkpoint is missing. Next owner: `state-update`, or `project-initializer` when the live state model itself is untrustworthy.
+- Orchestration/state defect: local artifacts, `status.json`, `tracked-work.json`, `current-focus.md`, or `roadmap.md` disagree, or the resume checkpoint is missing. Next owner: `state-update`, or `project-initializer` when the live state model itself is untrustworthy.
 - Environment blocker: runtime, credential, dependency, or operator conditions prevented an honest PASS/FAIL. Next owner: human unless a named clean recovery path already makes `generator-execution` responsible for the retry.
 - Goal-lineage drift: the strongest evidence, `docs/live/current-focus.md`, or `docs/live/roadmap.md` shows the sprint is no longer the right slice for the active source goal. Next owner: `generator-brainstorm` or `generator-proposal` only after the roadmap and focus anchor are refreshed and any further sprint chaining is paused pending re-authorization.
 
@@ -113,7 +113,7 @@ Read the strongest local artifact for the current phase and extract:
 
 If local evidence and `status.json` disagree, preserve the sprint as active or parked and record the discrepancy in `progress.md` rather than pretending the outcome is settled.
 
-### 2. Update `docs/live/features.json`
+### 2. Update `docs/live/tracked-work.json`
 
 This file is the project-wide backlog state.
 It must distinguish runnable active work from parked non-terminal work and from queued compounding work.
@@ -193,7 +193,7 @@ Rewrite or refresh a concise anchor that states:
 
 Keep the focus note complementary:
 
-- `docs/live/features.json` still owns backlog truth, runnable ownership, parked state, and compound queue state
+- `docs/live/tracked-work.json` still owns backlog truth, runnable ownership, parked state, and compound queue state
 - `docs/live/roadmap.md` owns the non-runnable initiative decomposition and re-authorization boundaries
 - `docs/live/progress.md` still owns the outcome ledger
 - `.harness/<sprint-id>/contract.md` still owns active-sprint execution scope
@@ -209,7 +209,7 @@ Append a dated ledger entry that includes:
 - sprint id and title
 - PASS, FAIL, BLOCKED, BUILD_FAILED, AWAITING_HUMAN, or ESCALATED_TO_HUMAN status
 - concise summary of what changed, what failed, or what blocked progress
-- the same canonical evidence path published in `docs/live/features.json` (`.harness/...` while active or parked, `docs/archive/...` after archive)
+- the same canonical evidence path published in `docs/live/tracked-work.json` (`.harness/...` while active or parked, `docs/archive/...` after archive)
 - attempt count and max attempts when retry budgeting matters
 - clean restore expectation when another execution pass is possible
 - whether the feature was queued for explicit Compound work
@@ -232,7 +232,7 @@ On `review_failed`:
   - `owner_role: "orchestrator"`
   - `resume_from: "review.md"`
 - preserve `attempt_count`, `max_attempts`, and `clean_restore_ref`
-- synchronize `docs/live/features.json` and `docs/live/progress.md` so the sprint stays open, the failure is visible, and the next action points to a clean retry through `generator-execution`
+- synchronize `docs/live/tracked-work.json` and `docs/live/progress.md` so the sprint stays open, the failure is visible, and the next action points to a clean retry through `generator-execution`
 - queue explicit compounding instead of writing `docs/live/memory.md` here
 - if retry budget is exhausted or recovery is unsafe, change the routed phase to `escalated_to_human` instead
 

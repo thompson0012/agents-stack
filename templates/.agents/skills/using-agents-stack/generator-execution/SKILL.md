@@ -6,7 +6,7 @@ inputs:
   - AGENTS.md
   - docs/reference/architecture.md
   - docs/reference/design.md
-  - docs/live/features.json
+  - docs/live/tracked-work.json
   - docs/live/progress.md
   - docs/live/memory.md
   - .harness/<sprint-id>/contract.md
@@ -43,7 +43,7 @@ You are the implementation phase of the harness. Your job is to turn an approved
 
 Before changing code, verify all of the following:
 
-1. `docs/live/features.json` marks this sprint as the single runnable active sprint, or explicitly marks it as the current retry target.
+1. `docs/live/tracked-work.json` marks this sprint as the single runnable active sprint, or explicitly marks it as the current retry target.
 2. `.harness/<sprint-id>/contract.md` exists and is the latest approved scope.
 3. If `.harness/<sprint-id>/review.md` exists, it must represent a reconciled `review_failed` retry for this same sprint; if the phase is `build_failed`, the last failed build/startup evidence must already be preserved.
 4. `status.json` points back to `contract.md`, `review.md`, or another valid execution resume checkpoint.

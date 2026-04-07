@@ -6,7 +6,7 @@ inputs:
   - AGENTS.md
   - docs/reference/architecture.md
   - docs/reference/design.md
-  - docs/live/features.json
+  - docs/live/tracked-work.json
   - .harness/<sprint-id>/contract.md
   - .harness/<sprint-id>/handoff.md
   - .harness/<sprint-id>/runtime.md

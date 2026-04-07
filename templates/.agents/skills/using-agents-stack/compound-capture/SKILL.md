@@ -1,10 +1,10 @@
 ---
 name: compound-capture
 description: Capture durable cross-sprint learnings after state reconciliation has queued explicit compounding work.
-trigger: After `state-update` has reconciled a decisive sprint outcome and queued the feature id in `docs/live/features.json` under `compound_pending_feature_ids`.
+trigger: After `state-update` has reconciled a decisive sprint outcome and queued the feature id in `docs/live/tracked-work.json` under `compound_pending_feature_ids`.
 inputs:
   - AGENTS.md
-  - docs/live/features.json
+  - docs/live/tracked-work.json
   - docs/live/progress.md
   - docs/live/memory.md
   - docs/reference/architecture.md
@@ -17,14 +17,14 @@ outputs:
   - unchanged docs/live/memory.md when extraction is deliberately skipped because no durable lesson survived
   - optional precise update to linked `docs/records/*` when record residue is promoted, superseded, or expired
   - optional precise update to docs/reference/architecture.md or docs/reference/design.md when the lesson is now stable reference truth
-  - updated docs/live/features.json with the processed feature id removed from `compound_pending_feature_ids` and any touched `record_paths` / `reference_paths` kept truthful
+  - updated docs/live/tracked-work.json with the processed feature id removed from `compound_pending_feature_ids` and any touched `record_paths` / `reference_paths` kept truthful
 boundaries:
   - Do not reopen proposal, execution, review, or state reconciliation.
   - Do not make backlog publication, archive, or runnable-sprint decisions; those belong to `state-update`.
   - Do not invent durable lessons from a single noisy artifact.
   - Do not persist raw chat transcripts, paraphrased conversation logs, or chat-only conclusions; only decisive repo evidence may become durable output.
   - Do not claim or change `runnable_active_sprint_id`.
-  - Do not let `docs/records/*` become a second contract, second archive, or hidden registry outside `docs/live/features.json`.
+  - Do not let `docs/records/*` become a second contract, second archive, or hidden registry outside `docs/live/tracked-work.json`.
 next_skills:
   - generator-execution
   - generator-brainstorm
@@ -46,15 +46,15 @@ Compounding is explicit, non-runnable phase work. It does not reopen execution o
 
 - Run compounding in a fresh worker context after `state-update`; do not fold it into reconciliation.
 - Only the orchestrator may spawn workers. This worker must not spawn another worker.
-- Tool lane: read the decisive evidence, write `docs/live/memory.md` only when durable residue survives, optionally patch linked `docs/records/*` and stable reference docs, and clear the processed queue entry in `docs/live/features.json`. No product-code edits, no `.harness/<feature-id>/status.json` rewrites, no archive moves.
-- Not parallel-safe against another worker touching `docs/live/memory.md`, linked record pages, the same reference doc, or `docs/live/features.json`. Process one queued feature id at a time.
-- Durable return contract: truthful `docs/live/memory.md` when extraction happens, or a deliberate no-edit skip when no durable learning survives, plus any linked `docs/records/*` / `docs/reference/*` updates and `docs/live/features.json` with the processed feature removed from `compound_pending_feature_ids`.
+- Tool lane: read the decisive evidence, write `docs/live/memory.md` only when durable residue survives, optionally patch linked `docs/records/*` and stable reference docs, and clear the processed queue entry in `docs/live/tracked-work.json`. No product-code edits, no `.harness/<feature-id>/status.json` rewrites, no archive moves.
+- Not parallel-safe against another worker touching `docs/live/memory.md`, linked record pages, the same reference doc, or `docs/live/tracked-work.json`. Process one queued feature id at a time.
+- Durable return contract: truthful `docs/live/memory.md` when extraction happens, or a deliberate no-edit skip when no durable learning survives, plus any linked `docs/records/*` / `docs/reference/*` updates and `docs/live/tracked-work.json` with the processed feature removed from `compound_pending_feature_ids`.
 
 ## Required Reads
 Read these before writing anything:
 
 1. `AGENTS.md`
-2. `docs/live/features.json`
+2. `docs/live/tracked-work.json`
 3. `docs/live/progress.md`
 4. `docs/live/memory.md`
 5. Relevant `docs/reference/architecture.md` or `docs/reference/design.md` if the lesson may be reference-worthy
@@ -84,7 +84,7 @@ A truthful outcome may be: no durable new learning survived. In that case, clear
 ## Workflow
 
 ### 1. Confirm the queue entry is real
-- Verify the target feature id is already present in `docs/live/features.json` under `compound_pending_feature_ids`.
+- Verify the target feature id is already present in `docs/live/tracked-work.json` under `compound_pending_feature_ids`.
 - Verify `state-update` has already reconciled the decisive outcome into live state and, when applicable, archived or preserved the sprint correctly.
 - If the queue entry is missing, do not invent compounding work. Stop and preserve the current files.
 
@@ -123,13 +123,13 @@ Write in project-truth terms when you do extract:
 `progress.md` already owns the outcome ledger. `memory.md` should either gain durable residue or remain unchanged on purpose. Do not blur those roles.
 
 ### 5. Reconcile linked records before promoting reference truth
-If the queued feature already has `record_paths`, inspect those pages against the decisive evidence bundle. If no linked record exists yet and the durable residue should survive, create one new scoped page for the same tracked feature in the same pass and register it in `docs/live/features.json`.
+If the queued feature already has `record_paths`, inspect those pages against the decisive evidence bundle. If no linked record exists yet and the durable residue should survive, create one new scoped page for the same tracked feature in the same pass and register it in `docs/live/tracked-work.json`.
 
 Use records deliberately:
 - promote stable residue from a record into `docs/reference/*` only when the lesson is now current project truth
 - keep feature-specific or still-contingent material in `docs/records/*` with page-local provenance such as scope, status, superseded_by, and the sprint or archive contributions it relies on
 - when later evidence invalidates or replaces a record, update that record's status to something like superseded or expired instead of silently deleting traceability
-- keep `docs/live/features.json` authoritative by preserving or updating the feature's `record_paths` and `reference_paths` in the same pass
+- keep `docs/live/tracked-work.json` authoritative by preserving or updating the feature's `record_paths` and `reference_paths` in the same pass
 
 Do not patch reference docs for tentative lessons, retries, or one-off failures.
 
@@ -137,7 +137,7 @@ Do not patch reference docs for tentative lessons, retries, or one-off failures.
 After extracting durable learning, or after deliberately skipping extraction because none survives:
 - remove the feature id from `compound_pending_feature_ids`
 - leave `runnable_active_sprint_id` unchanged
-- keep the feature's `record_paths`, `reference_paths`, and canonical `evidence_path` truthful in `docs/live/features.json`
+- keep the feature's `record_paths`, `reference_paths`, and canonical `evidence_path` truthful in `docs/live/tracked-work.json`
 - do not change the sprint phase, retry budget, archive state, or parked-state metadata
 
 Clearing the queue is the durable record that the extract-or-skip decision for that feature is finished. It does not mean the sprint outcome changed.
@@ -156,7 +156,7 @@ A good compounding pass:
 - leaves `progress.md` as the outcome ledger and `memory.md` as the cross-sprint residue
 - promotes only stable truths into reference docs
 - updates linked records when they should stay as feature-scoped residue, or marks them superseded/expired when later evidence invalidates them
-- keeps `docs/live/features.json` authoritative for record and reference linkage
+- keeps `docs/live/tracked-work.json` authoritative for record and reference linkage
 - clears the queue entry so the orchestrator does not compound the same feature twice
 - never steals ownership of execution, review, or backlog publication
 - tells the truth even when the answer is to skip extraction because nothing durable survived

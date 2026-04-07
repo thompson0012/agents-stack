@@ -1,7 +1,7 @@
 ---
 name: project-initializer
 purpose: Bootstrap the durable global state for a repo that is entering the agents-stack harness for the first time.
-trigger: Use when `docs/live/features.json` is missing, empty, or otherwise not yet trustworthy as project state.
+trigger: Use when `docs/live/tracked-work.json` is missing, empty, or otherwise not yet trustworthy as project state.
 inputs:
   - AGENTS.md
   - existing repository structure and source files
@@ -9,7 +9,7 @@ inputs:
   - docs/reference/* if present
   - docs/records/* if present
 outputs:
-  - docs/live/features.json
+  - docs/live/tracked-work.json
   - docs/live/current-focus.md
   - docs/live/roadmap.md
   - docs/live/ideas.md
@@ -33,7 +33,7 @@ Create the minimum durable state needed for the harness to operate truthfully.
 This phase establishes the repo's current facts, not a fictional project narrative. Its job is to make future planning resumable from files alone.
 
 That durable state now sits inside a broader durable-doc topology:
-- `docs/live/features.json` for authoritative tracked work, runnable truth, and live file pointers
+- `docs/live/tracked-work.json` for authoritative tracked work, runnable truth, and live file pointers
 - `docs/live/current-focus.md` for the current objective, goal lineage, next owner, and next file to open
 - `docs/live/roadmap.md` for the non-runnable source-goal roadmap across slices or phases
 - `docs/live/ideas.md` for open exploration, rough candidates, and pre-proposal refinement that must survive across sessions
@@ -45,7 +45,7 @@ Alongside those live artifacts, the harness preserves distinct durable lanes: `d
 - Run this phase in a fresh worker context selected by the orchestrator, not by loading initialization into the orchestrator's own window.
 - Only the orchestrator may spawn workers. This worker must not spawn another worker.
 - Tool lane: repository discovery plus writes to `docs/live/*` and `docs/reference/*` only. Read existing `docs/records/*` when they already exist so backlog traceability stays coherent, but do not author new record pages during bootstrap. No product-code edits, no `.harness/<feature-id>/` execution work, no archive writes.
-- Durable return contract: `docs/live/features.json`, `docs/live/current-focus.md`, `docs/live/roadmap.md`, `docs/live/ideas.md`, `docs/live/progress.md`, `docs/live/memory.md`, `docs/reference/architecture.md`, and `docs/reference/design.md`. If the host provides worker metadata, record `worker_id` / `orchestrator_run_id` in the initialization ledger entry or equivalent durable note.
+- Durable return contract: `docs/live/tracked-work.json`, `docs/live/current-focus.md`, `docs/live/roadmap.md`, `docs/live/ideas.md`, `docs/live/progress.md`, `docs/live/memory.md`, `docs/reference/architecture.md`, and `docs/reference/design.md`. If the host provides worker metadata, record `worker_id` / `orchestrator_run_id` in the initialization ledger entry or equivalent durable note.
 
 ## Required Reads
 Read these before writing anything:
@@ -60,7 +60,7 @@ If the repo already contains trustworthy state files, update them in place inste
 ## Expected Outputs
 Produce or repair these durable global files:
 
-### `docs/live/features.json`
+### `docs/live/tracked-work.json`
 A truthful backlog snapshot and runnable selector.
 - If the human already named features, record them.
 - If no backlog is known yet, write an empty backlog or a clearly minimal seed set derived from explicit user goals only.
@@ -86,7 +86,7 @@ A non-runnable initiative roadmap.
 A durable exploration ledger for pre-proposal thinking.
 - Put rough ideas, candidate refinements, constraints, rejected directions, and open questions here.
 - This file is not the runnable sprint selector; it does not claim `runnable_active_sprint_id`.
-- If the repo has known ideas that are not ready for proposal, seed them here instead of overstuffing `features.json`.
+- If the repo has known ideas that are not ready for proposal, seed them here instead of overstuffing `tracked-work.json`.
 - If there are no concrete ideas yet, create the structure and usage guidance without inventing fake candidate work.
 
 ### `docs/live/progress.md`
@@ -122,7 +122,7 @@ A short description of the current product or UI intent.
 - Prefer explicit uncertainty over plausible fiction.
 
 ### 3. Create truthful global state
-- Write `features.json` from explicit user goals or verified backlog items only.
+- Write `tracked-work.json` from explicit user goals or verified backlog items only.
 - If there is not enough information to define backlog priorities responsibly, leave the backlog small and honest.
 - Write `current-focus.md` as a resume pointer, not as a second contract.
 - Write `roadmap.md` from verified source goals and visible remaining work only.
@@ -146,7 +146,7 @@ Confirm a future planner could answer all of the following from files alone:
 
 ## File Write Expectations
 - Write only global durable state in this phase.
-- `docs/live/features.json` remains the authoritative tracked-work ledger and runnable selector.
+- `docs/live/tracked-work.json` remains the authoritative tracked-work ledger and runnable selector.
 - `docs/live/current-focus.md` is a live resume aid. It must stay concise and must not become a second contract.
 - `docs/live/roadmap.md` is the non-runnable initiative roadmap. It does not choose the active sprint.
 - `docs/live/ideas.md` stores exploration detail and idea refinement, not runnable sprint selection.

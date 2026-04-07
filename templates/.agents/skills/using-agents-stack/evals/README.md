@@ -27,7 +27,7 @@ The root skill should select exactly one child skill from the eight allowed chil
 
 Checks:
 
-- missing or empty `docs/live/features.json` routes to `project-initializer`
+- missing or empty `docs/live/tracked-work.json` routes to `project-initializer`
 - non-empty `compound_pending_feature_ids` routes to `compound-capture` before runnable resume or backlog selection
 - no runnable sprint and a dependency-ready `needs_brainstorm` item routes to `generator-brainstorm`
 - no runnable sprint, no compound queue, and at least one dependency-ready `pending` workstream routes to `generator-proposal`
@@ -65,12 +65,12 @@ Checks:
 
 ### Case A: fresh repo
 
-- `docs/live/features.json` missing or empty
+- `docs/live/tracked-work.json` missing or empty
 - Expected route: `project-initializer`
 
 ### Case B: queued compounding
 
-- `docs/live/features.json` contains `compound_pending_feature_ids`
+- `docs/live/tracked-work.json` contains `compound_pending_feature_ids`
 - a runnable sprint may still exist, but the queue is not empty
 - Expected route: `compound-capture`
 
@@ -83,7 +83,7 @@ Checks:
 
 ### Case D: ready backlog, no runnable active sprint
 
-- `features.json` contains dependency-ready `pending` workstream(s), none runnable
+- `tracked-work.json` contains dependency-ready `pending` workstream(s), none runnable
 - `compound_pending_feature_ids` is empty
 - no `.harness/<workstream-id>/` folder yet
 - Expected route: `generator-proposal`
@@ -118,7 +118,7 @@ Checks:
 
 - `review.md` exists and records FAIL
 - `status.json.phase = review_failed`
-- `docs/live/features.json` still points at the same active sprint
+- `docs/live/tracked-work.json` still points at the same active sprint
 - `compound_pending_feature_ids` is empty because compounding already drained
 - Expected route: `generator-execution`
 
@@ -126,7 +126,7 @@ Checks:
 
 - `review.md` exists
 - `status.json.phase = contracted`
-- `features.json` still says pending
+- `tracked-work.json` still says pending
 - Expected route: `state-update`, with contradiction explicitly noted
 
 ### Case K: stale timeout

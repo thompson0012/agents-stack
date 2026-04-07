@@ -4,7 +4,7 @@ purpose: Adversarially review a sprint proposal and either approve it as a contr
 trigger: Use when `.harness/<feature-id>/sprint_proposal.md` exists and no trustworthy approved contract is present.
 inputs:
   - AGENTS.md
-  - docs/live/features.json
+  - docs/live/tracked-work.json
   - docs/live/current-focus.md
   - docs/live/roadmap.md
   - docs/live/progress.md
@@ -45,7 +45,7 @@ Your job is to reject weak proposals early. Approval means the scope, boundaries
 Read all of the following before deciding:
 
 1. `AGENTS.md`
-2. `docs/live/features.json`
+2. `docs/live/tracked-work.json`
 3. `docs/live/current-focus.md` and `docs/live/roadmap.md`
 4. `docs/live/progress.md` and `docs/live/memory.md`
 5. Relevant `docs/reference/*`

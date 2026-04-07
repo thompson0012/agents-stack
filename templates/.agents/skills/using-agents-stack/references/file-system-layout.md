@@ -51,7 +51,7 @@ The router stays thin. It chooses one child and dispatches that child as a fresh
 
 These files are durable project-wide state. They survive across many sprints.
 
-### `docs/live/features.json`
+### `docs/live/tracked-work.json`
 
 Purpose:
 
@@ -67,10 +67,10 @@ Rules:
 - more than one runnable active feature is invalid
 - parked `awaiting_human` and `escalated_to_human` features may remain listed, but they must not also be marked as the runnable active sprint
 - a feature marked runnable-active should have a matching `.harness/<feature-id>/` folder unless the proposal has not been created yet
-- `features.json` remains the only tracked-work registry; fields such as `idea_ref`, `evidence_path`, `record_paths`, and `reference_paths` belong here rather than in a second registry
+- `tracked-work.json` remains the only tracked-work registry; fields such as `idea_ref`, `evidence_path`, `record_paths`, and `reference_paths` belong here rather than in a second registry
 - each feature should have exactly one canonical `evidence_path` at a time: `.harness/<feature-id>/` while active or parked, then `docs/archive/<feature-id>_<timestamp>/` after PASS archive cutover
 - when no runnable active sprint exists, routing chooses the highest-priority dependency-ready `needs_brainstorm` item before ordinary `pending` proposal work
-- `docs/live/roadmap.md` may explain initiative continuation, but `features.json` still selects runnable truth and backlog order
+- `docs/live/roadmap.md` may explain initiative continuation, but `tracked-work.json` still selects runnable truth and backlog order
 
 ### `docs/live/ideas.md`
 
@@ -83,7 +83,7 @@ Purpose:
 Rules:
 
 - it is not the runnable sprint selector
-- it may justify creating or refining one backlog item in `docs/live/features.json`, but it must not claim `runnable_active_sprint_id`
+- it may justify creating or refining one backlog item in `docs/live/tracked-work.json`, but it must not claim `runnable_active_sprint_id`
 - it should stay at the idea, problem, and tradeoff level rather than becoming a hidden sprint proposal
 
 ### `docs/live/current-focus.md`
@@ -95,7 +95,7 @@ Purpose:
 
 Rules:
 
-- it complements `docs/live/features.json`, `docs/live/roadmap.md`, `docs/live/progress.md`, and `docs/live/memory.md`; it does not replace any of them
+- it complements `docs/live/tracked-work.json`, `docs/live/roadmap.md`, `docs/live/progress.md`, and `docs/live/memory.md`; it does not replace any of them
 - when an active or parked sprint exists, it must point back to `.harness/<feature-id>/contract.md` for slice truth instead of becoming a second contract
 - keep it concise and refresh it when decisive state changes so resume routing does not depend on chat memory
 
@@ -109,7 +109,7 @@ Purpose:
 
 Rules:
 
-- it complements `docs/live/features.json` and `docs/live/current-focus.md`; it does not replace runnable selection or sprint-local execution truth
+- it complements `docs/live/tracked-work.json` and `docs/live/current-focus.md`; it does not replace runnable selection or sprint-local execution truth
 - it must not claim `runnable_active_sprint_id` or overrule `.harness/<feature-id>/contract.md` for an active sprint
 - refresh it whenever planning or state reconciliation changes which slice comes next, what still remains, or where the next human authorization boundary lives
 
@@ -231,7 +231,7 @@ Rules:
 - records are optional; do not imply that every sprint must create one
 - record pages must carry page-local provenance and validity metadata such as `scope`, `status`, `superseded_by`, and the sprint or archive contributions they summarize
 - records may be superseded, expired, or promoted later; keep those lifecycle facts on the page and log them in `docs/live/progress.md`
-- feature-linked records should be referenced from `docs/live/features.json` via `record_paths`, not through a second registry
+- feature-linked records should be referenced from `docs/live/tracked-work.json` via `record_paths`, not through a second registry
 
 ## `docs/reference/`
 
@@ -265,7 +265,7 @@ Scripts may inspect or update state, but the durable truth still lives in the st
 | Path | Scope | Typical writer | Typical reader |
 | --- | --- | --- | --- |
 | `AGENTS.md` | repository-wide | human maintainers | every worker |
-| `docs/live/features.json` | global | initializer, brainstorm, state-update, and compound-capture workers | router, brainstorm, proposal, state-update, and compound-capture workers |
+| `docs/live/tracked-work.json` | global | initializer, brainstorm, state-update, and compound-capture workers | router, brainstorm, proposal, state-update, and compound-capture workers |
 | `docs/live/ideas.md` | global | generator-brainstorm worker | router, brainstorm, and proposal workers |
 | `docs/live/current-focus.md` | global | initializer, proposal, and state-update workers | router, humans, and any worker resuming from durable state |
 | `docs/live/roadmap.md` | global | initializer, proposal, and state-update workers | router, proposal, state-update, and human planners |
@@ -282,8 +282,8 @@ Scripts may inspect or update state, but the durable truth still lives in the st
 
 ## Routing implications
 
-- `docs/live/features.json` is the runnable/backlog selector, live traceability index, and home of each feature's canonical `evidence_path`; `docs/live/current-focus.md` is the live resume anchor, and `docs/live/roadmap.md` is the initiative ledger for what remains and where re-authorization is required.
-- `docs/records/*` may inform planning and state reconciliation, but records stay linked through `features.json` and never replace it as the tracked-work registry.
+- `docs/live/tracked-work.json` is the runnable/backlog selector, live traceability index, and home of each feature's canonical `evidence_path`; `docs/live/current-focus.md` is the live resume anchor, and `docs/live/roadmap.md` is the initiative ledger for what remains and where re-authorization is required.
+- `docs/records/*` may inform planning and state reconciliation, but records stay linked through `tracked-work.json` and never replace it as the tracked-work registry.
 - Missing or empty live state means initialize.
 - Non-empty `compound_pending_feature_ids` means compound before any runnable sprint resume or new backlog selection.
 - No runnable active sprint but dependency-ready `needs_brainstorm` work means brainstorm.

@@ -19,7 +19,7 @@ Do not perform the child workflow here. Prefer dispatching a fresh worker, sub-a
 - Retries after `build_failed` or reconciled `review_failed` require a recorded clean restore boundary such as a disposable worktree, VCS snapshot, or equivalent `clean_restore_ref`. Automatic destructive reset is valid only in disposable workspaces and is not the default expectation.
 - Respect attempt budgets. When `attempt_count` reaches `max_attempts`, or no safe clean restore boundary exists, automatic retry stops and the sprint must park for human action or escalation.
 - Parked sprints in `.harness/` with `awaiting_human` or `escalated_to_human` remain visible durable state, but they do not count as the single runnable active sprint.
-- `docs/live/features.json` remains the authoritative tracked-work ledger and runnable/backlog selector.
+- `docs/live/tracked-work.json` remains the authoritative tracked-work ledger and runnable/backlog selector.
 - `docs/live/current-focus.md` is the live resume anchor; `docs/live/roadmap.md` is the durable initiative ledger for source goals, remaining slices, and re-authorization boundaries.
 - When a user introduces or changes a broad goal, normalize it into `docs/live/current-focus.md` plus `docs/live/roadmap.md` before continuing sprint chaining. Do not let cross-sprint intent live only in chat memory.
 - Brainstorm and Compound are explicit non-runnable phases. They may be the next router action, but they must not claim `runnable_active_sprint_id`.
@@ -30,7 +30,7 @@ Do not perform the child workflow here. Prefer dispatching a fresh worker, sub-a
 ## Decision Order
 
 1. Check whether the repository belongs to this family at all: `AGENTS.md`, `docs/live/*`, `.harness/<WORKSTREAM-ID>/`, and the agents-stack role/lifecycle model.
-2. Read `docs/live/features.json` to determine whether the repo is uninitialized, has queued compound work, has one runnable active sprint, has only parked sprints, or needs new backlog work.
+2. Read `docs/live/tracked-work.json` to determine whether the repo is uninitialized, has queued compound work, has one runnable active sprint, has only parked sprints, or needs new backlog work.
 3. Read `docs/live/current-focus.md` and `docs/live/roadmap.md` together to confirm the resume anchor, source-goal lineage, remaining slices, and any re-authorization boundary.
 4. If the user's high-level goal is broader than the live files currently capture, route first to the phase that will publish or refresh that durable source-goal truth before continuing sprint chaining.
 5. If `compound_pending_feature_ids` is non-empty, route `compound-capture` before resuming or opening any sprint work.

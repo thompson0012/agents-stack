@@ -3,13 +3,13 @@
   "evals": [
     {
       "id": "direct-initialization-empty-live-state",
-      "prompt": "This repo uses the agents-stack harness, but `docs/live/features.json` is missing and there is no trustworthy live state yet. Which child should own the next step?",
+      "prompt": "This repo uses the agents-stack harness, but `docs/live/tracked-work.json` is missing and there is no trustworthy live state yet. Which child should own the next step?",
       "expected_output": "Routes to using-agents-stack/project-initializer because the repository cannot yet support honest sprint routing without durable live state.",
       "files": []
     },
     {
       "id": "queued-compound-before-resume",
-      "prompt": "`docs/live/features.json` contains `compound_pending_feature_ids: [\"WORKSTREAM-001\"]`, WORKSTREAM-001 is still the runnable active sprint, and the queue has not been cleared yet. Which child should run next?",
+      "prompt": "`docs/live/tracked-work.json` contains `compound_pending_feature_ids: [\"WORKSTREAM-001\"]`, WORKSTREAM-001 is still the runnable active sprint, and the queue has not been cleared yet. Which child should run next?",
       "expected_output": "Routes to using-agents-stack/compound-capture because explicit compounding drains before runnable sprint resume or new backlog selection.",
       "files": []
     },
@@ -21,7 +21,7 @@
     },
     {
       "id": "direct-new-proposal",
-      "prompt": "`docs/live/features.json` has one dependency-ready pending high-priority workstream, no runnable active sprint, no `needs_brainstorm` item outranks it, no compound work is queued, and there is no `.harness/<workstream>/contract.md` yet. Which child should run next?",
+      "prompt": "`docs/live/tracked-work.json` has one dependency-ready pending high-priority workstream, no runnable active sprint, no `needs_brainstorm` item outranks it, no compound work is queued, and there is no `.harness/<workstream>/contract.md` yet. Which child should run next?",
       "expected_output": "Routes to using-agents-stack/generator-proposal because the repository has proposal-ready backlog truth and nothing in the compound or brainstorm lanes outranks it.",
       "files": []
     },
@@ -33,13 +33,13 @@
     },
     {
       "id": "reconciled-failed-review-retry",
-      "prompt": "`review.md` exists for the active sprint, `status.json.phase` is `review_failed`, `docs/live/features.json` still points at the same runnable active sprint for retry, `compound_pending_feature_ids` is empty, and durable retry metadata already records remaining budget plus `clean_restore_ref`. Which child should run next?",
+      "prompt": "`review.md` exists for the active sprint, `status.json.phase` is `review_failed`, `docs/live/tracked-work.json` still points at the same runnable active sprint for retry, `compound_pending_feature_ids` is empty, and durable retry metadata already records remaining budget plus `clean_restore_ref`. Which child should run next?",
       "expected_output": "Routes to using-agents-stack/generator-execution because the failed review has already been reconciled, compounding is clear, and the same sprint now needs a clean retry implementation pass.",
       "files": []
     },
     {
       "id": "unreconciled-review-goes-to-state-update",
-      "prompt": "`review.md` exists, but `docs/live/features.json` still says the workstream is pending and local state does not agree on the review outcome. Which child should own the next step?",
+      "prompt": "`review.md` exists, but `docs/live/tracked-work.json` still says the workstream is pending and local state does not agree on the review outcome. Which child should own the next step?",
       "expected_output": "Routes to using-agents-stack/state-update because the review outcome exists but has not yet been reconciled into truthful durable state.",
       "files": []
     }

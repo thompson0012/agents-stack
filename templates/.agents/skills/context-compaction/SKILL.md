@@ -36,7 +36,7 @@ Do not use this skill when:
 Read the strongest durable artifacts first. In a harnessed repo, this usually means:
 - repo constitution: `AGENTS.md` or `templates/AGENTS.md`
 - current sprint truth: the strongest local artifact such as `.harness/<WORKSTREAM-ID>/review.md`, `handoff.md`, `runtime.md`, or `contract.md`
-- current live selectors: `docs/live/current-focus.md` and `docs/live/features.json`
+- current live selectors: `docs/live/current-focus.md` and `docs/live/tracked-work.json`
 - any modified outputs that exist only in chat, scratch notes, or unstored tool output
 
 If a stronger durable artifact disagrees with chat memory, compact the file truth.

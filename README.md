@@ -25,7 +25,7 @@ The copied scaffold starts blank: no active sprint, no archive history, and no s
 
 ## What to edit first
 
-1. Set the project name in `docs/live/features.json`.
+1. Set the project name in `docs/live/tracked-work.json`.
 2. Record the real source goal in `docs/live/roadmap.md` and `docs/live/current-focus.md`.
 3. Add the first backlog item only when it is real, bounded, and ready to track.
 4. Fill in `docs/reference/architecture.md` and `docs/reference/design.md` with the truth of the new project.
@@ -33,7 +33,7 @@ The copied scaffold starts blank: no active sprint, no archive history, and no s
 ## What lives where
 
 - `AGENTS.md` — the repo constitution and harness rules.
-- `docs/live/features.json` — the authoritative backlog and single runnable-sprint selector.
+- `docs/live/tracked-work.json` — the authoritative backlog and single runnable-sprint selector.
 - `docs/live/ideas.md` — pre-sprint exploration and rejected directions.
 - `docs/live/progress.md` — reviewed outcomes and durable next actions.
 - `docs/live/memory.md` — durable lessons captured after compounding.
@@ -45,10 +45,10 @@ The copied scaffold starts blank: no active sprint, no archive history, and no s
 
 `project-initializer -> generator-brainstorm -> generator-proposal -> evaluator-contract-review -> generator-execution -> adversarial-live-review -> state-update -> compound-capture`
 
-Keep exactly one runnable sprint at a time. If `docs/live/features.json` is missing or untrustworthy, start with `project-initializer`.
+Keep exactly one runnable sprint at a time. If `docs/live/tracked-work.json` is missing or untrustworthy, start with `project-initializer`.
 
 ## Notes
 
 - `./docs/scripts/init.sh` is safe to run repeatedly; it only creates missing baseline files.
-- `docs/live/features.json` is the source of truth for what is runnable right now.
+- `docs/live/tracked-work.json` is the source of truth for what is runnable right now.
 - `docs/live/ideas.md` is not a runnable schedule.

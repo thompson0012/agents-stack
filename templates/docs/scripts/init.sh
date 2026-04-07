@@ -38,7 +38,7 @@ ensure_dir "docs/records"
 ensure_dir "docs/reference"
 ensure_dir "docs/scripts"
 
-write_file_if_missing "docs/live/features.json" '{
+write_file_if_missing "docs/live/tracked-work.json" '{
   "project": "Replace with project name",
   "idea_backlog_path": "docs/live/ideas.md",
   "current_focus_path": "docs/live/current-focus.md",
@@ -69,10 +69,10 @@ This file is durable state. Update it in place so future agents can see what was
 - implementation checklists or code-change plans
 - claims that `.harness/<feature-id>/` should exist already
 
-`docs/live/features.json` remains the authoritative tracked-work ledger. Use that file to track backlog truth, runnable state, and the single runnable active sprint.
+`docs/live/tracked-work.json` remains the authoritative tracked-work ledger. Use that file to track backlog truth, runnable state, and the single runnable active sprint.
 
 ## Promotion guide
-- create or update exactly one backlog entry in `docs/live/features.json`
+- create or update exactly one backlog entry in `docs/live/tracked-work.json`
 - assign a stable `id`, `title`, `summary`, `priority`, and `dependencies`
 - use `status: "needs_brainstorm"` when the item is tracked but still needs ideation before proposal
 - use `status: "pending"` only when the item is ready for proposal
@@ -106,13 +106,13 @@ This file is a live resume anchor. It is not a second contract.
 
 write_file_if_missing "docs/live/roadmap.md" '# Initiative Roadmap
 
-This file is the non-runnable roadmap for broader goals. It does not select the runnable sprint; `docs/live/features.json` still does that.
+This file is the non-runnable roadmap for broader goals. It does not select the runnable sprint; `docs/live/tracked-work.json` still does that.
 
 - Source goal: Not recorded yet. Replace this line with the real user or repo objective.
 - Current slice: None selected yet.
 - Ordered remaining slices/phases:
   1. Record the source goal and any real constraints.
-  2. Add the first bounded backlog item to `docs/live/features.json` when one is justified.
+  2. Add the first bounded backlog item to `docs/live/tracked-work.json` when one is justified.
   3. Open proposal work only after one dependency-ready item is honestly `pending`.
 - Stop or re-authorization condition: Stop when no bounded next slice is justified from repo facts or user direction. Re-authorize before inventing more roadmap.
 - Visible remaining-work summary: No runnable sprint is selected, no parked sprint is recorded, and the backlog is empty until real tracked work exists.
@@ -122,7 +122,7 @@ write_file_if_missing "docs/live/progress.md" '# Project Progress Ledger
 
 Record dated sprint outcomes here. Append new entries; do not rewrite history.
 
-Use this ledger for durable audit events, not as a second registry. `docs/live/features.json` remains the tracked-work source of truth.
+Use this ledger for durable audit events, not as a second registry. `docs/live/tracked-work.json` remains the tracked-work source of truth.
 
 Record transitions such as:
 - sprint start, pause, escalation, build failure, review failure, PASS archive cutover, and next-action decisions

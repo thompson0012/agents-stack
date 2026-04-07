@@ -35,7 +35,7 @@ This repository uses the agents-stack harness. The harness is stateful, resumabl
 │   └── ... parked awaiting_human / escalated_to_human sprint folders when needed
 └── docs/
     ├── live/
-    │   ├── features.json
+    │   ├── tracked-work.json
     │   ├── ideas.md
     │   ├── roadmap.md
     │   ├── current-focus.md
@@ -66,7 +66,7 @@ The repository constitution. Read this first. It defines topology, lifecycle, st
 ### `docs/live/*`
 Global durable state for the whole repo.
 
-- `features.json`: the authoritative tracked-work ledger, dependency graph, idea backlog pointer, compound queue, runnable active sprint pointer, and only registry for per-feature traceability. Use it to record pointers such as `idea_ref`, `evidence_path`, `record_paths`, and `reference_paths`; durable docs link from here rather than self-registering in a second index.
+- `tracked-work.json`: the authoritative tracked-work ledger, dependency graph, idea backlog pointer, compound queue, runnable active sprint pointer, and only registry for per-feature traceability. Use it to record pointers such as `idea_ref`, `evidence_path`, `record_paths`, and `reference_paths`; durable docs link from here rather than self-registering in a second index.
 - `ideas.md`: durable pre-proposal exploration. It stores brainstorm detail and rejected directions, but it does not choose the runnable sprint.
 - `roadmap.md`: the initiative-level source-goal and remaining-work control artifact. It captures source-goal lineage, roadmap status, and non-runnable initiative sequencing, but it must not become a second runnable selector or sprint contract.
 - `current-focus.md`: the live current-objective and next-owner resume anchor. It points a cold-start agent at the active or parked lane and the strongest artifact to read next, but it is only a resume aid and does not replace the roadmap, backlog ledger, outcome ledger, or cross-sprint memory.
@@ -79,7 +79,7 @@ Durable, traceable, scoped records created only by an explicit agents-stack phas
 - Records may capture decision notes, findings, analyses, or other durable artifacts that still need page-local scope and validity boundaries.
 - Each record page must carry its own provenance and validity metadata, such as `scope`, `status`, `superseded_by`, and the sprint or archive contributions it draws from.
 - Records may later be promoted to `docs/reference/*`, marked superseded, or marked expired; not every sprint needs to create one.
-- Feature-specific records should be linked from `docs/live/features.json` via `record_paths` instead of inventing a separate registry.
+- Feature-specific records should be linked from `docs/live/tracked-work.json` via `record_paths` instead of inventing a separate registry.
 
 ### `docs/reference/*`
 Stable current project reference context for the system and product being built in this repository.
@@ -87,15 +87,15 @@ Stable current project reference context for the system and product being built 
 - `architecture.md`: project-specific runtime, entrypoints, major subsystems, integration boundaries, and orchestration rules.
 - `design.md`: project-specific product intent, interaction model, visual system, and notable constraints.
 
-Only current stable truth belongs here. If a scoped record becomes broadly current, promote it into `docs/reference/*`, update any `reference_paths` pointers in `docs/live/features.json`, and avoid leaving two competing canonical versions.
+Only current stable truth belongs here. If a scoped record becomes broadly current, promote it into `docs/reference/*`, update any `reference_paths` pointers in `docs/live/tracked-work.json`, and avoid leaving two competing canonical versions.
 
 ### Canonical active contract
-For an active or parked sprint, the only canonical execution contract is `.harness/<WORKSTREAM-ID>/contract.md`. `docs/live/features.json` may point to the active feature, local sprint folder, phase, and resume checkpoint, but it must not become a second contract.
+For an active or parked sprint, the only canonical execution contract is `.harness/<WORKSTREAM-ID>/contract.md`. `docs/live/tracked-work.json` may point to the active feature, local sprint folder, phase, and resume checkpoint, but it must not become a second contract.
 
 Generators and reviewers build from the approved local contract on disk, not from remembered proposal text or paraphrased scope in chat. If the live state points at a sprint whose local contract is missing, execution must stop until the checkpoint is re-established.
-`docs/live/roadmap.md` may explain the source goal, initiative status, and remaining work, but it is a non-runnable control artifact and must never override `features.json` as the runnable selector or `.harness/<WORKSTREAM-ID>/contract.md` as slice truth.
+`docs/live/roadmap.md` may explain the source goal, initiative status, and remaining work, but it is a non-runnable control artifact and must never override `tracked-work.json` as the runnable selector or `.harness/<WORKSTREAM-ID>/contract.md` as slice truth.
 `docs/live/current-focus.md` may summarize why the sprint matters and who should act next, but it must point back to `docs/live/roadmap.md` and `.harness/<WORKSTREAM-ID>/contract.md` for durable truth and must never become a second execution contract.
-For any feature, `docs/live/features.json` should name exactly one canonical `evidence_path` at a time. While work is active or parked, that path points to `.harness/<WORKSTREAM-ID>/`. After PASS archive cutover, `state-update` must switch `evidence_path` to `docs/archive/<WORKSTREAM-ID>_<timestamp>/` and clear the runnable slot; there is never a period where both locations are canonical evidence for the same feature.
+For any feature, `docs/live/tracked-work.json` should name exactly one canonical `evidence_path` at a time. While work is active or parked, that path points to `.harness/<WORKSTREAM-ID>/`. After PASS archive cutover, `state-update` must switch `evidence_path` to `docs/archive/<WORKSTREAM-ID>_<timestamp>/` and clear the runnable slot; there is never a period where both locations are canonical evidence for the same feature.
 
 ### `docs/archive/*`
 Historical evidence for archived sprints.
@@ -136,7 +136,7 @@ The `using-agents-stack` root skill is the orchestrator. It dispatches exactly o
 ## Core Invariants
 
 1. **Files beat chat memory.** If the repo and the conversation disagree, the repo wins.
-2. **One runnable active sprint only.** At most one feature may be runnable in `docs/live/features.json`, and at most one `.harness/<WORKSTREAM-ID>/` folder may represent runnable non-terminal work.
+2. **One runnable active sprint only.** At most one feature may be runnable in `docs/live/tracked-work.json`, and at most one `.harness/<WORKSTREAM-ID>/` folder may represent runnable non-terminal work.
 3. **Parked sprints must say so explicitly.** Additional non-terminal `.harness/<WORKSTREAM-ID>/` folders are allowed only when their durable phase is `awaiting_human` or `escalated_to_human`. Parked sprints never count as the runnable active sprint.
 4. **Brainstorm and Compound are explicit non-runnable phases.** They may be the next router action, but they must not claim `runnable_active_sprint_id` or open a second runnable sprint.
 5. **Compounding drains before new work.** If `compound_pending_feature_ids` is non-empty, route `compound-capture` before resuming or opening any sprint work.
@@ -150,7 +150,7 @@ The `using-agents-stack` root skill is the orchestrator. It dispatches exactly o
 13. **Only the orchestrator may delegate.** Workers must not spawn nested workers.
 14. **Tool walls are hard boundaries.** Evaluators and reviewers must not get broad repo write tools; if the runtime exposes a narrow artifact-return primitive, scope it only to the evaluator-owned artifact. Every other worker gets only the minimum tool scope for its phase.
 
-15. **No durable truth may remain chat-only.** If a worker reaches a stable conclusion that should survive the session, it must materialize that residue in the correct file lane before yielding: `docs/live/features.json` for tracked-work truth, `docs/live/ideas.md` for pre-proposal exploration, `docs/records/*` for scoped residue, `docs/live/memory.md` only through explicit compounding, and `docs/reference/*` only when the truth is stable current reference. If the right lane is unclear, stop at the nearest human gate or hand off to the lane-owning phase; do not rely on chat as the durable copy.
+15. **No durable truth may remain chat-only.** If a worker reaches a stable conclusion that should survive the session, it must materialize that residue in the correct file lane before yielding: `docs/live/tracked-work.json` for tracked-work truth, `docs/live/ideas.md` for pre-proposal exploration, `docs/records/*` for scoped residue, `docs/live/memory.md` only through explicit compounding, and `docs/reference/*` only when the truth is stable current reference. If the right lane is unclear, stop at the nearest human gate or hand off to the lane-owning phase; do not rely on chat as the durable copy.
 
 ## State Roles and Precedence
 
@@ -164,7 +164,7 @@ Use this precedence when files disagree:
    - `contract.md`
    - `sprint_proposal.md`
 3. `.harness/<WORKSTREAM-ID>/status.json`
-4. `docs/live/features.json`
+4. `docs/live/tracked-work.json`
 5. `docs/live/roadmap.md`
 6. `docs/live/current-focus.md`
 7. `docs/live/progress.md` and `docs/live/memory.md`
@@ -174,21 +174,21 @@ Use this precedence when files disagree:
 
 Interpretation rules:
 - For an active or parked sprint, the strongest local artifact defines the real phase even if `status.json` is stale.
-- `docs/live/features.json` is the project-wide selector for whether any sprint should be runnable, which pending work is dependency-ready next, and where that feature's linked ideas, records, references, and single canonical `evidence_path` live. Do not invent a second tracked-work registry.
+- `docs/live/tracked-work.json` is the project-wide selector for whether any sprint should be runnable, which pending work is dependency-ready next, and where that feature's linked ideas, records, references, and single canonical `evidence_path` live. Do not invent a second tracked-work registry.
 - `docs/live/roadmap.md` is the initiative-level non-runnable control plane. It should explain source-goal lineage, roadmap status, and remaining work, but it must not overrule sprint-local evidence or claim the runnable slot.
-- `docs/live/current-focus.md` is a live resume aid. If it drifts from stronger local artifacts, `features.json`, or `roadmap.md`, refresh it; do not treat it as an alternate contract.
+- `docs/live/current-focus.md` is a live resume aid. If it drifts from stronger local artifacts, `tracked-work.json`, or `roadmap.md`, refresh it; do not treat it as an alternate contract.
 - `docs/records/*` provides scoped durable context with its own provenance and validity window, but it does not override the active contract, the runnable selector, or `docs/reference/*` current truth.
 - Archive files never override active live or local state.
 
 ## What To Do When State Disagrees
 
 ### Local sprint is ahead of global state
-Example: `handoff.md` exists but `features.json` still says `pending`.
+Example: `handoff.md` exists but `tracked-work.json` still says `pending`.
 
 Treat the sprint as interrupted, not complete. Resume from the strongest local artifact, then use `state-update` to reconcile global state. Do not start a new runnable sprint.
 
 ### Global state says active, but local sprint state is missing or incomplete
-Example: `features.json` marks `WORKSTREAM-001` active but `.harness/WORKSTREAM-001/` is missing `contract.md`.
+Example: `tracked-work.json` marks `WORKSTREAM-001` active but `.harness/WORKSTREAM-001/` is missing `contract.md`.
 
 Stop and re-establish the missing local checkpoint before doing code work. Usually that means routing back to proposal or contract review rather than guessing what the contract should have said.
 
@@ -211,7 +211,7 @@ Use the strongest sprint artifact plus `docs/live/roadmap.md` and `docs/live/cur
 | --- | --- | --- |
 | Implementation defect | The approved slice still stands, but the code, integration, or verification inside that slice failed. | `state-update` publishes the truth, `compound-capture` drains, then `generator-execution` retries from a named clean restore boundary. |
 | Slice-contract defect | Proposal, contract, or review evidence shows the slice, file bounds, or acceptance criteria are wrong or incomplete. | `state-update` freezes the evidence, then route to `evaluator-contract-review` for contract repair or `generator-proposal` when the slice itself must be re-cut. |
-| Orchestration/state defect | Local artifacts, `status.json`, `features.json`, `roadmap.md`, or archive/live state disagree, or the resume checkpoint is missing. | `state-update` reconciles it; if live state itself is untrustworthy, route `project-initializer`. |
+| Orchestration/state defect | Local artifacts, `status.json`, `tracked-work.json`, `roadmap.md`, or archive/live state disagree, or the resume checkpoint is missing. | `state-update` reconciles it; if live state itself is untrustworthy, route `project-initializer`. |
 | Environment blocker | External dependency, credential, runtime, or operator condition prevented an honest PASS/FAIL. | `state-update` parks or escalates; resume only through human action or a named clean execution retry when recovery is explicitly owned. |
 | Goal-lineage drift | `roadmap.md`, `current-focus.md`, or stronger evidence shows the sprint no longer matches the active objective or dependency order. | `state-update` refreshes the roadmap/focus split and freezes the evidence, then route to `generator-brainstorm` or `generator-proposal`; execution must not patch around drift. |
 
@@ -263,7 +263,7 @@ The lifecycle is explicit. Typical state flow:
 1. **Uninitialized**  
    Missing or untrustworthy `docs/live/*`. Owner: `project-initializer`.
 2. **Brainstorm candidate**  
-   A tracked item still needs ideation before proposal and is usually marked `needs_brainstorm` in `docs/live/features.json` with supporting detail in `docs/live/ideas.md`. Owner: `generator-brainstorm`. Non-runnable.
+   A tracked item still needs ideation before proposal and is usually marked `needs_brainstorm` in `docs/live/tracked-work.json` with supporting detail in `docs/live/ideas.md`. Owner: `generator-brainstorm`. Non-runnable.
 3. **Pending backlog item**  
    A tracked item is ready for bounded proposal work but no runnable sprint workspace exists yet. Owner: `generator-proposal`.
 4. **Proposed**  
@@ -283,15 +283,15 @@ The lifecycle is explicit. Typical state flow:
 11. **Escalated to human**  
    Automatic retry must stop because the attempt budget is exhausted or safe recovery cannot be established. Owner: human.
 12. **Compound pending**  
-   `docs/live/features.json` queues the feature id in `compound_pending_feature_ids` after `state-update`. `compound-capture` records durable learning or deliberately skips extraction when no durable residue survives, then clears the queue without claiming the runnable sprint slot.
+   `docs/live/tracked-work.json` queues the feature id in `compound_pending_feature_ids` after `state-update`. `compound-capture` records durable learning or deliberately skips extraction when no durable residue survives, then clears the queue without claiming the runnable sprint slot.
 13. **Archived**
    `state-update` synchronizes live state, preserves the sprint record under `docs/archive/<WORKSTREAM-ID>_<timestamp>/`, updates the feature's canonical `evidence_path`, queues compounding, and clears the runnable active sprint before the next work-selection pass.
 
 ### Phase transition table
 | Phase | Responsible role | Required artifact(s) | Exact condition to advance | Next phase |
 | --- | --- | --- | --- | --- |
-| `needs_brainstorm` | `generator-brainstorm` | backlog entry in `docs/live/features.json`, optional idea notes in `docs/live/ideas.md` | one dependency-ready candidate is clarified enough to become `pending` without claiming the runnable slot | `pending` |
-| `pending` | `generator-proposal` | backlog entry in `docs/live/features.json` | one dependency-ready pending feature is selected as the only proposal target and no runnable sprint exists | `proposed` |
+| `needs_brainstorm` | `generator-brainstorm` | backlog entry in `docs/live/tracked-work.json`, optional idea notes in `docs/live/ideas.md` | one dependency-ready candidate is clarified enough to become `pending` without claiming the runnable slot | `pending` |
+| `pending` | `generator-proposal` | backlog entry in `docs/live/tracked-work.json` | one dependency-ready pending feature is selected as the only proposal target and no runnable sprint exists | `proposed` |
 | `proposed` | `evaluator-contract-review` | `.harness/<WORKSTREAM-ID>/sprint_proposal.md`, `status.json` | proposal scope, file bounds, observable checks, and recovery assumptions survive adversarial review | `contracted` |
 | `contracted` | `generator-execution` | `.harness/<WORKSTREAM-ID>/contract.md` | execution starts inside the approved contract and `status.json` reflects active work with attempt budgeting | `in_progress` |
 | `in_progress` | `generator-execution` | code changes, `runtime.md`, `status.json` | the contracted work builds or starts at the declared checkpoint; if it does not, record `build_failed` instead of paying for live review | `in_review`, `build_failed`, or `awaiting_human` |
@@ -301,7 +301,7 @@ The lifecycle is explicit. Typical state flow:
 | `awaiting_human` | human then orchestrator | `status.json`, relevant local artifact, and explicit human instructions or edits | the human action is durably recorded, the resume checkpoint is updated, and any queued compounding is drained before automatic work resumes | `needs_brainstorm`, `pending`, `proposed`, `contracted`, `in_progress`, or `in_review` |
 | `escalated_to_human` | human | `status.json`, `progress.md`, and preserved local evidence | a human explicitly changes the plan, resets the budget, replaces the restore boundary, or closes the sprint | `needs_brainstorm`, `pending`, `contracted`, `in_progress`, or `cancelled` |
 | `compound_pending` | `compound-capture` | `compound_pending_feature_ids`, decisive evidence, and `docs/live/memory.md` | durable learning is captured or extraction is deliberately skipped because no durable residue survived, and the queue entry is cleared without changing runnable ownership | runnable sprint resume or backlog selection |
-| `archived` | `state-update` | `review.md`, updated `docs/live/*`, archive copy | PASS is synchronized into live state, the sprint artifact set is preserved under `docs/archive/<WORKSTREAM-ID>_<timestamp>/`, the feature remains discoverable through `features.json` traceability pointers rather than a second registry, and the feature is queued for explicit compounding | `compound_pending` |
+| `archived` | `state-update` | `review.md`, updated `docs/live/*`, archive copy | PASS is synchronized into live state, the sprint artifact set is preserved under `docs/archive/<WORKSTREAM-ID>_<timestamp>/`, the feature remains discoverable through `tracked-work.json` traceability pointers rather than a second registry, and the feature is queued for explicit compounding | `compound_pending` |
 
 `BLOCKED` is a review verdict, not a license to keep looping. State-update must translate a blocked review into either `awaiting_human` when a human can unblock and resume from files, or `escalated_to_human` when automation must stop.
 
@@ -310,7 +310,7 @@ The lifecycle is explicit. Typical state flow:
 When a sprint is interrupted by timeout, crash, human pause, failed build triage, or failed review retry:
 
 1. Read `AGENTS.md`.
-2. Read `docs/live/features.json`, `docs/live/roadmap.md`, `docs/live/current-focus.md`, `docs/live/ideas.md`, `docs/live/progress.md`, and `docs/live/memory.md`.
+2. Read `docs/live/tracked-work.json`, `docs/live/roadmap.md`, `docs/live/current-focus.md`, `docs/live/ideas.md`, `docs/live/progress.md`, and `docs/live/memory.md`.
 3. Capture any queued `compound_pending_feature_ids`, identify the one runnable active feature if any, list any parked `awaiting_human` or `escalated_to_human` sprint folders separately, and note the source goal, roadmap status, current objective, and next-owner hint from `docs/live/roadmap.md` plus `docs/live/current-focus.md`.
 4. If no runnable sprint exists, note any dependency-ready `needs_brainstorm` candidates before ordinary `pending` backlog items.
 5. Read `.harness/<WORKSTREAM-ID>/status.json` and capture the claimed `phase`, `owner_role`, `resume_from`, `last_verified_step`, `local_url`, `active_pids`, `blocked_on`, `worker_id`, `worker_subject`, `tool_scope_profile`, `spawn_depth`, `parent_worker_id`, `attempt_count`, `max_attempts`, and `clean_restore_ref` fields.
@@ -351,7 +351,7 @@ Add these fields when they apply:
 Archive only after all of the following are true:
 - `review.md` exists and says PASS
 - the reviewed work matches the approved contract
-- `docs/live/features.json` and `docs/live/progress.md` have been updated to reflect the reviewed outcome
+- `docs/live/tracked-work.json` and `docs/live/progress.md` have been updated to reflect the reviewed outcome
 - the runnable active sprint has a clear next action for the backlog
 
 On archive:
@@ -400,7 +400,7 @@ Worker prompt. Implements only the approved contract, records reproducible runti
 Worker prompt. Reproduces the result against the contract and issues exactly one of `PASS`, `FAIL`, or `BLOCKED` with evidence. It does not update global state, must not receive broad write access, and must reject hardcoded or static pass conditions that do not prove a real state transition.
 
 ### `state-update`
-Worker prompt. Makes the repo tell the truth after review or blocked retry. It updates `docs/live/features.json`, refreshes `docs/live/current-focus.md`, updates `docs/live/progress.md`, preserves failed sprint evidence, archives PASS results, updates canonical `evidence_path` and linked `record_paths` / `reference_paths` when needed, and queues explicit compounding when the outcome has been durably published.
+Worker prompt. Makes the repo tell the truth after review or blocked retry. It updates `docs/live/tracked-work.json`, refreshes `docs/live/current-focus.md`, updates `docs/live/progress.md`, preserves failed sprint evidence, archives PASS results, updates canonical `evidence_path` and linked `record_paths` / `reference_paths` when needed, and queues explicit compounding when the outcome has been durably published.
 
 ### `compound-capture`
 Worker prompt. Consumes `compound_pending_feature_ids`, distills durable cross-sprint learning into `docs/live/memory.md` when real residue survives, may create or revise scoped `docs/records/*` pages when durable but non-reference truth should persist, updates reference docs only when the lesson became stable current truth, and clears the queue without reopening earlier phases or inventing a second registry.

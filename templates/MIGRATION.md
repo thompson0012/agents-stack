@@ -120,7 +120,7 @@ If a runnable sprint exists, read its local contract/evidence before moving file
 ## Repository-specific notes
 
 ### Agents-stack default bindings
-- `docs/live/features.json` is the only tracked-work registry.
+- `docs/live/tracked-work.json` is the only tracked-work registry.
 - `docs/live/progress.md` is the append-only audit trail.
 - `docs/live/ideas.md` is pre-proposal exploration.
 - `docs/live/roadmap.md` and `docs/live/current-focus.md` are control-plane docs.
