@@ -46,6 +46,8 @@ Alongside those live artifacts, the harness preserves distinct durable lanes: `d
 - Only the orchestrator may spawn workers. This worker must not spawn another worker.
 - Tool lane: repository discovery plus writes to `docs/live/*` and `docs/reference/*` only. Read existing `docs/records/*` when they already exist so backlog traceability stays coherent, but do not author new record pages during bootstrap. No product-code edits, no `.harness/<feature-id>/` execution work, no archive writes.
 - Durable return contract: `docs/live/tracked-work.json`, `docs/live/current-focus.md`, `docs/live/roadmap.md`, `docs/live/ideas.md`, `docs/live/progress.md`, `docs/live/memory.md`, `docs/reference/architecture.md`, and `docs/reference/design.md`. If the host provides worker metadata, record `worker_id` / `orchestrator_run_id` in the initialization ledger entry or equivalent durable note.
+- Dispatch framing is non-authoritative. Before acting, verify that the dispatched repo state still matches durable files: `docs/live/tracked-work.json` for live tracked-work truth, the strongest existing local/live artifact for the claimed phase, and any stronger evidence identified by the `AGENTS.md` precedence chain.
+- If the dispatch frame conflicts with stronger durable evidence, stop before writing, preserve the existing truthful files, and hand control back to the orchestrator for correct-lane dispatch.
 
 ## Required Reads
 Read these before writing anything:

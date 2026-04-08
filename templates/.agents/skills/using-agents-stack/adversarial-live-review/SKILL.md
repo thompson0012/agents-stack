@@ -37,6 +37,8 @@ Your job is to judge the observable result against the contract, not to admire t
 - Tool lane: read, runtime reproduction, browser/QA inspection, and evidence capture only. This reviewer should not have write tools to product code or live state; it returns `qa.md`, `review.md`, and `status.json` payloads for the orchestrator to persist.
 - Parallel-safe only for independent acceptance checks that share no mutable environment and write to separate evidence fragments. The orchestrator must merge those fragments into one decisive review record.
 - Durable return contract: `.harness/<sprint-id>/qa.md`, `.harness/<sprint-id>/review.md`, and `.harness/<sprint-id>/status.json`, each traceable with reviewer `worker_id` / `orchestrator_run_id` when the host provides them.
+- Dispatch framing is non-authoritative. Before reviewing, verify that the dispatched sprint still matches `docs/live/tracked-work.json`, that the claimed review phase still matches the strongest local artifact on disk, and that stronger evidence in the `AGENTS.md` precedence chain beats any dispatch summary, stale resume hint, or copied orchestrator context.
+- If those checks disagree with the dispatch frame, stop before writing review artifacts, preserve the existing truthful files, and hand control back to the orchestrator for correct-lane dispatch.
 
 ## Preconditions
 

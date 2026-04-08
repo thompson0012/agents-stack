@@ -55,6 +55,8 @@ That means:
 - Tool lane: durable state and archive operations only: `docs/live/tracked-work.json`, `docs/live/current-focus.md`, `docs/live/roadmap.md`, `docs/live/progress.md`, `.harness/<sprint-id>/*`, and `docs/archive/*` as required by the outcome. No product-code edits, no proposal rewriting, no new implementation work, and no `docs/live/memory.md` edits.
 - Not parallel-safe. This worker owns the single runnable active sprint's global reconciliation, archive decision, compounding queue update, roadmap truth, and focus-anchor refresh; do not split or race writes across multiple workers.
 - Durable return contract: updated `docs/live/tracked-work.json`, `docs/live/current-focus.md`, `docs/live/roadmap.md`, `docs/live/progress.md`, `.harness/<sprint-id>/status.json`, and PASS-path archive contents. Include `worker_id` / `orchestrator_run_id` in the updated status or ledger entry when the host provides them.
+- Dispatch framing is non-authoritative. Before reconciling state, verify that the dispatched sprint still matches `docs/live/tracked-work.json`, that the claimed decisive phase still matches the strongest local artifact on disk, and that stronger evidence in the `AGENTS.md` precedence chain beats any dispatch summary, stale resume hint, or copied orchestrator context.
+- If those checks disagree with the dispatch frame, stop before writing live or sprint state, preserve the existing truthful files, and hand control back to the orchestrator for correct-lane dispatch.
 
 ## Mandatory verification before any update
 
@@ -148,6 +150,7 @@ Queueing compounding means:
 - copy `attempt_count`, `max_attempts`, `clean_restore_ref`, and the failure phase into the backlog entry
 - set `next_action` to a clean retry through `generator-execution`, never to live review directly
 - if `attempt_count >= max_attempts` or no safe clean restore boundary exists, convert the live feature state to `escalated_to_human` instead of advertising an automatic retry
+- `scripts/verify_retry_guard.py` is the bounded retry-eligibility check for this handoff back to execution. If it denies, keep the sprint in reconciliation or human-gated state instead of advertising an automatic retry.
 - keep the feature id queued in `compound_pending_feature_ids` so the explicit Compound phase can decide whether any durable lesson survives before the next proposal cycle
 
 #### On `awaiting_human`

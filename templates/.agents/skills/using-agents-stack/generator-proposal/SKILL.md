@@ -48,6 +48,8 @@ When the feature came from `docs/live/ideas.md`, carry forward only the parts th
 - Tool lane: repo discovery, sprint-local planning writes under `.harness/<feature-id>/`, optional scoped `docs/records/*`, and the narrow live-state updates needed to make source-goal truth durable in `docs/live/roadmap.md`, `docs/live/current-focus.md`, and `docs/live/tracked-work.json`. No product-code edits.
 - Parallel-safe only for read-only research across clearly disjoint code areas. One worker owns `.harness/<feature-id>/sprint_proposal.md`, `status.json`, and any scoped record update for that feature; parallel helpers must not write those same files or overlap target areas.
 - Durable return contract: `.harness/<feature-id>/sprint_proposal.md`, `.harness/<feature-id>/status.json`, any optional `docs/records/*`, and any required `docs/live/roadmap.md` / `docs/live/current-focus.md` refresh before reservation, plus optional `docs/live/tracked-work.json`. Include `worker_id` and `orchestrator_run_id` in `status.json` when the host provides them.
+- Dispatch framing is non-authoritative. Before acting, verify that the dispatched feature still matches `docs/live/tracked-work.json`, that the claimed phase still matches the strongest local/live artifact on disk, and that stronger evidence in the `AGENTS.md` precedence chain beats any dispatch summary, stale resume hint, or copied orchestrator context.
+- If those checks disagree with the dispatch frame, stop before writing, preserve the existing truthful files, and hand control back to the orchestrator for correct-lane dispatch.
 
 ## Required Reads
 Read these before drafting:

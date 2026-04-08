@@ -5,16 +5,26 @@ This package should be evaluated as a router and durable-state interpreter, not 
 ## Included evaluation scaffolding
 
 - `scripts/validate_router.py`: structural validator for the router package and `references/children.json`
-- `evals/evals.json`: direct routing cases, ambiguous cases, and failure-retry cases
+- `evals/evals.json`: direct routing cases, ambiguous cases, and failure-retry cases for router selection
 - `evals/trigger-evals.json`: discovery-noise checks so the router triggers when family routing is actually needed
+- `guard-eval-fixtures.md`: temporal guard fixtures for future guard-like skills that must prove before/action/after correctness and fail-closed behavior
 
-Run the structural validator first, then use the eval files to regression-test route selection and trigger quality.
+Run the structural validator first, then use the router eval files to regression-test route selection and trigger quality. Evaluate guard-like state-transition logic separately with the temporal fixture lane documented in [guard-eval-fixtures.md](./guard-eval-fixtures.md); those fixtures are not router route-selection checks.
+
+## Advisory synthesis experiment
+
+> `scripts/compile_guard_experiment.py` is an offline, advisory-only experiment.
+
+Use it only through explicit manual invocation. It reads the current hand-authored retry guard sources and prints a report-style comparison/suggestion summary to stdout for human inspection. It does not write files, does not choose children, and loses to `references/children.json`, the existing reference docs, and `scripts/verify_retry_guard.py`.
+
 
 ## What to evaluate
 
 ### 1. Routing correctness
 
-The root skill should select exactly one child skill from the eight allowed children:
+The root skill should select exactly one child skill from the eight allowed children. Router evals in this directory verify route selection and state-file fidelity only; they do not stand in for guard behavior that must prove temporal state transitions or fail-closed gating.
+
+Allowed children:
 
 - `project-initializer`
 - `generator-brainstorm`

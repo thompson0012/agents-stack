@@ -71,7 +71,7 @@ Global durable state for the whole repo.
 - `roadmap.md`: the initiative-level source-goal and remaining-work control artifact. It captures source-goal lineage, roadmap status, and non-runnable initiative sequencing, but it must not become a second runnable selector or sprint contract.
 - `current-focus.md`: the live current-objective and next-owner resume anchor. It points a cold-start agent at the active or parked lane and the strongest artifact to read next, but it is only a resume aid and does not replace the roadmap, backlog ledger, outcome ledger, or cross-sprint memory.
 - `progress.md`: append-only ledger of reviewed outcomes, failures, pauses, escalations, compound publication, and next actions. It may log record creation, promotion, supersession, expiry, and archive cutover events, but it must not become a second registry.
-- `memory.md`: durable cross-sprint learning written by the explicit Compound phase, not a dump of routine state reconciliation.
+- `memory.md`: durable cross-sprint learning written by the explicit Compound phase, not a dump of routine state reconciliation. Memory entries must keep artifact-linked provenance to decisive sprint evidence; a direct inline artifact-path citation is sufficient.
 
 ### `docs/records/*`
 Durable, traceable, scoped records created only by an explicit agents-stack phase (`generator-brainstorm` or `compound-capture`) for a tracked feature when the output should survive beyond chat but is not the active sprint contract, not immutable archive evidence, and not stable project-wide reference truth; never as raw chat dumps or ad hoc inline persistence.

@@ -118,6 +118,7 @@
         "`.harness/<workstream>/contract.md` exists and no later handoff or review gate is waiting.",
         "`status.json.phase` is `contracted`, `executing`, `build_failed`, or `review_failed` and the stronger local files agree.",
         "A prior `review_failed` has already been reconciled into local and live state, or a prior `build_failed` has already recorded truthful retry metadata, `attempt_count` is still below `max_attempts`, and `clean_restore_ref` names a safe restore boundary for a fresh worker.",
+        "`scripts/verify_retry_guard.py` allows the retry from durable state and returns verdict plus reason codes only; it does not choose the child itself.",
         "Build or startup triage failed inside execution, so the same execution lane owns the next attempt without paying for live review."
       ],
       "avoid_when": [
@@ -171,6 +172,7 @@
         "`review.md` exists and the outcome has not yet been reconciled into local and live state.",
         "A PASS must be archived and queued into `compound_pending_feature_ids`, a FAIL must be reopened truthfully, or a BLOCKED verdict must be published into `awaiting_human` or `escalated_to_human`.",
         "`status.json.phase` is `build_failed` or `review_failed` but automatic retry cannot proceed yet because reconciliation, attempt budgeting, or clean-restore decisions are still missing.",
+        "Use `scripts/verify_retry_guard.py` to prove retry eligibility before routing back to execution; a deny keeps the sprint in reconciliation or human-gated lanes.",
         "Local and live state contradict each other, or active and parked sprint semantics are not yet reflected truthfully."
       ],
       "avoid_when": [

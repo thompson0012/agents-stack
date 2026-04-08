@@ -10,6 +10,7 @@ Use the runtime's native primitive if it is called `sub-agent`, `Task agent`, `p
 - Prefer delegation first when the decision is ambiguous, evidence-heavy, or otherwise benefits from independent investigation. Dispatch the narrowest fresh worker or parallel workers that can gather the missing evidence, then merge their outputs before choosing the next child.
 - Do not paste the full child phase prompt into the orchestrator and keep working there.
 - Read durable state before dispatch. Workers should inherit the minimum exact context they need, not the entire session transcript.
+- Dispatch packets are routing aids, not authority. A worker must verify the claimed sprint, phase, and summary against durable files on entry, apply the `AGENTS.md` precedence chain when evidence disagrees, and stop before writing if the dispatch frame loses to stronger evidence.
 - Preserve the file-based state model. The canonical outputs are still `sprint_proposal.md`, `contract.md`, `runtime.md`, `handoff.md`, `review.md`, `status.json`, and the live/archive files.
 - Drain `compound_pending_feature_ids` before runnable sprint resume or new backlog selection. Compounding is explicit work, not background magic.
 - Distinguish runnable active work from non-runnable brainstorm and parked work. `needs_brainstorm`, `awaiting_human`, and `escalated_to_human` stay visible, but they must not be mistaken for the one runnable active sprint.
@@ -70,6 +71,7 @@ Retries after `build_failed` or reconciled `review_failed` are explicit orchestr
 - Automatic `git reset --hard` is only acceptable in disposable workspaces and is not the default starter assumption.
 - A clean retry starts a fresh execution worker. It does not reuse the previous worker context.
 - If the retry is unsafe or out of budget, park the sprint in `awaiting_human` or `escalated_to_human` instead of looping.
+- Use `scripts/verify_retry_guard.py` as the bounded allow/deny check for this retry gate. It reads durable retry state, returns verdict plus reason codes, and does not select the next child for you.
 
 ## Failure-owner shorthand
 

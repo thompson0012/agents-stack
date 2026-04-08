@@ -1,3 +1,4 @@
 /.worktrees
 .DS_Store
 *.pyc
+/.local

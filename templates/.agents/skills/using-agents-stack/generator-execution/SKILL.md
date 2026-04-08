@@ -38,6 +38,8 @@ You are the implementation phase of the harness. Your job is to turn an approved
 - Tool lane: implementation and verification tools only for files allowed by `contract.md`, plus sprint-local writes to `runtime.md`, `handoff.md`, and `status.json`. No contract rewriting, review decisions, or global-state updates.
 - Parallel-safe only when the orchestrator splits the contract into explicitly disjoint file slices with no shared writes or hidden coupling. Each worker must have a unique worker id and must own a non-overlapping artifact or code slice.
 - Durable return contract: code changes within contract bounds, `.harness/<sprint-id>/runtime.md`, `.harness/<sprint-id>/handoff.md`, and `.harness/<sprint-id>/status.json` with `worker_id` / `orchestrator_run_id` when available.
+- Dispatch framing is non-authoritative. Before acting, verify that the dispatched sprint still matches `docs/live/tracked-work.json`, that the claimed execution phase still matches the strongest local/live artifact on disk, and that stronger evidence in the `AGENTS.md` precedence chain beats any dispatch summary, stale resume hint, or copied orchestrator context.
+- If those checks disagree with the dispatch frame, stop before writing code or sprint artifacts, preserve the existing truthful files, and hand control back to the orchestrator for correct-lane dispatch.
 
 ## Required entry checks
 
@@ -76,6 +78,7 @@ When resuming after `review_failed` or `build_failed`:
 Attempt budgeting is mandatory:
 - increment `attempt_count` when a fresh execution attempt actually begins
 - if `attempt_count` would exceed `max_attempts`, stop automatic retry and set `phase: "escalated_to_human"`
+- `scripts/verify_retry_guard.py` is the shared retry gate for this resume path. It must allow the retry from durable state before execution starts, and its output stays bounded to verdict plus reason codes.
 - include an `escalation_reason` that explains why automation stopped and what evidence the human should inspect
 
 ## Execution procedure

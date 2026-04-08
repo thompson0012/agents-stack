@@ -40,6 +40,8 @@ Your job is to reject weak proposals early. Approval means the scope, boundaries
 - Only the orchestrator may spawn workers. This reviewer must not spawn another worker.
 - Tool lane: read/search/inspection only across proposal, status, and cited code areas. This reviewer should not have write tools; it returns approval or rejection artifacts for the orchestrator to persist into sprint-local files.
 - Durable return contract: approved `contract.md` content or precise proposal-revision feedback, plus the corresponding `status.json` update payload. Include reviewer `worker_id` / `orchestrator_run_id` in the returned status metadata when the host provides them.
+- Dispatch framing is non-authoritative. Before deciding, verify that the dispatched feature still matches `docs/live/tracked-work.json`, that the claimed phase still matches the strongest local/live artifact on disk, and that stronger evidence in the `AGENTS.md` precedence chain beats any dispatch summary, stale resume hint, or copied orchestrator context.
+- If those checks disagree with the dispatch frame, stop before writing review artifacts, preserve the existing truthful files, and hand control back to the orchestrator for correct-lane dispatch.
 
 ## Required Reads
 Read all of the following before deciding:

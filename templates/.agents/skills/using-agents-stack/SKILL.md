@@ -15,9 +15,11 @@ Do not perform the child workflow here. Prefer dispatching a fresh worker, sub-a
 - Use `references/children.json` as the source of truth for child selection, prerequisites, install hints, and fallbacks.
 - Use `references/state-machine.md`, `references/file-system-layout.md`, and `references/orchestrator-worker.md` for family-specific state, path, and delegation rules.
 - Prefer the strongest durable evidence on disk over chat memory or optimistic status text.
+- Dispatch context handed to a worker — sprint id, phase, subject, summary, resume hint, or copied status text — is routing help, not authoritative truth. The worker must re-ground against durable files before acting and resolve conflicts with the `AGENTS.md` precedence chain instead of trusting the dispatch frame.
 - Treat `build_failed`, `review_failed`, `awaiting_human`, and `escalated_to_human` as distinct routing states. Do not collapse them into generic "blocked" or route them all back into execution.
 - Retries after `build_failed` or reconciled `review_failed` require a recorded clean restore boundary such as a disposable worktree, VCS snapshot, or equivalent `clean_restore_ref`. Automatic destructive reset is valid only in disposable workspaces and is not the default expectation.
 - Respect attempt budgets. When `attempt_count` reaches `max_attempts`, or no safe clean restore boundary exists, automatic retry stops and the sprint must park for human action or escalation.
+- Use `scripts/verify_retry_guard.py` as the bounded retry-eligibility gate for these invariants. It reads durable retry state, returns allow/deny plus reason codes, and never chooses the next child.
 - Parked sprints in `.harness/` with `awaiting_human` or `escalated_to_human` remain visible durable state, but they do not count as the single runnable active sprint.
 - `docs/live/tracked-work.json` remains the authoritative tracked-work ledger and runnable/backlog selector.
 - `docs/live/current-focus.md` is the live resume anchor; `docs/live/roadmap.md` is the durable initiative ledger for source goals, remaining slices, and re-authorization boundaries.

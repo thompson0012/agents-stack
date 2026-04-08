@@ -14,7 +14,7 @@ inputs:
   - docs/archive/<feature-id>_<timestamp>/* when the sprint has already been archived
 outputs:
   - updated docs/live/memory.md when durable learning survives
-  - unchanged docs/live/memory.md when extraction is deliberately skipped because no durable lesson survived
+  - unchanged docs/live/memory.md when extraction is deliberately skipped because no durable lesson survived or a tempting lesson lacked artifact-linked provenance
   - optional precise update to linked `docs/records/*` when record residue is promoted, superseded, or expired
   - optional precise update to docs/reference/architecture.md or docs/reference/design.md when the lesson is now stable reference truth
   - updated docs/live/tracked-work.json with the processed feature id removed from `compound_pending_feature_ids` and any touched `record_paths` / `reference_paths` kept truthful
@@ -46,9 +46,11 @@ Compounding is explicit, non-runnable phase work. It does not reopen execution o
 
 - Run compounding in a fresh worker context after `state-update`; do not fold it into reconciliation.
 - Only the orchestrator may spawn workers. This worker must not spawn another worker.
-- Tool lane: read the decisive evidence, write `docs/live/memory.md` only when durable residue survives, optionally patch linked `docs/records/*` and stable reference docs, and clear the processed queue entry in `docs/live/tracked-work.json`. No product-code edits, no `.harness/<feature-id>/status.json` rewrites, no archive moves.
+- Tool lane: read the decisive evidence, write `docs/live/memory.md` only when durable residue survives and can cite decisive artifact path(s), optionally patch linked `docs/records/*` and stable reference docs only when those durable writes keep the same artifact-linked provenance, and clear the processed queue entry in `docs/live/tracked-work.json`. No product-code edits, no `.harness/<feature-id>/status.json` rewrites, no archive moves.
 - Not parallel-safe against another worker touching `docs/live/memory.md`, linked record pages, the same reference doc, or `docs/live/tracked-work.json`. Process one queued feature id at a time.
-- Durable return contract: truthful `docs/live/memory.md` when extraction happens, or a deliberate no-edit skip when no durable learning survives, plus any linked `docs/records/*` / `docs/reference/*` updates and `docs/live/tracked-work.json` with the processed feature removed from `compound_pending_feature_ids`.
+- Durable return contract: truthful `docs/live/memory.md` when extraction happens with artifact-linked provenance, or a deliberate no-edit/no-publish skip when no durable learning survives or a tempting lesson lacks provenance, plus any linked `docs/records/*` / `docs/reference/*` updates and `docs/live/tracked-work.json` with the processed feature removed from `compound_pending_feature_ids`.
+- Dispatch framing is non-authoritative. Before extracting learning, verify that the dispatched feature still matches `docs/live/tracked-work.json`, that the claimed compound-ready phase still matches the strongest local/archive evidence on disk, and that stronger evidence in the `AGENTS.md` precedence chain beats any dispatch summary, stale resume hint, or copied orchestrator context.
+- If those checks disagree with the dispatch frame, stop before writing durable learning or queue state, preserve the existing truthful files, and hand control back to the orchestrator for correct-lane dispatch.
 
 ## Required Reads
 Read these before writing anything:
@@ -112,7 +114,9 @@ For each candidate lesson, ask:
 If the answer is no, do not record it.
 
 ### 4. Extract durable residue or skip extraction
-When a learning survives, append or refine a concise note in `docs/live/memory.md` in the same pass. If the evidence is not enough to choose memory, a scoped record, or stable reference with confidence, stop and preserve the current files until human confirmation or a clearer phase boundary resolves the lane. When no durable cross-sprint lesson survives, explicitly skip extraction and leave `docs/live/memory.md` unchanged. Do not defer capture to chat memory or a later manual copy step.
+When a learning survives, publish it only if the durable output can cite at least one specific decisive artifact path from the evidence bundle. That provenance gate applies to `docs/live/memory.md`, linked `docs/records/*`, and `docs/reference/*`. For `memory.md`, a direct inline artifact-path citation is sufficient; do not require a separate record page just to carry provenance.
+
+If a lesson seems useful but cannot be tied to a specific artifact path, treat that as a deliberate no-publish result: leave durable outputs unchanged and clear the queue. When no durable cross-sprint lesson survives at all, explicitly skip extraction and leave `docs/live/memory.md` unchanged. Do not defer capture to chat memory or a later manual copy step.
 
 Write in project-truth terms when you do extract:
 - what was learned
@@ -123,10 +127,10 @@ Write in project-truth terms when you do extract:
 `progress.md` already owns the outcome ledger. `memory.md` should either gain durable residue or remain unchanged on purpose. Do not blur those roles.
 
 ### 5. Reconcile linked records before promoting reference truth
-If the queued feature already has `record_paths`, inspect those pages against the decisive evidence bundle. If no linked record exists yet and the durable residue should survive, create one new scoped page for the same tracked feature in the same pass and register it in `docs/live/tracked-work.json`.
+If the queued feature already has `record_paths`, inspect those pages against the decisive evidence bundle. If no linked record exists yet and the durable residue should survive, create one new scoped page for the same tracked feature in the same pass only when that page can preserve artifact-linked provenance back to the decisive sprint artifacts.
 
 Use records deliberately:
-- promote stable residue from a record into `docs/reference/*` only when the lesson is now current project truth
+- promote stable residue from a record into `docs/reference/*` only when the lesson is now current project truth and the promoted text still carries artifact-linked provenance
 - keep feature-specific or still-contingent material in `docs/records/*` with page-local provenance such as scope, status, superseded_by, and the sprint or archive contributions it relies on
 - when later evidence invalidates or replaces a record, update that record's status to something like superseded or expired instead of silently deleting traceability
 - keep `docs/live/tracked-work.json` authoritative by preserving or updating the feature's `record_paths` and `reference_paths` in the same pass
@@ -134,7 +138,7 @@ Use records deliberately:
 Do not patch reference docs for tentative lessons, retries, or one-off failures.
 
 ### 6. Clear the compound queue truthfully
-After extracting durable learning, or after deliberately skipping extraction because none survives:
+After extracting durable learning, or after deliberately skipping extraction because none survives or because a tempting lesson lacked artifact-linked provenance:
 - remove the feature id from `compound_pending_feature_ids`
 - leave `runnable_active_sprint_id` unchanged
 - keep the feature's `record_paths`, `reference_paths`, and canonical `evidence_path` truthful in `docs/live/tracked-work.json`
@@ -147,19 +151,20 @@ Stop and preserve the queue entry when:
 - the feature id was not actually queued for compounding
 - decisive evidence cannot be located in `.harness/<feature-id>/` or `docs/archive/<feature-id>_<timestamp>/`
 - the evidence set contradicts the live outcome badly enough that reconciliation appears incomplete
-- the only candidate notes are speculative or transient
 
 If the evidence is thin but sufficient to conclude “no durable learning,” that is not a blocker. Clear the queue without fabricating a note.
+If a tempting lesson lacks artifact-linked provenance, that is also not a blocker. Do not publish to `docs/live/memory.md`, `docs/records/*`, or `docs/reference/*`; clear the queue as an explicit no-publish result.
 
 ## Quality Bar
 A good compounding pass:
 - leaves `progress.md` as the outcome ledger and `memory.md` as the cross-sprint residue
+- publishes durable learning only with artifact-linked provenance
 - promotes only stable truths into reference docs
 - updates linked records when they should stay as feature-scoped residue, or marks them superseded/expired when later evidence invalidates them
 - keeps `docs/live/tracked-work.json` authoritative for record and reference linkage
 - clears the queue entry so the orchestrator does not compound the same feature twice
 - never steals ownership of execution, review, or backlog publication
-- tells the truth even when the answer is to skip extraction because nothing durable survived
+- tells the truth even when the answer is to skip extraction because nothing durable survived or because provenance was insufficient
 
 ## Done Definition
-This skill is done when the queued feature has been evaluated for durable learning, any real cross-sprint lesson has been captured in `docs/live/memory.md`, any linked record has either stayed as scoped residue, been promoted into `docs/reference/*`, or been marked superseded/expired truthfully, and the feature id has been removed from `compound_pending_feature_ids` without altering runnable-sprint ownership or reopening prior phases.
+This skill is done when the queued feature has been evaluated for durable learning, every durable write to `docs/live/memory.md`, linked `docs/records/*`, or `docs/reference/*` carries artifact-linked provenance to decisive evidence, any real cross-sprint lesson has been captured truthfully, any linked record has either stayed as scoped residue, been promoted into `docs/reference/*`, or been marked superseded/expired truthfully, and the feature id has been removed from `compound_pending_feature_ids` without altering runnable-sprint ownership or reopening prior phases.

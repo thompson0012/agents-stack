@@ -152,6 +152,7 @@ This lets explicit compounding run before new work and lets the backlog advance 
   - Trigger: retry metadata is fully recorded, `attempt_count < max_attempts`, `clean_restore_ref` names a safe restore boundary, and any queued compounding has been drained.
 - `review_failed` -> `executing`
   - Trigger: local and live state agree that the failure is reconciled, `attempt_count < max_attempts`, `clean_restore_ref` names a safe restore boundary, and any queued compounding has been drained.
+- `scripts/verify_retry_guard.py` is the bounded checkable gate for these retry triggers. It reads durable retry state, returns allow/deny plus reason codes, and does not choose the next child.
 - `build_failed` -> `awaiting_human`
   - Trigger: retry is not yet safe because a human must edit files, repair the environment, or confirm the restore boundary, but escalation is not yet required.
 - `review_failed` -> `awaiting_human`

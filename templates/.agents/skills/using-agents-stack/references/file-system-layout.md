@@ -130,7 +130,7 @@ Purpose:
 - durable lessons, known pitfalls, environment notes, and recovery context
 - the place to preserve facts that matter beyond one sprint after explicit compounding
 
-This is not scratch space. It should store information the next agent actually needs, and it should usually be written by `compound-capture` rather than by routine state reconciliation.
+This is not scratch space. It should store information the next agent actually needs, and it should usually be written by `compound-capture` rather than by routine state reconciliation. Memory entries must keep artifact-linked provenance to decisive sprint evidence; a direct inline artifact-path citation is sufficient, so a separate records page is not required for every note.
 
 ## `.harness/<feature-id>/`
 

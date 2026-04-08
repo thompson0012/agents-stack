@@ -48,6 +48,21 @@ Rules:
 - describe expected success in plain language
 - include file inputs only when they matter to the workflow
 
+## 1A. Temporal Guard Evaluation
+Use temporal fixtures when the skill's correctness depends on a state transition, phase gate, or fail-closed decision rather than prompt wording alone.
+
+Examples:
+- a guard-like skill allows work only when required artifacts already exist
+- a verifier rejects a retry when restore metadata or attempt budget is missing
+- a workflow step must prove the exact before/action/after transition, not just the final text output
+
+Guidance:
+- capture the required before-state explicitly
+- name the guard action or decision point being exercised
+- record the expected after-state or routing outcome
+- include at least one negative case that must fail closed
+- keep these fixtures alongside prompt evals when discovery still matters, but do not let prompt-only evals stand in for temporal correctness
+
 ## 2. Baseline Comparison
 
 Compare the same prompts against an honest baseline.

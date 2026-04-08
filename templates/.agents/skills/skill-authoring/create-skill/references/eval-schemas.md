@@ -50,6 +50,39 @@ Discovery checks for whether the skill should trigger.
 - `should_trigger`: expected routing outcome
 - `why`: optional rationale for reviewers
 
+## `guard-eval-fixtures.md`
+Temporal fixtures for guard-like skills. Use this when a prompt-only eval cannot prove the skill made the correct stateful decision.
+
+Canonical worked example: `templates/.agents/skills/using-agents-stack/evals/guard-eval-fixtures.md`
+
+```yaml
+fixtures:
+  - id: allow-transition
+    phase_or_artifact_gate: contracted
+    before_state:
+      required_artifacts:
+        - .harness/WORKSTREAM-001/contract.md
+      invariants:
+        - attempt_count < max_attempts
+    guard_action: Decide whether execution may start
+    expected_after_state:
+      outcome: allow
+      next_owner: generator-execution
+    fail_closed_expectation:
+      missing_or_invalid_state: deny
+      evidence_to_record: why the transition was blocked
+```
+
+### Fields
+- `fixtures[].id`: stable identifier, unique within the fixture set
+- `fixtures[].phase_or_artifact_gate`: the workflow phase, artifact gate, or state boundary being checked
+- `fixtures[].before_state`: the minimum state that must already be true before the guard acts
+- `fixtures[].guard_action`: the decision point, check, or gate under evaluation
+- `fixtures[].expected_after_state`: the allowed transition, routing outcome, or persisted state after the guard acts
+- `fixtures[].fail_closed_expectation`: the negative case; describe how the system refuses, parks, or escalates when required truth is missing or contradictory
+
+These fixtures are portable by design: swap the harness-specific phase names for your workflow's own gates, but keep the same before/action/after/fail-closed shape.
+
 ## `review.json`
 
 Human or agent review notes comparing candidate and baseline.

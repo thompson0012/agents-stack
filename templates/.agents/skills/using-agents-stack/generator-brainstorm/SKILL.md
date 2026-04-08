@@ -44,6 +44,8 @@ Brainstorm never claims the single runnable active sprint slot. It prepares work
 - Tool lane: durable backlog state only. Reads across `docs/live/*`, `docs/reference/*`, `docs/records/*` when linked, and `AGENTS.md`; writes to `docs/live/ideas.md`, optional scoped `docs/records/*`, and the narrow `docs/live/tracked-work.json` updates needed to promote or restate candidate backlog truth.
 - Not parallel-safe for writes. This worker owns `docs/live/ideas.md`, any scoped record page it creates or updates for the selected tracked feature, and any related `tracked-work.json` update during its run.
 - Durable return contract: an updated `docs/live/ideas.md` plus optional truthful `docs/records/*` and `docs/live/tracked-work.json` updates. Include `worker_id` and `orchestrator_run_id` in any durable note only if the host already provides them.
+- Dispatch framing is non-authoritative. Before acting, verify that the dispatched feature still matches `docs/live/tracked-work.json`, that the claimed phase still matches the strongest local/live artifact on disk, and that stronger evidence in the `AGENTS.md` precedence chain beats any dispatch summary, stale resume hint, or copied orchestrator context.
+- If those checks disagree with the dispatch frame, stop before writing, preserve the existing truthful files, and hand control back to the orchestrator for correct-lane dispatch.
 
 ## Required Reads
 Read these before changing anything:
