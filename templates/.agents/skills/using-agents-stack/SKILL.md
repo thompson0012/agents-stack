@@ -86,6 +86,7 @@ When the durable truth is a fully reconciled `awaiting_human` or `escalated_to_h
 - `references/state-machine.md`
 - `references/file-system-layout.md`
 - `references/orchestrator-worker.md`
+- `references/discovery-to-delivery.md`
 
 ## Final Checklist
 
