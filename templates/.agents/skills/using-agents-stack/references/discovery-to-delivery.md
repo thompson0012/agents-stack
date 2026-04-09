@@ -32,6 +32,7 @@ Use this pattern when the starting point is a source artifact or partially built
 6. **Use ASCII diagrams for critical pages and flows**
    - Add compact ASCII diagrams only where structure matters: key pages, navigation, stateful flows, or handoffs between modules.
    - Prefer them when they make scope or sequencing easier to verify before code exists.
+- For frontend UI slices, pair these diagrams with `references/frontend-ui-contract-recipe.md` before cutting the sprint.
 
 7. **Publish roadmap and current-focus truth, then cut the first bounded sprint**
    - Once the initiative is understood, update the durable roadmap and current-focus story before starting serial sprint work.

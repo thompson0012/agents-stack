@@ -105,14 +105,28 @@ Reject if any of these are true:
 - "nice to have" items are mixed into required scope
 
 ### 3. Attack the observability
+
 Reject if acceptance cannot be verified from outside the author's head.
+
 Common failures:
 - vague UX language with no interaction or visual checks
 - internal implementation claims substituted for user-visible outcomes
-- no concrete command, page, selector, endpoint, fixture, or data shape to inspect
+- no concrete command, page, selector, endpoint, fixture, viewport, or data shape to inspect
 - missing negative cases where failure modes matter
 - interactive behavior defined only as a final static state instead of a before/action/after transition
-- a criterion that could pass via hardcoded mocks, static DOM, or canned output without exercising the real behavior
+- a criterion that could pass via hardcoded mocks, static DOM, canned output, or a screenshot without exercising the browser path
+
+For browser-visible work, require acceptance criteria that name:
+- the route, page, or component
+- the action the reviewer performs
+- the expected after-state
+- the viewport or input mode when layout or accessibility matters
+- the selector or visible text that proves the state changed
+
+If those details are missing, reject or send the proposal back for revision; do not infer them yourself.
+
+For frontend UI proposals, compare the criteria against `references/frontend-ui-contract-recipe.md`. If layout, viewport/device class, selector or visible-text proof, or failure-state proof is missing, send the work back for revision.
+
 
 ### 4. Attack the boundary honesty
 Reject if the proposal:

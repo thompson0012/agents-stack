@@ -124,6 +124,7 @@ If durable feature-linked discussion residue is too large or nuanced for `docs/l
 - Split large or cross-cutting ideas into explicit later roadmap slices or re-authorization boundaries before proposing anything, and preserve the source-goal wording so the initiative itself is not rewritten into a smaller project.
 
 ### 5. Define observable success
+
 Every acceptance outcome must be externally checkable.
 
 For interactive behavior, prefer state-transition checks over static end states. A good interactive criterion names:
@@ -132,17 +133,28 @@ For interactive behavior, prefer state-transition checks over static end states.
 - the expected after-state
 - the reverse or repeated action when the behavior should be reversible
 
+For browser-visible UI work, each criterion must also name:
+- the route, page, or component
+- the viewport or device class when layout matters
+- the selector, label, or visible text the reviewer should observe
+- any fixture or input shape needed to reach the state
+
+For frontend UI work, consult `references/frontend-ui-contract-recipe.md` before finalizing the proposal. It keeps the prompt recipe and the proposal rubric aligned without turning the reference into a second contract.
+
+
 Good examples:
 - a page renders a new control with a stable selector
 - before clicking the theme toggle the page is in light mode, after one click it is in dark mode, and a second click returns it to light mode
-- a command prints a specific state transition
-- an API returns a documented field shape under known input and changes that shape after a specific mutation
+- at 390px wide, the card stack collapses to one column without overlap
+- while the form is submitting, the button is disabled and a spinner is visible, and after success the form clears
 
 Bad examples:
 - “clean architecture”
 - “better UX” without observable checks
 - “support future extensibility”
 - “screen shows dark mode” when the proposal never requires the reviewer to trigger the toggle
+- any criterion that could pass from a static screenshot, hardcoded DOM, or canned output without exercising the browser path
+
 
 ### 6. Draw hard file and subsystem boundaries
 - List the exact files expected to change when possible.

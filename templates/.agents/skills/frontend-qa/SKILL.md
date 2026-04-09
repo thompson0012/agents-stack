@@ -10,10 +10,12 @@ Frontend QA is real-browser, evidence-first validation of what users actually ex
 
 ## Core Contract
 - Test the real browser path before signoff.
+- A screenshot, DOM dump, or code inspection is not proof by itself; it only supports the browser evidence.
 - Separate functional, visual, accessibility, performance, responsive, and adversarial coverage.
 - Judge observable behavior, not implementation intent.
 - Treat loading, empty, error, retry, back-navigation, and dense-content states as first-class.
-- Record evidence from the state where each claim is true.
+- Record evidence from the browser state where each claim is true, including the interaction that produced it.
+
 
 ## When to use
 Use this skill when a frontend surface needs honest browser validation before signoff, release, handoff, or bug triage.
@@ -45,5 +47,6 @@ Do not use this skill for backend-only correctness, static design critique witho
 - [ ] QA inventory covers requirements, visible claims, and risky states.
 - [ ] Functional, visual, accessibility, performance, responsive, and adversarial passes were run.
 - [ ] Evidence exists for each pass.
+- [ ] Each claim was proven in a real browser state, not only by screenshots, DOM snapshots, or code review.
 - [ ] Findings distinguish real failures from unverified areas.
 - [ ] Signoff reflects Utility × Usability × Craft, not just absence of crashes.
