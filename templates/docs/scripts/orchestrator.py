@@ -332,43 +332,43 @@ def infer_timeout_resume_target(
         resume_from = "handoff.md" if handoff_path.exists() else "contract.md"
         return (
             resume_from,
-            "adversarial_live_review",
+            "adversarial-live-review",
             "Dispatch a fresh adversarial-live-review worker. It must read the generator handoff, verify the workspace matches it, then rerun the review.",
         )
 
     if review_path.exists() and status.get("review_status") == "fail":
         return (
             "review.md",
-            "generator_execution",
+            "generator-execution",
             "Dispatch a fresh generator-execution worker. It must read review.md, stay inside the contract boundary, apply the recorded defects, and refresh handoff.md before another review pass.",
         )
 
     if handoff_path.exists():
         return (
             "handoff.md",
-            "adversarial_live_review",
+            "adversarial-live-review",
             "Dispatch a fresh adversarial-live-review worker. It must read handoff.md, confirm the checkpoint against the repo, then continue the pending review.",
         )
 
     if contract_path.exists():
         return (
             "contract.md",
-            "generator_execution",
+            "generator-execution",
             "Dispatch a fresh generator-execution worker. It must read contract.md, confirm the allowed files, and resume implementation from the last verified checkpoint.",
         )
 
     if proposal_path.exists():
         return (
             "sprint_proposal.md",
-            "evaluator_contract_review",
+            "evaluator-contract-review",
             "Dispatch a fresh evaluator-contract-review worker. It must read sprint_proposal.md and decide whether the sprint should be approved, revised, or cancelled.",
         )
 
     fallback = status.get("resume_from") or "status.json"
     return (
         str(fallback),
-        "generator_proposal",
-        "Dispatch a fresh generator-proposal worker. It must reconstruct the sprint intent from the remaining state files before resuming work.",
+        "generator-execution",
+        "Dispatch a fresh generator-execution worker. It must continue the execution lane from the strongest remaining evidence without guessing a different child.",
     )
 
 
@@ -816,7 +816,7 @@ def report_retry_plan(entry: dict[str, Any]) -> int:
         print("Automatic retry blocked: record missing retry metadata before dispatching generator-execution.")
         return 0
 
-    print("Next worker phase: generator_execution")
+    print("Next worker phase: generator-execution")
     print(
         "Worker checkpoint: restore the named clean boundary first, then dispatch a fresh generator-execution worker for the same sprint."
     )

@@ -94,6 +94,7 @@ Use when quality depends on clarity, tone, usefulness, or design judgment.
 Best practice:
 - anonymize candidate and baseline as A and B
 - review without revealing which is new
+- review the raw artifacts directly; do not include provenance, version names, or a suggested winner in the prompt
 - record a short reason for the winner
 
 Use [review-template.md](../assets/review-template.md) to capture that judgment consistently.
