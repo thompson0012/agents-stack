@@ -30,6 +30,24 @@
     "why": "Selecting explicit brainstorm work from durable state is a family routing problem."
   },
   {
+    "id": "should-trigger-contradiction-reconciliation",
+    "query": "`review.md` exists, `status.json` still says contracted, and tracked work points somewhere else. Decide whether state reconciliation or another agents-stack child owns the next move.",
+    "should_trigger": true,
+    "why": "This is a durable-state contradiction inside the agents-stack workflow and requires router selection, not direct implementation."
+  },
+  {
+    "id": "should-trigger-parked-routing",
+    "query": "The only visible sprint is parked in `awaiting_human`. Decide whether the router should wait, route around it, or say no family child fits.",
+    "should_trigger": true,
+    "why": "Parked-sprint handling is an agents-stack routing decision with explicit no-family-child behavior."
+  },
+  {
+    "id": "should-trigger-no-family-child-check",
+    "query": "Check whether this repository even belongs to the agents-stack family. If it does not, say that no family child fits.",
+    "should_trigger": true,
+    "why": "The request is still to apply the agents-stack router and potentially return the explicit no-family-child outcome."
+  },
+  {
     "id": "should-not-trigger-ordinary-implementation",
     "query": "Fix the dark mode contrast bug in App.tsx and ThemeProvider.tsx and make the UI look better.",
     "should_trigger": false,
@@ -40,5 +58,11 @@
     "query": "Plan a new analytics dashboard feature and write the acceptance criteria.",
     "should_trigger": false,
     "why": "Without explicit agents-stack workflow routing or repo-state ambiguity, this is general planning work rather than family routing."
+  },
+  {
+    "id": "should-not-trigger-ordinary-review-fix",
+    "query": "Read the PR comments on the billing module and fix the failing tests.",
+    "should_trigger": false,
+    "why": "This asks for normal implementation and test repair, not harness-phase selection in an agents-stack repository."
   }
 ]

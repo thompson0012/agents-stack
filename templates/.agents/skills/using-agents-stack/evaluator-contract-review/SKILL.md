@@ -51,8 +51,8 @@ Read all of the following before deciding:
 3. `docs/live/current-focus.md` and `docs/live/roadmap.md`
 4. `docs/live/progress.md` and `docs/live/memory.md`
 5. Relevant `docs/reference/*`
-6. `.harness/<workstream-id>/sprint_proposal.md
-7. `.harness/<workstream-id>/status.json
+6. `.harness/<workstream-id>/sprint_proposal.md`
+7. `.harness/<workstream-id>/status.json`
 8. The real code and tests in the areas the proposal claims it will touch
 
 Do not review only the prose. Verify that the claimed file boundaries and acceptance steps match the actual repo.
@@ -68,7 +68,7 @@ The contract must include:
 - explicit forbidden files or forbidden subsystems
 - exact acceptance criteria stated as observable outcomes
 - concrete verification script or commands
-- open assumptions that execution may rely on
+- open assumptions, ambiguous states, and reward-hack surfaces execution may rely on
 - clear non-goals and deferred work
 
 For interactive or stateful behavior, the contract must also require before/action/after evidence. If the behavior is reversible or toggleable, the contract must require the reversal check too.
@@ -84,6 +84,7 @@ Feedback must be actionable, for example:
 - proposal claims `src/app/**` is allowed, which is too broad for a one-sprint change
 - architecture introduces a new persistence layer but the scope hides migration work
 - the toggle requirement can be reward-hacked by rendering a hardcoded final state because the proposal never requires a before/action/after check
+- the proposal assumes seeded data already exists but never names that dependency or how review will detect the wrong starting state
 
 ## Review Workflow
 
@@ -94,7 +95,15 @@ Feedback must be actionable, for example:
 - Confirm the proposal aligns with the durable source-goal and authorized initiative slice in `docs/live/roadmap.md` and `docs/live/current-focus.md`.
 - If the roadmap files and proposal disagree about what this sprint is for, reject and send the work back for proposal repair before any contract is approved.
 
-### 2. Attack the scope
+### 2. Attack assumptions and reward-hack surfaces
+Reject if the proposal:
+- relies on hidden environment, data, caller, or repo-state assumptions that are not written down
+- leaves wording loose enough that contradictory states could both appear to satisfy the contract
+- never asks how the implementation could fake a pass or shortcut the required transition
+- skips plausible alternative directions when that choice changes the contract shape or the honest file boundary
+
+
+### 3. Attack the scope
 Reject if any of these are true:
 - more than one meaningful product increment is bundled together
 - the proposal quietly narrows the user's stated initiative into a different smaller project
@@ -104,7 +113,7 @@ Reject if any of these are true:
 - the proposal requires follow-on work before its own acceptance can be tested
 - "nice to have" items are mixed into required scope
 
-### 3. Attack the observability
+### 4. Attack the observability
 
 Reject if acceptance cannot be verified from outside the author's head.
 
@@ -113,10 +122,11 @@ Common failures:
 - internal implementation claims substituted for user-visible outcomes
 - no concrete command, page, selector, endpoint, fixture, viewport, or data shape to inspect
 - missing negative cases where failure modes matter
-- interactive behavior defined only as a final static state instead of a before/action/after transition
-- a criterion that could pass via hardcoded mocks, static DOM, canned output, or a screenshot without exercising the browser path
+- interactive or other stateful behavior defined only as a final static state instead of a before/action/after transition
+- a criterion that could pass via hardcoded mocks, static DOM, canned output, pre-seeded data, or a screenshot without exercising the real path
 
 For browser-visible work, require acceptance criteria that name:
+- the starting state the reviewer must see before acting
 - the route, page, or component
 - the action the reviewer performs
 - the expected after-state
@@ -128,7 +138,7 @@ If those details are missing, reject or send the proposal back for revision; do 
 For frontend UI proposals, compare the criteria against `references/frontend-ui-contract-recipe.md`. If layout, viewport/device class, selector or visible-text proof, or failure-state proof is missing, send the work back for revision.
 
 
-### 4. Attack the boundary honesty
+### 5. Attack the boundary honesty
 Reject if the proposal:
 - omits allowed-file boundaries
 - omits forbidden-file boundaries
@@ -136,13 +146,13 @@ Reject if the proposal:
 - relies on touching generated, vendor, or unrelated files without justification
 - discovers late scope that belongs to a different roadmap slice but still tries to keep the current sprint runnable instead of pausing for re-authorization
 
-### 5. Attack resumability and retry honesty
+### 6. Attack resumability and retry honesty
 Reject if a future agent would be unable to continue from sprint-local files alone.
 The contract or revision feedback must make the next action obvious without chat history.
 
 If the proposal discusses retries, ensure it names a clean restore boundary such as a disposable worktree, VCS snapshot, or equivalent restore reference. Do not require unconditional destructive reset as the default recovery path.
 
-### 6. Write the outcome decisively
+### 7. Write the outcome decisively
 - If approved, write `contract.md` as the canonical sprint boundary and update `status.json` to `phase: "contracted"` with `resume_from: "contract.md"`.
 - If rejected, leave no ambiguous maybe-state. Record the exact revision required and update `status.json` to a revision-needed phase that routes back to proposal work.
 
@@ -156,6 +166,7 @@ If the proposal discusses retries, ensure it names a clean restore boundary such
 You must reject the proposal when any of the following is true:
 - acceptance criteria are unverifiable
 - acceptance criteria can be reward-hacked by hardcoded static outcomes rather than real state transitions
+- hidden assumptions, contradictory states, or reward-hack surfaces remain implicit
 - file boundaries are missing, too broad, or dishonest
 - the sprint hides architecture changes, migrations, or dependency churn
 - scope exceeds one bounded sprint for the current contract
@@ -166,6 +177,7 @@ You must reject the proposal when any of the following is true:
 ## Quality Bar
 A good contract review:
 - is adversarial, not collaborative wishful thinking
+- attacks assumptions, ambiguity, and reward-hack paths before code exists
 - makes approval meaningful and rejection specific
 - protects the repo from scope creep before code exists
 - preserves a clean state transition: proposed -> contracted or proposed -> revision required

@@ -57,7 +57,7 @@ A sprint passes only when all of the following are true:
 3. The result stays within contract scope.
 4. Required commands or tests were executed, or the contract explicitly permits another form of evidence.
 5. Another agent could reproduce the result from the recorded runtime notes.
-6. Interactive criteria prove a real state transition, not just a plausible final screenshot or static DOM.
+6. Interactive or other stateful criteria prove a real before/action/after transition, not just a plausible final screenshot, static DOM, or one-time final value.
 
 Any gap in reproducibility, scope control, or acceptance evidence is a review problem, not a documentation nit.
 
@@ -105,14 +105,14 @@ When you must infer missing runtime details:
 ### 4. Execute the contract checks
 
 For each acceptance criterion, record:
-- exact before-state when applicable
+- exact before-state when the criterion is interactive or otherwise stateful
 - exact action taken
 - exact after-state observed
 - reverse or repeat action when the behavior should be reversible
 - pass/fail judgment
 - proof location or supporting output
 
-For UI work, inspect the live app, not screenshots alone. For non-UI work, use the strongest available observable check: commands, HTTP responses, logs, database effects, or generated artifacts.
+For UI work, inspect the live app, not screenshots alone. For non-UI work, use the strongest available observable check: commands, HTTP responses, logs, database effects, queue state, job records, or generated artifacts. Stateful non-UI behavior still needs before/action/after evidence tied to the declared action.
 
 ### 5. Look for reward hacking and contract violations
 
@@ -122,7 +122,7 @@ FAIL the sprint when you observe any of the following, even if the final screen 
 - tests or commands required by the contract were skipped without approval
 - the generator introduced plausible-looking but unverified claims
 - the implementation regressed adjacent behavior the contract implicitly depends on
-- an interactive criterion passes only because of a hardcoded final state, static mock, canned response, or other shortcut that does not exercise the real transition
+- an interactive or other stateful criterion passes only because of a hardcoded final state, static mock, canned response, pre-seeded data, or other shortcut that does not exercise the real transition
 - a toggle, undo, or reversible behavior reaches the final state once but cannot reverse cleanly when the contract implies reversibility
 
 ## Required outputs
@@ -226,7 +226,7 @@ PASS means the implementation is verifiably complete. It does not mean “looks 
 On PASS:
 - ensure `qa.md` and `review.md` both exist
 - ensure every contract criterion has evidence
-- ensure interactive criteria include before/action/after proof and reversibility proof when applicable
+- ensure interactive or other stateful criteria include before/action/after proof and reversibility proof when applicable
 - route immediately to `state-update`
 
 ### FAIL

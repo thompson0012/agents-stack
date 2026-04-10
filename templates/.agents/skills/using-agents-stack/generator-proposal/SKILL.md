@@ -68,7 +68,7 @@ Do not propose from backlog text alone. You must inspect the real code so the fi
 
 ## Expected Outputs
 
-### `.harness/<workstream-id>/sprint_proposal.md
+### `.harness/<workstream-id>/sprint_proposal.md`
 A concrete proposal containing at minimum:
 - feature id and title
 - problem statement in current-repo terms
@@ -80,10 +80,11 @@ A concrete proposal containing at minimum:
 - implementation approach at a high level
 - observable acceptance outcomes
 - verification plan with concrete commands or review steps
-- risks, assumptions, and blockers
+- risks, assumptions, and blockers, including hidden assumptions the sprint must not discover too late
+- alternative directions or smaller cuts rejected because they would change the contract shape or hide the real goal
 - questions that must be answered before contract approval
 
-### `.harness/<workstream-id>/status.json
+### `.harness/<workstream-id>/status.json`
 A machine-readable checkpoint for resume and routing.
 It should make the proposal state obvious, for example:
 - `sprint_id`
@@ -122,6 +123,17 @@ If durable feature-linked discussion residue is too large or nuanced for `docs/l
 - Identify the smallest meaningful increment that can be implemented and reviewed in one sprint without discarding essential parts of the source goal.
 - If choosing that increment would hide core requested work, surface the missing work as later roadmap slices and only proceed if the current slice still stands on its own; do not shrink the goal to fit.
 - Split large or cross-cutting ideas into explicit later roadmap slices or re-authorization boundaries before proposing anything, and preserve the source-goal wording so the initiative itself is not rewritten into a smaller project.
+
+### 4. Attack the proposal before handoff
+Before this proposal can move to review, try to break it yourself.
+
+Force the draft to answer:
+- what hidden assumptions would execution otherwise discover too late
+- how the implementation could reward-hack each acceptance criterion with static state, canned output, skipped transitions, or omitted failure paths
+- what contradictory or ambiguous states the wording still permits
+- what plausible alternative direction or smaller cut was considered, and why this proposal is still the narrowest honest sprint
+
+If the proposal cannot survive that self-challenge, revise it or send the feature back to brainstorming instead of handing review a happy-path draft.
 
 ### 5. Define observable success
 
@@ -169,7 +181,8 @@ The proposal must let an evaluator answer:
 - What will not change?
 - How will we know it worked?
 - What evidence will the generator need to provide?
-- For interactive behavior, what before/action/after checks prevent a hardcoded fake pass?
+- What hidden assumptions, reward-hack surfaces, or contradictory states has the proposal already attacked?
+- For interactive or other stateful behavior, what before/action/after checks prevent a hardcoded fake pass?
 - What must be deferred to later sprints?
 - Does the proposal stay inside the currently authorized roadmap slice, or does it require re-authorization first?
 
@@ -191,7 +204,8 @@ The proposal must let an evaluator answer:
 Reject the proposal phase and leave a truthful blocker when:
 - the requested work cannot be truthfully partitioned into a first bounded sprint plus named later roadmap slices, or it would only fit after redefining the source goal into a smaller different project
 - acceptance criteria cannot be made observable from the current repo and tooling
-- an interactive criterion can be satisfied by a static final screenshot or hardcoded final value instead of a state transition
+- an interactive or other stateful criterion can be satisfied by a static final screenshot, hardcoded final value, pre-seeded data, or canned output instead of a real transition
+- hidden assumptions, contradictory states, or reward-hack surfaces remain implicit
 - file boundaries cannot be identified because the feature is still conceptually vague
 - the selected item still needs brainstorming before proposal
 - the change implies hidden architecture work not acknowledged in scope
@@ -207,6 +221,7 @@ A good proposal:
 - is narrow enough to finish and review in one sprint
 - names concrete files or tightly bounded directories
 - exposes architecture changes instead of smuggling them in
+- attacks hidden assumptions, reward-hack paths, and contradictory states before review sees the draft
 - defines outcomes that a reviewer can verify from behavior and state transitions
 - uses brainstorm or record context only to sharpen scope, not to excuse vagueness
 - leaves obvious future work as named later roadmap slices instead of pretending to solve everything now

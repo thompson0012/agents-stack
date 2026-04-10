@@ -2,46 +2,135 @@
   "skill_name": "using-agents-stack",
   "evals": [
     {
-      "id": "direct-initialization-empty-live-state",
-      "prompt": "This repo uses the agents-stack harness, but `docs/live/tracked-work.json` is missing and there is no trustworthy live state yet. Which child should own the next step?",
+      "id": "direct-initialization-missing-live-state",
+      "prompt": "These files say the repository uses agents-stack, but the live tracked-work file is missing. Which child should own the next step?",
       "expected_output": "Routes to using-agents-stack/project-initializer because the repository cannot yet support honest sprint routing without durable live state.",
-      "files": []
+      "files": [
+        "AGENTS.md: This repository uses the agents-stack harness.",
+        "docs/live/tracked-work.json: missing"
+      ]
     },
     {
-      "id": "queued-compound-before-resume",
-      "prompt": "`docs/live/tracked-work.json` contains `compound_pending_feature_ids: [\"WORKSTREAM-001\"]`, WORKSTREAM-001 is still the runnable active sprint, and the queue has not been cleared yet. Which child should run next?",
-      "expected_output": "Routes to using-agents-stack/compound-capture because explicit compounding drains before runnable sprint resume or new backlog selection.",
-      "files": []
+      "id": "queued-compound-beats-review-failed-retry",
+      "prompt": "The active sprint is already reconciled as review_failed with a clean restore boundary, but tracked work still has compound_pending_feature_ids for that same feature. Which child should run next?",
+      "expected_output": "Routes to using-agents-stack/compound-capture because explicit compounding drains before any retry back into execution.",
+      "files": [
+        "docs/live/tracked-work.json: runnable_active_sprint_id = WORKSTREAM-004; single_runnable_active_sprint = true; compound_pending_feature_ids = [\"FEATURE-004\"]; backlog entry FEATURE-004 has sprint_id WORKSTREAM-004 and status review_failed.",
+        ".harness/WORKSTREAM-004/review.md: FAIL verdict already recorded.",
+        ".harness/WORKSTREAM-004/status.json: phase = review_failed; clean_restore_ref = refs/worktrees/ws004-clean; attempt_count = 1; max_attempts = 3."
+      ]
     },
     {
-      "id": "direct-brainstorm-needed",
-      "prompt": "No runnable active sprint exists. The highest-priority dependency-ready backlog item is `needs_brainstorm`, `docs/live/ideas.md` exists, and no compound work is queued. Which child should run next?",
-      "expected_output": "Routes to using-agents-stack/generator-brainstorm because the next honest step is explicit pre-proposal ideation, not proposal or execution.",
-      "files": []
+      "id": "parked-sprint-does-not-block-brainstorm-route",
+      "prompt": "A sprint is durably parked awaiting human input, there is no runnable active sprint, and the highest-priority dependency-ready backlog item is needs_brainstorm. Which child should run next?",
+      "expected_output": "Routes to using-agents-stack/generator-brainstorm because parked work stays visible but does not occupy the one runnable slot when a dependency-ready brainstorm item exists.",
+      "files": [
+        "docs/live/tracked-work.json: runnable_active_sprint_id = null; compound_pending_feature_ids = []; a parked sprint remains visible; backlog entry FEATURE-006 is highest priority, status needs_brainstorm, dependencies satisfied.",
+        ".harness/WORKSTREAM-005/status.json: phase = awaiting_human; resume_from = contract.md; human_action_required = update API credentials file.",
+        "docs/live/current-focus.md: current focus notes the parked blocker but names FEATURE-006 as the next dependency-ready backlog lane once routing resumes."
+      ]
     },
     {
-      "id": "direct-new-proposal",
-      "prompt": "`docs/live/tracked-work.json` has one dependency-ready pending high-priority workstream, no runnable active sprint, no `needs_brainstorm` item outranks it, no compound work is queued, and there is no `.harness/<workstream>/contract.md` yet. Which child should run next?",
-      "expected_output": "Routes to using-agents-stack/generator-proposal because the repository has proposal-ready backlog truth and nothing in the compound or brainstorm lanes outranks it.",
-      "files": []
+      "id": "direct-new-proposal-from-pending-backlog",
+      "prompt": "No runnable sprint exists, no compound work is queued, and the highest-priority dependency-ready backlog item is pending rather than needs_brainstorm. Which child should run next?",
+      "expected_output": "Routes to using-agents-stack/generator-proposal because the repository has proposal-ready backlog truth and nothing in compound, retry, or brainstorm lanes outranks it.",
+      "files": [
+        "docs/live/tracked-work.json: runnable_active_sprint_id = null; compound_pending_feature_ids = []; backlog entry FEATURE-007 is highest priority, status pending, dependencies satisfied; no higher-priority needs_brainstorm item is dependency-ready.",
+        "docs/live/roadmap.md: FEATURE-007 is still an authorized remaining slice, not yet proposed."
+      ]
     },
     {
-      "id": "direct-contract-review",
-      "prompt": "The active workstream has `.harness/WORKSTREAM-001/sprint_proposal.md`, but there is no `contract.md` yet. Which child should own the next step?",
+      "id": "proposal-awaiting-contract-review",
+      "prompt": "The active sprint already has a sprint proposal on disk, but there is still no approved contract. Which child should own the next step?",
       "expected_output": "Routes to using-agents-stack/evaluator-contract-review because the proposal exists and must be independently approved or rejected before implementation starts.",
-      "files": []
+      "files": [
+        "docs/live/tracked-work.json: runnable_active_sprint_id = WORKSTREAM-008; single_runnable_active_sprint = true; backlog entry FEATURE-008 has sprint_id WORKSTREAM-008 and status proposed.",
+        ".harness/WORKSTREAM-008/sprint_proposal.md: present.",
+        ".harness/WORKSTREAM-008/contract.md: missing."
+      ]
     },
     {
-      "id": "reconciled-failed-review-retry",
-      "prompt": "`review.md` exists for the active sprint, `status.json.phase` is `review_failed`, `docs/live/tracked-work.json` still points at the same runnable active sprint for retry, `compound_pending_feature_ids` is empty, and durable retry metadata already records remaining budget plus `clean_restore_ref`. Which child should run next?",
-      "expected_output": "Routes to using-agents-stack/generator-execution because the failed review has already been reconciled, compounding is clear, and the same sprint now needs a clean retry implementation pass.",
-      "files": []
+      "id": "contracted-sprint-ready-for-execution",
+      "prompt": "The sprint has an approved contract, no handoff yet, and no later-phase evidence outranks the contract. Which child should run next?",
+      "expected_output": "Routes to using-agents-stack/generator-execution because implementation now owns the approved sprint contract.",
+      "files": [
+        "docs/live/tracked-work.json: runnable_active_sprint_id = WORKSTREAM-009; single_runnable_active_sprint = true; backlog entry FEATURE-009 has sprint_id WORKSTREAM-009 and status contracted.",
+        ".harness/WORKSTREAM-009/contract.md: present with approved bounded slice.",
+        ".harness/WORKSTREAM-009/handoff.md: missing.",
+        ".harness/WORKSTREAM-009/status.json: phase = contracted."
+      ]
     },
     {
-      "id": "unreconciled-review-goes-to-state-update",
-      "prompt": "`review.md` exists, but `docs/live/tracked-work.json` still says the workstream is pending and local state does not agree on the review outcome. Which child should own the next step?",
-      "expected_output": "Routes to using-agents-stack/state-update because the review outcome exists but has not yet been reconciled into truthful durable state.",
-      "files": []
+      "id": "handoff-ready-for-live-review",
+      "prompt": "Execution produced a truthful handoff, build triage passed, and there is no review yet. Which child should run next?",
+      "expected_output": "Routes to using-agents-stack/adversarial-live-review because the handoff exists and independent review now owns the next truthful checkpoint.",
+      "files": [
+        "docs/live/tracked-work.json: runnable_active_sprint_id = WORKSTREAM-010; single_runnable_active_sprint = true; backlog entry FEATURE-010 has sprint_id WORKSTREAM-010 and status in_review.",
+        ".harness/WORKSTREAM-010/contract.md: present.",
+        ".harness/WORKSTREAM-010/runtime.md: present and build/startup checkpoint recorded.",
+        ".harness/WORKSTREAM-010/handoff.md: present.",
+        ".harness/WORKSTREAM-010/review.md: missing."
+      ]
+    },
+    {
+      "id": "review-recorded-but-not-reconciled",
+      "prompt": "A review already exists, but live and local state still tell an earlier-phase story. Which child should own the next step?",
+      "expected_output": "Routes to using-agents-stack/state-update because review evidence exists and contradictory durable state must be reconciled before any new execution or proposal work.",
+      "files": [
+        "docs/live/tracked-work.json: backlog entry FEATURE-011 still says pending and does not truthfully publish the review outcome.",
+        ".harness/WORKSTREAM-011/review.md: FAIL verdict recorded with required corrective actions.",
+        ".harness/WORKSTREAM-011/status.json: phase = contracted."
+      ]
+    },
+    {
+      "id": "parked-sprint-still-marked-runnable-is-contradiction",
+      "prompt": "The same sprint is marked awaiting_human locally but still advertised as the runnable active sprint globally. Which child should own the next step?",
+      "expected_output": "Routes to using-agents-stack/state-update because active-versus-parked contradiction is a state integrity problem and the router must not invent a runnable winner.",
+      "files": [
+        "docs/live/tracked-work.json: runnable_active_sprint_id = WORKSTREAM-012; single_runnable_active_sprint = true; backlog entry FEATURE-012 still looks runnable.",
+        ".harness/WORKSTREAM-012/status.json: phase = awaiting_human; resume_from = handoff.md; human_action_required = approve vendor access request.",
+        "docs/live/current-focus.md: describes WORKSTREAM-012 as parked pending human action."
+      ]
+    },
+    {
+      "id": "reconciled-review-failed-clean-retry",
+      "prompt": "A FAIL review has already been reconciled into truthful live and local state, compounding is clear, and retry metadata names a safe clean restore boundary. Which child should run next?",
+      "expected_output": "Routes to using-agents-stack/generator-execution because the failed review is already reconciled and the same sprint now qualifies for a clean retry.",
+      "files": [
+        "docs/live/tracked-work.json: runnable_active_sprint_id = WORKSTREAM-013; single_runnable_active_sprint = true; compound_pending_feature_ids = []; backlog entry FEATURE-013 has sprint_id WORKSTREAM-013 and status review_failed.",
+        ".harness/WORKSTREAM-013/review.md: FAIL verdict recorded and preserved on disk.",
+        ".harness/WORKSTREAM-013/status.json: phase = review_failed; clean_restore_ref = refs/worktrees/ws013-clean; attempt_count = 1; max_attempts = 3."
+      ]
+    },
+    {
+      "id": "reconciled-build-failed-clean-retry",
+      "prompt": "The sprint failed build/startup triage, but the failure is already reconciled, attempts remain, and a clean restore boundary is recorded. Which child should run next?",
+      "expected_output": "Routes to using-agents-stack/generator-execution because build_failed retries belong to execution only when the durable retry guard can truthfully allow them.",
+      "files": [
+        "docs/live/tracked-work.json: runnable_active_sprint_id = WORKSTREAM-014; single_runnable_active_sprint = true; compound_pending_feature_ids = []; backlog entry FEATURE-014 has sprint_id WORKSTREAM-014 and status build_failed.",
+        ".harness/WORKSTREAM-014/runtime.md: startup checkpoint failed before the sprint became reviewable.",
+        ".harness/WORKSTREAM-014/status.json: phase = build_failed; clean_restore_ref = refs/worktrees/ws014-clean; attempt_count = 0; max_attempts = 2."
+      ]
+    },
+    {
+      "id": "retry-denied-needs-state-reconciliation",
+      "prompt": "Tracked work still points at a failed sprint, but the retry metadata is unsafe or exhausted, so execution cannot truthfully restart yet. Which child should own the next step?",
+      "expected_output": "Routes to using-agents-stack/state-update because retry routing must fail closed when clean restore metadata is missing or the attempt budget is exhausted.",
+      "files": [
+        "docs/live/tracked-work.json: runnable_active_sprint_id = WORKSTREAM-015; single_runnable_active_sprint = true; compound_pending_feature_ids = []; backlog entry FEATURE-015 has sprint_id WORKSTREAM-015 and status build_failed.",
+        ".harness/WORKSTREAM-015/runtime.md: build failure evidence recorded.",
+        ".harness/WORKSTREAM-015/status.json: phase = build_failed; clean_restore_ref = missing; attempt_count = 2; max_attempts = 2."
+      ]
+    },
+    {
+      "id": "fully-parked-no-ready-backlog-means-no-family-child",
+      "prompt": "The only remaining non-terminal sprint is already durably parked, no dependency-ready backlog item can run around it, and no new human edits have changed the checkpoint. What should the router do?",
+      "expected_output": "No family child fits; answer directly because automation must wait on the durable human handoff boundary and there is no dependency-ready backlog work to route instead.",
+      "files": [
+        "docs/live/tracked-work.json: runnable_active_sprint_id = null; compound_pending_feature_ids = []; backlog entry FEATURE-016 is awaiting_human and every other pending item depends on FEATURE-016.",
+        ".harness/WORKSTREAM-016/status.json: phase = awaiting_human; resume_from = contract.md; human_action_required = human must edit the contract after stakeholder approval.",
+        "docs/live/current-focus.md: names WORKSTREAM-016 as parked and says automation is waiting on the human checkpoint."
+      ]
     }
   ]
 }

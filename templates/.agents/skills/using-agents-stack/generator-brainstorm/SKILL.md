@@ -68,6 +68,7 @@ A durable exploration record that keeps ideation legible across sessions. For th
 - problem statement in current-repo terms
 - why the idea matters now, if known
 - dependencies, constraints, and assumptions
+- hidden assumptions, reward-hackable shortcuts, or happy-path framing that must be challenged before promotion
 - rejected or risky directions worth remembering
 - open questions blocking proposal-quality scoping
 - the promotion signal that would justify moving the item into `tracked-work.json`
@@ -128,8 +129,21 @@ When you do this:
 - do not create a second registry or a hidden contract; the record is supporting residue, not runnable authority
 - leave untracked ideation in `docs/live/ideas.md` rather than spawning a record page
 
+### 3b. Attack the idea before promotion
+Before you promote anything, challenge the brainstorm as if the next worker will overfit to the easiest happy path.
+
+Record at minimum:
+- the hidden assumptions that could make the proposal dishonest later
+- what a reward-hacked sprint would look like for this idea
+- at least one plausible alternative direction or smaller cut, and why it is weaker or not yet justified
+- the repo fact or durable evidence that keeps the promoted direction honest
+
+If you cannot write that down clearly, the idea is not proposal-ready yet. Keep it in brainstorming instead of promoting a false sense of readiness.
+
 ### 4. Promote at most one candidate when it becomes proposal-ready
 Promotion means the idea is now specific enough to deserve tracked proposal work.
+
+Promote only after the blind-spot check in step 3b is recorded and the remaining open questions are narrow enough for adversarial proposal review.
 
 When promoting:
 - keep the backlog entry narrow and truthful
@@ -166,7 +180,7 @@ When blocked, write the uncertainty down. Do not pad `ideas.md` with fake confid
 ## Quality Bar
 A good brainstorm pass:
 - makes open questions explicit instead of hiding them
-- captures durable reasons, constraints, and rejected options
+- captures durable reasons, constraints, rejected options, and challenged assumptions
 - uses `docs/records/*` only for scoped, feature-linked residue that would otherwise overload `ideas.md`
 - promotes at most one candidate only when proposal work is justified
 - keeps `docs/live/tracked-work.json` authoritative for tracked work and record linkage

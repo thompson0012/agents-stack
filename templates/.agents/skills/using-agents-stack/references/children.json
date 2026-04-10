@@ -8,7 +8,7 @@
     "Parked `awaiting_human` and `escalated_to_human` sprints remain visible but do not count as the runnable active sprint.",
     "When no runnable active sprint exists, pick the highest-priority dependency-ready `needs_brainstorm` backlog item before considering `pending` proposal work.",
     "When review or contradictory state is not yet reconciled, prefer state-update over new execution.",
-    "Route `build_failed` and reconciled `review_failed` retries to generator-execution only when attempts remain and `clean_restore_ref` names a safe restore boundary.",
+    "Route reconciled `build_failed` and `review_failed` retries to generator-execution only after state-update has published the failure, compound-capture has drained, attempts remain, and `clean_restore_ref` names a safe restore boundary.",
     "Choose the narrowest phase child that matches the current artifact gate.",
     "After selecting a child, dispatch a fresh worker, sub-agent, Task agent, or equivalent runtime delegate with phase-scoped tools and explicit artifact targets.",
     "Do not load the child prompt into the orchestrator context and continue inline."
@@ -113,18 +113,19 @@
       "name": "generator-execution",
       "target": "using-agents-stack/generator-execution",
       "relationship": "routes_to",
-      "summary": "Dispatches a fresh execution worker to implement the approved contract, retry a reconciled `build_failed` sprint, or retry a reconciled `review_failed` sprint when attempts remain.",
+      "summary": "Dispatches a fresh execution worker to implement the approved contract, or retry the same sprint only after `state-update` has published a reconciled `build_failed` or `review_failed` retry gate and `compound-capture` has drained.",
       "route_when": [
-        "`.harness/<workstream>/contract.md` exists and no later handoff or review gate is waiting.",
-        "`status.json.phase` is `contracted`, `executing`, `build_failed`, or `review_failed` and the stronger local files agree.",
-        "A prior `review_failed` has already been reconciled into local and live state, or a prior `build_failed` has already recorded truthful retry metadata, `attempt_count` is still below `max_attempts`, and `clean_restore_ref` names a safe restore boundary for a fresh worker.",
+        "`.harness/<workstream>/contract.md` exists and no later handoff or unreconciled review gate is waiting.",
+        "`status.json.phase` is `contracted` or `executing`, or is a reconciled failed retry gate (`build_failed` / `review_failed`) whose stronger local and live evidence already agrees.",
+        "A prior `build_failed` or `review_failed` has already been published by `state-update`, the same sprint still holds `runnable_active_sprint_id`, `compound_pending_feature_ids` is empty, `attempt_count` is still below `max_attempts`, and `clean_restore_ref` names a safe restore boundary for a fresh worker.",
         "`scripts/verify_retry_guard.py` allows the retry from durable state and returns verdict plus reason codes only; it does not choose the child itself.",
-        "Build or startup triage failed inside execution, so the same execution lane owns the next attempt without paying for live review."
+        "After `state-update` publishes `build_failed`, the same execution lane owns the next clean attempt without paying for live review."
       ],
       "avoid_when": [
         "The proposal is not approved yet.",
         "`handoff.md` exists and independent review has not happened yet.",
         "`review.md` exists but local and live state do not yet agree on the outcome.",
+        "A raw `build_failed` or `review_failed` still needs `state-update` truth publication or queued compounding is still pending.",
         "`attempt_count` has reached `max_attempts`, `clean_restore_ref` is missing or unsafe, or recovery requires a human decision before another retry.",
         "The sprint is explicitly parked in `awaiting_human` or `escalated_to_human`."
       ],
@@ -167,11 +168,11 @@
       "name": "state-update",
       "target": "using-agents-stack/state-update",
       "relationship": "routes_to",
-      "summary": "Dispatches a fresh state-update worker to reconcile review outcomes, blocker publication, retry eligibility, parked human gates, archive history, and compound queue publication into durable live truth.",
+      "summary": "Dispatches a fresh state-update worker to reconcile review outcomes, build/startup failure publication, blocker publication, retry eligibility, parked human gates, archive history, and compound queue publication into durable live truth.",
       "route_when": [
         "`review.md` exists and the outcome has not yet been reconciled into local and live state.",
-        "A PASS must be archived and queued into `compound_pending_feature_ids`, a FAIL must be reopened truthfully, or a BLOCKED verdict must be published into `awaiting_human` or `escalated_to_human`.",
-        "`status.json.phase` is `build_failed` or `review_failed` but automatic retry cannot proceed yet because reconciliation, attempt budgeting, or clean-restore decisions are still missing.",
+        "A PASS must be archived and queued into `compound_pending_feature_ids`, a FAIL must be reopened truthfully, a `build_failed` attempt must be published before any retry, or a BLOCKED verdict must be published into `awaiting_human` or `escalated_to_human`.",
+        "`status.json.phase` is `build_failed` or `review_failed` and local/live truth publication, attempt budgeting, clean-restore decisions, or compounding ownership are not yet fully reconciled.",
         "Use `scripts/verify_retry_guard.py` to prove retry eligibility before routing back to execution; a deny keeps the sprint in reconciliation or human-gated lanes.",
         "Local and live state contradict each other, or active and parked sprint semantics are not yet reflected truthfully."
       ],
@@ -194,16 +195,16 @@
       "name": "compound-capture",
       "target": "using-agents-stack/compound-capture",
       "relationship": "routes_to",
-      "summary": "Dispatches a fresh compound worker to capture durable learnings after state publication, update `docs/live/memory.md` and optional reference docs, and clear `compound_pending_feature_ids`.",
+      "summary": "Dispatches a fresh compound worker to capture durable learnings after `state-update` has already published a decisive outcome, update `docs/live/memory.md` and optional reference docs, and clear `compound_pending_feature_ids`.",
       "route_when": [
         "`docs/live/tracked-work.json` contains one or more ids in `compound_pending_feature_ids`.",
-        "A PASS result has already been published and archived, but durable learning capture has not yet been completed.",
+        "A decisive outcome has already been published and queued, whether that outcome archived the sprint or left it active/parked for a later retry or human gate.",
         "The next truthful action is to update `docs/live/memory.md` and any reference docs before opening or resuming sprint work."
       ],
       "avoid_when": [
         "The queue is empty.",
         "The router would need to reopen or claim a runnable sprint to do the compound work.",
-        "Review reconciliation has not happened yet and `state-update` still owns the truth publication."
+        "Outcome reconciliation has not happened yet and `state-update` still owns the truth publication."
       ],
       "requires": [
         "state-update"

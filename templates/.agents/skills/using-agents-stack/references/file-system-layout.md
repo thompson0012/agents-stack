@@ -138,7 +138,20 @@ This folder contains sprint-local durable state. One folder may be the runnable 
 
 Fresh workers come and go, but the sprint folder stays stable. Retries, review cycles, human pauses, and resume attempts write back into the same sprint-local evidence set.
 
-### Required files and meanings
+### Canonical sprint-local artifact layout
+
+```text
+.harness/<workstream-id>/
+├── sprint_proposal.md
+├── contract.md
+├── runtime.md
+├── handoff.md
+├── qa.md
+├── review.md
+└── status.json
+```
+
+### Canonical sprint-local files and meanings
 
 #### `sprint_proposal.md`
 
@@ -166,6 +179,13 @@ Fresh workers come and go, but the sprint folder stays stable. Retries, review c
 - should name the exact files or decisions a human must touch before resume
 - created by a `generator-execution` worker
 - existence means execution claims review readiness unless contradicted by stronger evidence
+
+#### `qa.md`
+
+- detailed review evidence log with exact checks, observations, and reproduction notes behind `review.md`
+- created by an `adversarial-live-review` worker
+- consumed by `state-update`, humans, and retry/resume audits when review evidence must be re-read
+- optional until review runs; once present, archive it with the rest of the sprint evidence
 
 #### `review.md`
 
@@ -276,6 +296,7 @@ Scripts may inspect or update state, but the durable truth still lives in the st
 | `.harness/<workstream-id>/contract.md` | sprint-local | evaluator-contract-review worker | execution and review workers |
 | `.harness/<workstream-id>/runtime.md` | sprint-local | generator-execution worker | execution, review, and resume logic |
 | `.harness/<workstream-id>/handoff.md` | sprint-local | generator-execution worker | review, humans, and resume logic |
+| `.harness/<workstream-id>/qa.md` | sprint-local | adversarial-live-review worker | state-update, humans, and resume logic |
 | `.harness/<workstream-id>/review.md` | sprint-local | adversarial-live-review worker | state-update and resume logic |
 | `.harness/<workstream-id>/status.json` | sprint-local | current phase worker | router, resume logic, audits |
 | `docs/archive/<workstream-id>_<timestamp>/` | historical | state-update worker | humans, audits, future planning |

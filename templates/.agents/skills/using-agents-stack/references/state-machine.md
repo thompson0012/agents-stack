@@ -143,34 +143,34 @@ This lets explicit compounding run before new work and lets the backlog advance 
   - Trigger: `state-update` worker processes a BLOCKED review that requires human edits, approvals, credentials, or other intervention at a file-described pause boundary.
 - `review_recorded` -> `escalated_to_human`
   - Trigger: `state-update` worker processes a BLOCKED review that cannot be retried safely or honestly by automation.
+- `build_failed` -> `compound_pending`
+  - Trigger: `state-update` worker publishes the failed build/startup attempt into durable live state, records retry metadata or a human gate, and queues the feature id in `compound_pending_feature_ids` before any retry is reconsidered.
 - `archived`, `review_failed`, `awaiting_human`, or `escalated_to_human` -> `compound_pending`
   - Trigger: `state-update` queues the feature id in `compound_pending_feature_ids` after reconciling the decisive outcome.
 
 ### Retry, pause, escalation, and post-compound routing
 
-- `build_failed` -> `executing`
-  - Trigger: retry metadata is fully recorded, `attempt_count < max_attempts`, `clean_restore_ref` names a safe restore boundary, and any queued compounding has been drained.
-- `review_failed` -> `executing`
-  - Trigger: local and live state agree that the failure is reconciled, `attempt_count < max_attempts`, `clean_restore_ref` names a safe restore boundary, and any queued compounding has been drained.
+Automatic retry never resumes directly from raw `build_failed` or `review_failed`. `state-update` must publish the failure first, `compound-capture` must drain any queued learning work, and only then may `generator-execution` retry.
+
+- `compound_pending` -> `executing`
+  - Trigger: the queue entry is cleared, the same sprint still remains the single runnable active sprint, the strongest durable evidence now reflects a reconciled `build_failed` or `review_failed` retry gate, and `scripts/verify_retry_guard.py` allows the retry from durable state.
 - `scripts/verify_retry_guard.py` is the bounded checkable gate for these retry triggers. It reads durable retry state, returns allow/deny plus reason codes, and does not choose the next child.
 - `build_failed` -> `awaiting_human`
-  - Trigger: retry is not yet safe because a human must edit files, repair the environment, or confirm the restore boundary, but escalation is not yet required.
+  - Trigger: `state-update` determines retry is not yet safe because a human must edit files, repair the environment, or confirm the restore boundary, but escalation is not yet required.
 - `review_failed` -> `awaiting_human`
-  - Trigger: fixing the review failure requires explicit human edits or approvals before another clean retry.
+  - Trigger: `state-update` determines fixing the failed review requires explicit human edits or approvals before another clean retry.
 - `build_failed` -> `escalated_to_human`
-  - Trigger: `attempt_count` reaches `max_attempts` or no safe clean restore boundary exists.
+  - Trigger: `state-update` determines `attempt_count` has reached `max_attempts` or no safe clean restore boundary exists.
 - `review_failed` -> `escalated_to_human`
-  - Trigger: `attempt_count` reaches `max_attempts` or no safe clean restore boundary exists.
+  - Trigger: `state-update` determines `attempt_count` has reached `max_attempts` or no safe clean restore boundary exists.
 - `awaiting_human` -> route by `resume_from`
   - Trigger: a human changes the named files, updates the pause metadata, or otherwise records that the durable gate is cleared.
 - `escalated_to_human` -> route by explicit human decision
   - Trigger: a human records a reset, cancellation, rescope, or new restore boundary in the files.
-- `compound_pending` -> `executing`
-  - Trigger: the queue entry is cleared and the same sprint still remains the single runnable active sprint.
 - `compound_pending` -> `needs_brainstorm` or `proposal_needed`
   - Trigger: the queue entry is cleared and no runnable sprint remains, so the orchestrator returns to dependency-ready backlog selection.
 
-## PASS / FAIL / BLOCKED routing
+## PASS / BUILD_FAILED / FAIL / BLOCKED routing
 
 ### PASS path
 
@@ -185,6 +185,21 @@ This lets explicit compounding run before new work and lets the backlog advance 
    - clears runnable active-sprint status
    - queues the feature id in `compound_pending_feature_ids`
 4. The next router pass selects `compound-capture`. Only after the queue is drained may the harness select new proposal work or another runnable sprint.
+
+### BUILD_FAILED path
+
+1. `generator-execution` worker records build/startup failure evidence in `runtime.md` or `handoff.md` and sets `status.json.phase = build_failed`.
+2. The orchestrator selects `state-update` and dispatches a fresh worker.
+3. `state-update` worker:
+   - keeps the sprint visible in `.harness/`
+   - records `build_failed` in durable live state
+   - increments or validates `attempt_count` and confirms `max_attempts` for the next clean attempt
+   - records or validates `clean_restore_ref` before any automatic retry
+   - refreshes `docs/live/current-focus.md` and `docs/live/roadmap.md` when recovery ownership or re-authorization boundaries change
+   - queues the feature id in `compound_pending_feature_ids`
+   - leaves `runtime.md` on disk as evidence for the retry or escalation
+   - updates global progress so the failure is visible outside the sprint folder
+4. The next router pass selects `compound-capture` first. After the queue is drained, it selects `generator-execution` only if the retry is reconciled, attempts remain, and the restore boundary is safe. Otherwise the sprint moves to `awaiting_human` or `escalated_to_human`.
 
 ### FAIL path
 

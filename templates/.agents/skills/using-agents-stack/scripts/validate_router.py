@@ -157,7 +157,9 @@ def validate_skill(router_dir: Path) -> tuple[dict[str, str], str, list[Issue]]:
             issues.append(Issue("error", "frontmatter name must use lowercase letters, numbers, and single hyphens only"))
 
     description = frontmatter.get("description", "")
-    if description and not description.startswith("Use when "):
+    if not description.strip():
+        issues.append(Issue("error", "frontmatter description must be a non-empty string"))
+    elif not description.startswith("Use when "):
         issues.append(Issue("warning", "description should start with 'Use when '"))
 
     root = router_dir.resolve()
@@ -193,10 +195,14 @@ def validate_children_metadata(router_dir: Path, frontmatter: dict[str, str]) ->
         issues.append(Issue("warning", f"references/children.json uses non-standard top-level field: {key}"))
 
     router_name = data.get("router_name")
-    if not isinstance(router_name, str) or not router_name.strip():
+    if not isinstance(router_name, str):
         issues.append(Issue("error", "references/children.json router_name must be a non-empty string"))
-    elif frontmatter.get("name") and router_name != frontmatter["name"]:
-        issues.append(Issue("error", f"references/children.json router_name must match frontmatter name: {frontmatter['name']}"))
+    else:
+        router_name = router_name.strip()
+        if not router_name:
+            issues.append(Issue("error", "references/children.json router_name must be a non-empty string"))
+        elif frontmatter.get("name") and router_name != frontmatter["name"]:
+            issues.append(Issue("error", f"references/children.json router_name must match frontmatter name: {frontmatter['name']}"))
 
     purpose = data.get("purpose")
     if not isinstance(purpose, str) or not purpose.strip():
