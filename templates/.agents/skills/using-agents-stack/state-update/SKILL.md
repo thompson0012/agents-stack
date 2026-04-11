@@ -54,7 +54,8 @@ That means:
 - Only the orchestrator may spawn workers. This worker must not spawn another worker.
 - Tool lane: durable state and archive operations only: `docs/live/tracked-work.json`, `docs/live/current-focus.md`, `docs/live/roadmap.md`, `docs/live/progress.md`, `.harness/<sprint-id>/*`, and `docs/archive/*` as required by the outcome. No product-code edits, no proposal rewriting, no new implementation work, and no `docs/live/memory.md` edits.
 - Not parallel-safe. This worker owns the single runnable active sprint's global reconciliation, archive decision, compounding queue update, roadmap truth, and focus-anchor refresh; do not split or race writes across multiple workers.
-- Durable return contract: updated `docs/live/tracked-work.json`, `docs/live/current-focus.md`, `docs/live/roadmap.md`, `docs/live/progress.md`, `.harness/<sprint-id>/status.json`, and PASS-path archive contents. Include `worker_id` / `orchestrator_run_id` in the updated status or ledger entry when the host provides them.
+- Before publishing tracked-work or progress mutations from a review outcome, run `templates/.agents/skills/using-agents-stack/scripts/validate_state_update.py` against the durable files. Trust the merged review convergence summary only after the reviewer await-all synthesis barrier has produced one decisive record and merged result ledger.
+- Durable return contract: updated `docs/live/tracked-work.json`, `docs/live/current-focus.md`, `docs/live/roadmap.md`, `docs/live/progress.md`, `.harness/<sprint-id>/status.json`, and PASS-path archive contents. Include stable `worker_id` / `orchestrator_run_id` in the updated status or ledger entry when the host provides them, and preserve review convergence data instead of recomputing it from chat summaries.
 - Dispatch framing is non-authoritative. Before reconciling state, verify that the dispatched sprint still matches `docs/live/tracked-work.json`, that the claimed decisive phase still matches the strongest local artifact on disk, and that stronger evidence in the `AGENTS.md` precedence chain beats any dispatch summary, stale resume hint, or copied orchestrator context.
 - If those checks disagree with the dispatch frame, stop before writing live or sprint state, preserve the existing truthful files, and hand control back to the orchestrator for correct-lane dispatch.
 
@@ -67,8 +68,12 @@ If `status.json` or `review.md` says the sprint was reviewed, confirm all of the
 1. `.harness/<sprint-id>/review.md` exists.
 2. `.harness/<sprint-id>/qa.md` exists or `review.md` explicitly embeds equivalent evidence.
 3. The review decision is unambiguous: `PASS`, `FAIL`, or `BLOCKED`.
-4. `status.json` points to the review checkpoint.
-5. The reviewed sprint matches the backlog item recorded in `docs/live/tracked-work.json`.
+4. The review findings list is present, every finding has a severity label, and every finding carries an explicit `duplicate_of` value.
+5. Coverage metadata is present: `areas_reviewed`, `areas_not_reviewed`, and `coverage_status`.
+6. Convergence metadata is present: `convergence_status` and `open_blocking_count`.
+7. `templates/.agents/skills/using-agents-stack/scripts/validate_state_update.py` returns `allow` for any PASS publication and explains any denial with reason codes.
+8. `status.json` points to the review checkpoint.
+9. The reviewed sprint matches the backlog item recorded in `docs/live/tracked-work.json`.
 
 ### Execution-triage outcomes
 If `status.json` says `build_failed`, `awaiting_human`, or `escalated_to_human`, confirm all of the following:
@@ -89,6 +94,8 @@ If the required evidence for the claimed phase is missing, stop. Do not mark the
 - `status.json` carries the current local routing truth, including attempt budgeting and clean restore metadata.
 - `docs/live/tracked-work.json` is the authoritative tracked-work ledger that must now be synchronized.
 - `docs/live/progress.md` is the reviewed-outcome ledger that must record what changed.
+- The review convergence summary decides whether PASS may be published: `coverage_status` must be `complete`, `convergence_status` must be `closed`, and `open_blocking_count` must be zero.
+- If review metadata is missing, contradictory, or denied by `validate_state_update.py`, fail closed. Preserve the sprint and publish the inconsistency instead of archiving optimistically.
 
 ## Failure-owner classification
 
@@ -111,6 +118,8 @@ Read the strongest local artifact for the current phase and extract:
 - corrective directives or human actions
 - any explicit scope violations
 - any unexecuted checks or unverifiable claims
+- review coverage metadata: `areas_reviewed`, `areas_not_reviewed`, and `coverage_status` when review drove the outcome
+- review convergence metadata: `convergence_status`, `open_blocking_count`, and the canonical open non-duplicate P0 / P1 / P2 / P3 finding ids when review drove the outcome
 - retry state: `attempt_count`, `max_attempts`, and `clean_restore_ref`
 
 If local evidence and `status.json` disagree, preserve the sprint as active or parked and record the discrepancy in `progress.md` rather than pretending the outcome is settled.
@@ -126,6 +135,7 @@ At minimum, publish truthfully:
 - which sprint ids are parked in `awaiting_human` or `escalated_to_human`
 - which feature ids are waiting in `compound_pending_feature_ids` for explicit Compound work
 - each touched feature's terminal or non-terminal status, owner, attempt count, max attempts, clean restore reference, and next action when those fields exist locally
+- when review drove the outcome, the preserved convergence summary that explains whether PASS is closed or which open P0 / P1 / P2 / P3 findings still block completion
 - the feature's one canonical `evidence_path`: `.harness/<sprint-id>/...` while active or parked, `docs/archive/<sprint-id>_<timestamp>/...` after PASS archive cutover
 - any truthful `idea_ref`, `record_paths`, and `reference_paths` already attached to that feature so live state remains the single registry for durable traceability
 
@@ -139,6 +149,7 @@ Queueing compounding means:
 - the queue does not reopen execution or review
 
 #### On PASS
+- publish PASS only when the review verdict is PASS, `templates/.agents/skills/using-agents-stack/scripts/validate_state_update.py` returns `allow`, `coverage_status` is `complete`, `convergence_status` is `closed`, and `open_blocking_count` is `0`
 - mark the sprint feature with the repository's terminal status name `archived` after the PASS archive cutover completes
 - remove it from the runnable active slot and from any parked list
 - switch the feature's canonical `evidence_path` from `.harness/<sprint-id>/...` to the resulting `docs/archive/<sprint-id>_<timestamp>/...` bundle
@@ -148,9 +159,11 @@ Queueing compounding means:
 #### On `review_failed` or `build_failed`
 - keep the same feature as the runnable active sprint only if an automatic retry is still safe
 - copy `attempt_count`, `max_attempts`, `clean_restore_ref`, and the failure phase into the backlog entry
+- when the failure came from review, preserve `coverage_status`, `convergence_status`, `open_blocking_count`, and the canonical open non-duplicate P0 / P1 / P2 / P3 finding ids so those blockers keep the sprint active until the next review loop closes them
 - set `next_action` to a clean retry through `generator-execution`, never to live review directly
+- if review metadata is missing or `validate_state_update.py` denies PASS publication, fail closed: preserve the sprint, publish the denial reason codes, and do not archive
 - if `attempt_count >= max_attempts` or no safe clean restore boundary exists, convert the live feature state to `escalated_to_human` instead of advertising an automatic retry
-- `scripts/verify_retry_guard.py` is the bounded retry-eligibility check for this handoff back to execution. If it denies, keep the sprint in reconciliation or human-gated state instead of advertising an automatic retry.
+- `scripts/verify_retry_guard.py` is the bounded retry-eligibility check for this handoff back to execution. If it denies, keep the sprint in reconciliation or human-gated state instead of advertising an automatic retry
 - keep the feature id queued in `compound_pending_feature_ids` so the explicit Compound phase can decide whether any durable lesson survives before the next proposal cycle
 
 #### On `awaiting_human`
@@ -215,10 +228,11 @@ Append a dated ledger entry that includes:
 - the same canonical evidence path published in `docs/live/tracked-work.json` (`.harness/...` while active or parked, `docs/archive/...` after archive)
 - attempt count and max attempts when retry budgeting matters
 - clean restore expectation when another execution pass is possible
+- when review drove the outcome, `coverage_status`, `convergence_status`, `open_blocking_count`, and the canonical open blocker ids or denial reason codes that explain why PASS is still blocked
 - whether the feature was queued for explicit Compound work
 - next recommended action
 
-For `review_failed` or `build_failed`, the next action should point back to the same sprint, the corrective directives, and the required clean restore boundary.
+For `review_failed` or `build_failed`, the next action should point back to the same sprint, the corrective directives, the required clean restore boundary, and any still-open blocking findings that must be cleared before rerunning review.
 For `awaiting_human`, the next action should point to the exact file edits, approval, or manual recovery the human must complete.
 For `escalated_to_human`, the next action should halt automatic retry and name the evidence bundle the human should inspect before resuming.
 For PASS, the next action should point to `compound-capture` first when `compound_pending_feature_ids` is non-empty, then to backlog selection once compounding is clear. `progress.md` stays the append-only outcome ledger, not a second registry for record or reference links.
@@ -235,6 +249,7 @@ On `review_failed`:
   - `owner_role: "orchestrator"`
   - `resume_from: "review.md"`
 - preserve `attempt_count`, `max_attempts`, and `clean_restore_ref`
+- preserve the review convergence summary and any open non-duplicate P0 / P1 / P2 / P3 blockers so they remain visible in live state and progress until the next review loop closes them
 - synchronize `docs/live/tracked-work.json` and `docs/live/progress.md` so the sprint stays open, the failure is visible, and the next action points to a clean retry through `generator-execution`
 - queue explicit compounding instead of writing `docs/live/memory.md` here
 - if retry budget is exhausted or recovery is unsafe, change the routed phase to `escalated_to_human` instead
@@ -292,10 +307,11 @@ When there is no runnable active sprint because the current non-terminal sprint 
 
 ## PASS path: archive after global state is updated
 On PASS:
-1. Verify the review evidence is complete.
-2. Update `docs/live/*` first, including the feature's `archived` terminal status and the archive-bound `evidence_path`.
-3. Archive the full sprint artifact set to `docs/archive/<sprint-id>_<timestamp>/`.
-4. Ensure the archive contains, at minimum:
+1. Run `templates/.agents/skills/using-agents-stack/scripts/validate_state_update.py <sprint-id> --repo-root <repo-root>` and continue only when it returns `allow`.
+2. Verify the review evidence is complete and that the preserved convergence summary still says `coverage_status: complete`, `convergence_status: closed`, and `open_blocking_count: 0`.
+3. Update `docs/live/*` first, including the feature's `archived` terminal status and the archive-bound `evidence_path`.
+4. Archive the full sprint artifact set to `docs/archive/<sprint-id>_<timestamp>/`.
+5. Ensure the archive contains, at minimum:
    - `sprint_proposal.md` if it exists
    - `contract.md`
    - `handoff.md`
@@ -303,15 +319,15 @@ On PASS:
    - `status.json`
    - `runtime.md` when execution produced runtime notes
    - `qa.md` when the review produced a separate QA evidence log
-5. Update `status.json` to a terminal archived state, for example:
+6. Update `status.json` to a terminal archived state, for example:
    - `phase: "archived"`
    - `owner_role: "none"`
    - `resume_from: "docs/archive/<sprint-id>_<timestamp>/review.md"`
-6. Remove or clear the active sprint workspace only after the archive copy is confirmed and the harness's single-runnable-sprint rule is preserved.
-7. Leave the feature id queued in `compound_pending_feature_ids` until `compound-capture` processes the archived evidence.
-8. Keep any existing `record_paths` and `reference_paths` registered on the feature entry; state-update moves the evidence pointer, it does not create a second registry.
+7. Remove or clear the active sprint workspace only after the archive copy is confirmed and the harness's single-runnable-sprint rule is preserved.
+8. Leave the feature id queued in `compound_pending_feature_ids` until `compound-capture` processes the archived evidence.
+9. Keep any existing `record_paths` and `reference_paths` registered on the feature entry; state-update moves the evidence pointer, it does not create a second registry.
 
-Never archive a sprint if review failed, build/startup triage failed, or evidence is missing.
+Never archive a sprint if review failed, build/startup triage failed, review convergence is still open, or evidence is missing.
 
 ## Routing rules
 
@@ -326,7 +342,7 @@ The archived sprint should no longer be the active work packet.
 
 ### After `review_failed` or `build_failed`
 - queue the feature for `compound-capture` as part of the decisive outcome publication
-- after compounding clears, route back to `generator-execution` on the same sprint only when `attempt_count < max_attempts`, `clean_restore_ref` is present and credible, and live state makes the clean retry requirement explicit
+- after compounding clears, route back to `generator-execution` on the same sprint only when `attempt_count < max_attempts`, `clean_restore_ref` is present and credible, live state makes the clean retry requirement explicit, and any preserved open blockers still point at implementation work rather than contract or state defects
 - otherwise route to `escalated_to_human`
 
 ### After `awaiting_human` or `escalated_to_human`
@@ -337,10 +353,10 @@ If compounding is pending, route to `compound-capture` before opening new brains
 ## Edge-case rules
 
 ### Review evidence is missing
-If `review.md` exists but no evidence supports it:
+If `review.md` exists but no evidence supports it, or the required coverage / convergence metadata is missing:
 - do not mark PASS, FAIL, or BLOCKED into global state as final
 - leave the sprint active
-- record the inconsistency in `progress.md`
+- record the inconsistency and any `validate_state_update.py` denial reason codes in `progress.md`
 - route back for a proper review, not for fresh implementation
 
 ### Build/startup evidence is missing
@@ -373,11 +389,11 @@ Use this table when updating state:
 
 | Local outcome | Live feature status | Local sprint | Archive | Next route |
 | --- | --- | --- | --- | --- |
-| PASS with evidence | archived | cleared after archive verification | create `docs/archive/<id>_<timestamp>/` and switch `evidence_path` there | `compound-capture`, then backlog routing |
-| `review_failed` with evidence and retry budget | still runnable | preserve `.harness/<id>/` and keep `evidence_path` there | none | `compound-capture`, then `generator-execution` after clean restore |
+| PASS with closed convergence evidence | archived | cleared after archive verification | create `docs/archive/<id>_<timestamp>/` and switch `evidence_path` there | `compound-capture`, then backlog routing |
+| `review_failed` with evidence and retry budget | still runnable | preserve `.harness/<id>/` and keep `evidence_path` there | none | `compound-capture`, then `generator-execution` after clean restore and blocker preservation |
 | `build_failed` with evidence and retry budget | still runnable | preserve `.harness/<id>/` and keep `evidence_path` there | none | `compound-capture`, then `generator-execution` after clean restore |
 | `awaiting_human` | parked, non-runnable | preserve `.harness/<id>/` and keep `evidence_path` there | none | `compound-capture`, then human action or dependency-ready work |
 | `escalated_to_human` | parked, non-runnable | preserve `.harness/<id>/` and keep `evidence_path` there | none | `compound-capture`, then human intervention or dependency-ready work |
-| Missing evidence | active or parked, but unresolved | preserve `.harness/<id>/` and keep `evidence_path` there | none | reconcile evidence first |
+| Missing evidence or open convergence | active or parked, but unresolved | preserve `.harness/<id>/` and keep `evidence_path` there | none | reconcile evidence first |
 
 If you cannot make the repository tell a coherent story from the files on disk, stop and preserve the sprint rather than lying with state.

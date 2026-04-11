@@ -27,6 +27,7 @@ Do not perform the child workflow here. Prefer dispatching a fresh worker, sub-a
 - Brainstorm and Compound are explicit non-runnable phases. They may be the next router action, but they must not claim `runnable_active_sprint_id`.
 - When no runnable active sprint exists, drain `compound_pending_feature_ids` first, then choose the highest-priority dependency-ready `needs_brainstorm` backlog item, then the highest-priority dependency-ready `pending` item.
 - Protect the orchestrator context: it selects, merges worker evidence, dispatches, and waits for structured outputs; it does not implement, review, or rewrite state inline.
+- When the orchestrator fans out to sibling workers, it must wait for all of them to return, merge their structured outputs into sprint-local durable state keyed by stable worker ID, and only then decide the next dispatch or emit a completion message.
 - If the best child is missing, say to install it rather than quietly doing weaker work under the wrong child.
 
 ## Decision Order
@@ -44,7 +45,8 @@ Do not perform the child workflow here. Prefer dispatching a fresh worker, sub-a
 11. If no dependency-ready `needs_brainstorm` item exists, choose the highest-priority dependency-ready `pending` backlog item for `generator-proposal`.
 12. Pick the narrowest child that matches the strongest durable evidence.
 13. If the selected child is missing, install it when possible or disclose the fallback.
-14. Dispatch a fresh worker for the selected child with a stable worker ID, phase-appropriate tools, and explicit artifact return targets after any useful evidence-gathering workers have returned and been merged.
+14. Dispatch a fresh worker for the selected child with a stable worker ID, phase-appropriate tools, and explicit artifact return targets after any useful evidence-gathering workers have all returned and been merged into the sprint-local result ledger.
+15. If any sibling worker is still pending, stop at the await-all barrier: do not emit a done message, final synthesis, or next-dispatch decision until the merged ledger is complete.
 
 ## Family Workflow Boundary
 

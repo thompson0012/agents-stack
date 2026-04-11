@@ -8,8 +8,9 @@ This package should be evaluated as a router and durable-state interpreter, not 
 - `evals/evals.json`: file-grounded router regression cases for route selection, contradiction handling, parked-state behavior, retry truthfulness, and explicit `No family child fits` outcomes
 - `evals/trigger-evals.json`: discovery-noise checks for when the router should load at all, including contradiction, parked, and no-family-child asks
 - `guard-eval-fixtures.md`: temporal retry-gate fixtures that check before/action/after correctness and fail-closed behavior; these are not router route-selection checks
+- `review-convergence-fixtures.md`: review/state-update publishability fixtures that check coverage closure, convergence closure, and PASS fail-closed behavior; these are not router route-selection or retry-eligibility checks
 
-Run the structural validator first, then use the router eval files to regression-test route selection and trigger quality. Evaluate retry guards separately with the temporal fixture lane documented in [guard-eval-fixtures.md](./guard-eval-fixtures.md); those fixtures verify gating truth, not child selection.
+Run the structural validator first, then use the router eval files to regression-test route selection and trigger quality. Evaluate retry guards separately with the temporal fixture lane documented in [guard-eval-fixtures.md](./guard-eval-fixtures.md). Evaluate PASS publishability separately with the convergence fixture lane documented in [review-convergence-fixtures.md](./review-convergence-fixtures.md). Both fixture lanes verify fail-closed gating, not child selection.
 
 Treat the eval corpus as regression input, not a second contract. `SKILL.md`, `references/children.json`, `references/state-machine.md`, and the other reference docs remain canonical.
 
@@ -80,6 +81,18 @@ Checks:
 - missing `clean_restore_ref`, exhausted attempt budgets, stale sprint ownership, and non-empty compound queues deny retry instead of being normalized away
 - the fixture lane demands temporal evidence so a static end-state snapshot cannot reward-hack its way into a false allow
 
+### 5. Review convergence and PASS publishability
+
+Review-convergence fixtures are separate because they answer a different question: not "which child runs next?" and not "may a retry start?" but "may this PASS review publish and archive yet?"
+
+Checks:
+
+- PASS requires explicit review coverage metadata showing every acceptance criterion was accounted for
+- PASS requires explicit convergence closure and zero open non-duplicate P0-P3 findings before `state-update` may publish or archive
+- duplicate-linked findings marked `duplicate_of` do not double-count as blockers
+- advisory-only findings below the blocking severity range do not block convergence
+- missing coverage metadata or missing convergence metadata denies PASS and forces deny / re-review
+
 ## Suggested router case groups
 
 - initialization and missing-live-state cases
@@ -89,6 +102,7 @@ Checks:
 - contradictory review/live-state cases that must reconcile through `state-update`
 - parked-sprint cases that either route around the blocker honestly or return `No family child fits`
 - retry cases split cleanly between allowed `review_failed`, allowed `build_failed`, and denied unsafe retries
+- review convergence cases split cleanly between publishable PASS, open-blocker denial, and missing-metadata denial
 
 ## Pass criteria
 
@@ -100,6 +114,7 @@ The package passes evaluation when all of the following are true:
 - the package reinforces the single-runnable-sprint rule
 - PASS reviews still archive via `state-update`, and FAIL/build-failed retries resume execution only after reconciliation, compounding, and truthful retry gating
 - guard fixtures distinguish review-failed clean resume, build-failed clean resume, and deny paths instead of flattening them into one generic retry story
+- review-convergence fixtures distinguish publishable PASS from deny / re-review based on complete coverage, explicit convergence closure, and zero open non-duplicate P0-P3 findings
 
 ## Failure criteria
 
@@ -110,4 +125,5 @@ The package fails evaluation if any of the following happen:
 - child skill selection depends on chat memory or unwritten assumptions
 - parked human-owned sprints are auto-dispatched back into execution without a durable change to the checkpoint
 - retry logic allows execution without the specific evidence required for that failed phase
+- PASS or archive is allowed while open non-duplicate P0-P3 findings remain, or while coverage / convergence metadata is missing
 - the same durable state could reasonably produce multiple different routes without additional rules

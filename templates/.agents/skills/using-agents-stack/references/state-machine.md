@@ -45,9 +45,9 @@ This lets explicit compounding run before new work and lets the backlog advance 
 
 - The lead orchestrator chooses the next phase from durable state and starts a fresh worker through the host runtime's delegation primitive.
 - The worker owns exactly one phase and writes that phase's canonical artifacts.
-- Independent work may run in parallel only when the lead orchestrator starts sibling workers with non-overlapping ownership and merges their outputs back into sprint-local state.
+- Independent work may run in parallel only when the lead orchestrator starts sibling workers with non-overlapping ownership, assigns stable worker IDs, awaits every sibling return, and merges those returns into sprint-local state through a merged result ledger before phase synthesis.
 - Retries do not reuse old context windows. They start a new worker and keep prior evidence on disk.
-- Structured worker returns should name the worker ID, phase, artifact paths, blockers, and next owner when useful.
+- Structured worker returns should name the stable worker ID, phase, artifact paths, blockers, and next owner when useful.
 
 ## Roadmap publication and revision
 
@@ -76,8 +76,8 @@ This lets explicit compounding run before new work and lets the backlog advance 
 | `executing` | `status.json` shows active execution, no later artifact exists | `generator-execution` worker | Work is underway. | Finish implementation, or record an execution-time failure honestly. |
 | `build_failed` | `status.json.phase = build_failed` plus execution notes in `runtime.md` or `handoff.md` | `state-update` worker, then `compound-capture`, then orchestrator | Build, startup, or smoke-triage failed during execution, so the sprint must reconcile, compound, and then retry or escalate. | Clean-restore and retry, park for human input, or escalate. |
 | `paused_by_timeout` | `status.json.phase = paused_by_timeout` | Route by `resume_from`, usually a fresh phase worker | Prior session stopped without a clean finish. | Resume from the last trustworthy checkpoint. |
-| `awaiting_review` | `handoff.md` exists and `review.md` does not | `adversarial-live-review` worker | Execution claims completion and is waiting for independent review. | Review observable behavior and state transitions. |
-| `review_recorded` | `review.md` exists | `state-update` worker | Review outcome exists and must be synchronized into durable state. | Mark archived on PASS, reopen on FAIL, or park/escalate on BLOCKED. |
+| `awaiting_review` | `handoff.md` exists and `review.md` does not | `adversarial-live-review` worker | Execution claims completion and is waiting for independent review. | Review observable behavior, state transitions, and convergence metadata. |
+| `review_recorded` | `review.md` exists with findings, coverage metadata, and convergence metadata | `state-update` worker | Review outcome exists and must be synchronized into durable state. PASS publishes only when convergence is closed. | Mark archived on converged PASS, reopen on FAIL or open convergence, or park/escalate on BLOCKED. |
 | `review_failed` | `review.md` remains on disk; `status.json.phase = review_failed` after `state-update` reconciles a FAIL review | `state-update` worker, then `compound-capture`, then orchestrator | The failure is durable, the evidence stays attached, and the next execution loop owns the sprint only after compounding and retry gates are satisfied. | Clean-restore and retry, park for human input, or escalate. |
 | `awaiting_human` | `status.json.phase = awaiting_human` plus explicit human action fields | no automatic child until human input changes files | Automation is paused at a durable file boundary for human edits, approvals, or environment intervention. | Wait for human edits, then resume from `resume_from`. |
 | `escalated_to_human` | `status.json.phase = escalated_to_human` plus escalation reason | no automatic child until human decision changes files | Automatic retry must stop because attempt budget is exhausted or recovery is unsafe. | Human decides whether to reset, cancel, or re-scope. |
@@ -134,11 +134,11 @@ This lets explicit compounding run before new work and lets the backlog advance 
 ### Review, state update, and compounding
 
 - `awaiting_review` -> `review_recorded`
-  - Trigger: `adversarial-live-review` worker writes `review.md` with explicit PASS, FAIL, or BLOCKED.
+  - Trigger: `adversarial-live-review` worker writes `review.md` with explicit PASS, FAIL, or BLOCKED plus findings severity labels, explicit `duplicate_of` fields, `areas_reviewed`, `areas_not_reviewed`, `coverage_status`, `convergence_status`, and `open_blocking_count`.
 - `review_recorded` -> `archived`
-  - Trigger: `state-update` worker processes a PASS review, updates `docs/live/*`, cuts the feature's canonical `evidence_path` over to `docs/archive/<workstream-id>_<timestamp>/`, and archives the sprint.
+  - Trigger: `state-update` worker processes a PASS review only after convergence is closed: `coverage_status = complete`, `convergence_status = closed`, and open non-duplicate P0 / P1 / P2 / P3 findings are zero. It then updates `docs/live/*`, cuts the feature's canonical `evidence_path` over to `docs/archive/<workstream-id>_<timestamp>/`, and archives the sprint.
 - `review_recorded` -> `review_failed`
-  - Trigger: `state-update` worker processes a FAIL review, increments retry metadata, preserves the evidence, and records the retry checkpoint.
+  - Trigger: `state-update` worker processes a FAIL review, or any review whose open non-duplicate P0 / P1 / P2 / P3 findings are non-zero, missing, or contradictory, increments retry metadata, preserves the evidence, and records the retry checkpoint.
 - `review_recorded` -> `awaiting_human`
   - Trigger: `state-update` worker processes a BLOCKED review that requires human edits, approvals, credentials, or other intervention at a file-described pause boundary.
 - `review_recorded` -> `escalated_to_human`
@@ -174,9 +174,10 @@ Automatic retry never resumes directly from raw `build_failed` or `review_failed
 
 ### PASS path
 
-1. `adversarial-live-review` worker writes `review.md` with PASS.
+1. `adversarial-live-review` worker writes `review.md` with PASS only after the review loop converges: `coverage_status = complete`, `convergence_status = closed`, and `open_blocking_count = 0`.
 2. The orchestrator selects `state-update` and dispatches a fresh worker.
 3. `state-update` worker:
+   - validates the preserved convergence summary before publishing PASS
    - updates `docs/live/tracked-work.json`
    - refreshes `docs/live/current-focus.md` and `docs/live/roadmap.md` for the next authorized slice or pause boundary
    - appends outcome to `docs/live/progress.md`, including archive cutover and any record lifecycle events
@@ -203,11 +204,12 @@ Automatic retry never resumes directly from raw `build_failed` or `review_failed
 
 ### FAIL path
 
-1. `adversarial-live-review` worker writes `review.md` with FAIL and concrete directives.
+1. `adversarial-live-review` worker writes `review.md` with FAIL and concrete directives. FAIL is mandatory whenever any open non-duplicate P0 / P1 / P2 / P3 finding remains or the required convergence metadata is missing / contradictory.
 2. The orchestrator selects `state-update` and dispatches a fresh worker.
 3. `state-update` worker:
    - keeps the sprint active or parks it honestly
    - records `review_failed` in durable state
+   - preserves the convergence summary and open blocking findings so they remain visible until the next review loop closes them
    - increments `attempt_count` and confirms `max_attempts`
    - preserves directives and evidence
    - records or validates `clean_restore_ref` before any automatic retry
@@ -217,7 +219,7 @@ Automatic retry never resumes directly from raw `build_failed` or `review_failed
    - updates global progress so the failure is visible outside the sprint folder
 4. The next router pass selects `compound-capture` first. After the queue is drained, it selects `generator-execution` only if the retry is reconciled, attempts remain, and the restore boundary is safe. Otherwise the sprint moves to `awaiting_human` or `escalated_to_human`.
 
-FAIL is not terminal. It is a new execution loop with stricter evidence, and the retry is driven by durable state instead of deleting review evidence.
+FAIL is not terminal. The review loop stays open until the preserved blockers are fixed and a later review closes convergence honestly.
 
 ### BLOCKED path
 
@@ -268,9 +270,9 @@ Handling rules:
 
 A sprint is terminal only when all of the following are true:
 
-- review passed
+- review passed with `coverage_status = complete`, `convergence_status = closed`, and zero open non-duplicate P0 / P1 / P2 / P3 findings
 - global live state reflects the outcome and points the feature's canonical `evidence_path` at `docs/archive/<workstream-id>_<timestamp>/`
 - the sprint is archived under `docs/archive/<workstream-id>_<timestamp>/`
 - no runnable active status remains for that sprint in `.harness/`
 
-Anything short of that is resumable or parked work, not an archived terminal outcome.
+Anything short of that is an open review loop, resumable work, or parked work, not an archived terminal outcome.

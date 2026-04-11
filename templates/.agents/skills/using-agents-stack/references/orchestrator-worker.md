@@ -47,7 +47,9 @@ The orchestrator may dispatch multiple sibling workers only when their work is t
 - Parallelize read-only investigation freely.
 - Parallelize execution only when file ownership and merge order are explicit and safe.
 - Keep one phase owner per worker. Do not mix review and execution in the same worker.
-- Merge sibling outputs back into the sprint's durable files before routing to the next phase.
+- After any sibling dispatch, enter a hard await-all barrier. If any sibling worker is still pending, the orchestrator must not emit a completion message, final synthesis, or next-owner decision.
+- Merge sibling outputs only after every dispatched sibling has returned, then write one merged result ledger in sprint-local durable state before routing to the next phase.
+- Emit one synthesis for that worker batch only after the merged ledger is complete, and name the stable worker IDs, artifact paths, blockers, and next owner explicitly.
 
 Parallelism is optional. Fresh-worker boundaries are not.
 
@@ -57,7 +59,9 @@ Every worker should be identifiable from durable state.
 
 - Assign a stable worker ID such as `proposal-001`, `review-001`, or `exec-002`.
 - Record the worker's phase and delegation kind in sprint-local state when useful, typically in `status.json`.
-- Require structured returns: verdict, artifact paths written, blockers, and next-owner hints.
+- Require structured returns keyed by stable worker ID: verdict, artifact paths written, blockers, and next-owner hints.
+- Record sibling worker returns in one merged durable ledger rather than scattered freeform summaries, typically as a structured `worker_results` block in sprint-local state such as `status.json`.
+- The merged ledger is the orchestrator's basis for synthesis, retry decisions, and the next dispatch; freeform prose may explain it, but it does not replace the ledger.
 - Preserve prior worker evidence across retries. A retry gets a new worker ID; it does not erase the old `review.md`, `handoff.md`, or status trail.
 - Record retry budgeting and restore context in durable state. `attempt_count`, `max_attempts`, and `clean_restore_ref` are part of the execution truth, not scratch notes.
 

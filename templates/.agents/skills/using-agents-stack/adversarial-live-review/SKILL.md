@@ -35,8 +35,8 @@ Your job is to judge the observable result against the contract, not to admire t
 - Run live review in a fresh worker context. The orchestrator dispatches a reviewer worker; it does not swap into review mode inline.
 - Only the orchestrator may spawn workers. This reviewer must not spawn another worker.
 - Tool lane: read, runtime reproduction, browser/QA inspection, and evidence capture only. This reviewer should not have write tools to product code or live state; it returns `qa.md`, `review.md`, and `status.json` payloads for the orchestrator to persist.
-- Parallel-safe only for independent acceptance checks that share no mutable environment and write to separate evidence fragments. The orchestrator must merge those fragments into one decisive review record.
-- Durable return contract: `.harness/<sprint-id>/qa.md`, `.harness/<sprint-id>/review.md`, and `.harness/<sprint-id>/status.json`, each traceable with reviewer `worker_id` / `orchestrator_run_id` when the host provides them.
+- Parallel-safe only for independent acceptance checks that share no mutable environment and write to separate evidence fragments. The orchestrator must assign stable reviewer worker IDs, await every sibling fragment result, record a merged result ledger, and only then synthesize one decisive review record.
+- Durable return contract: `.harness/<sprint-id>/qa.md`, `.harness/<sprint-id>/review.md`, and `.harness/<sprint-id>/status.json`, each traceable with stable reviewer `worker_id` / `orchestrator_run_id` when the host provides them. If parallel review fragments were used, the merged result ledger must preserve each fragment's worker id, finding ids, and artifact paths.
 - Dispatch framing is non-authoritative. Before reviewing, verify that the dispatched sprint still matches `docs/live/tracked-work.json`, that the claimed review phase still matches the strongest local artifact on disk, and that stronger evidence in the `AGENTS.md` precedence chain beats any dispatch summary, stale resume hint, or copied orchestrator context.
 - If those checks disagree with the dispatch frame, stop before writing review artifacts, preserve the existing truthful files, and hand control back to the orchestrator for correct-lane dispatch.
 
@@ -58,8 +58,13 @@ A sprint passes only when all of the following are true:
 4. Required commands or tests were executed, or the contract explicitly permits another form of evidence.
 5. Another agent could reproduce the result from the recorded runtime notes.
 6. Interactive or other stateful criteria prove a real before/action/after transition, not just a plausible final screenshot, static DOM, or one-time final value.
+7. `review.md` reports a findings list where every finding names a severity label and an explicit `duplicate_of` value (`none` for canonical findings).
+8. Coverage metadata is present and truthful: `areas_reviewed`, `areas_not_reviewed`, and `coverage_status`.
+9. Convergence metadata is present and truthful: `convergence_status` and `open_blocking_count`.
+10. After deduplicating findings whose `duplicate_of` points at another open finding, there are zero open P0 / P1 / P2 / P3 findings, `coverage_status` is `complete`, and `convergence_status` is `closed`.
+11. Advisory findings outside P0 / P1 / P2 / P3 may remain recorded, but they must be clearly labeled non-blocking and must not be smuggled into PASS as unnamed caveats.
 
-Any gap in reproducibility, scope control, or acceptance evidence is a review problem, not a documentation nit.
+Any gap in reproducibility, scope control, acceptance evidence, or review metadata is a review failure. Missing coverage or convergence metadata fails closed.
 
 ## Review procedure
 
@@ -114,6 +119,8 @@ For each acceptance criterion, record:
 
 For UI work, inspect the live app, not screenshots alone. For non-UI work, use the strongest available observable check: commands, HTTP responses, logs, database effects, queue state, job records, or generated artifacts. Stateful non-UI behavior still needs before/action/after evidence tied to the declared action.
 
+Across the full review, maintain a review-wide coverage inventory for `areas_reviewed` and `areas_not_reviewed`, plus a finding ledger with stable finding ids, severities, statuses, and `duplicate_of` links. If any required area cannot be checked, set `coverage_status: incomplete` and FAIL closed rather than inferring completion.
+
 ### 5. Look for reward hacking and contract violations
 
 FAIL the sprint when you observe any of the following, even if the final screen or output looks correct:
@@ -135,10 +142,21 @@ This is the detailed evidence log. Use a structure like:
 ```md
 # QA Evidence: <SPRINT-ID>
 
+## Reviewer Trace
+- worker_id:
+- orchestrator_run_id:
+
 ## Environment Used
 - Start command:
 - URL / entrypoint:
 - Test command:
+
+## Coverage Metadata
+- areas_reviewed:
+  - ...
+- areas_not_reviewed:
+  - none
+- coverage_status: complete | incomplete
 
 ## Acceptance Checks
 1. <criterion>
@@ -149,8 +167,15 @@ This is the detailed evidence log. Use a structure like:
    - Status: PASS | FAIL
    - Evidence:
 
-## Additional Findings
-- ...
+## Findings Ledger
+- `RV-001` | severity=P1 | status=OPEN | duplicate_of=none
+  - Summary: ...
+- `RV-002` | severity=ADVISORY | status=OPEN | duplicate_of=none
+  - Summary: ...
+
+## Convergence Summary
+- convergence_status: open | closed
+- open_blocking_count: 1
 
 ## Reproducibility Gaps
 - ...
@@ -168,6 +193,30 @@ This is the decision memo. Use a structure like:
 ## Status
 PASS | FAIL | BLOCKED
 
+## Reviewer Trace
+- worker_id:
+- orchestrator_run_id:
+
+## Coverage Metadata
+- areas_reviewed:
+  - ...
+- areas_not_reviewed:
+  - none
+- coverage_status: complete | incomplete
+
+## Findings
+- `RV-001` | severity=P1 | status=OPEN | duplicate_of=none
+  - Summary: ...
+- `RV-002` | severity=P1 | status=OPEN | duplicate_of=RV-001
+  - Summary: same root cause as RV-001
+- `RV-003` | severity=ADVISORY | status=OPEN | duplicate_of=none
+  - Summary: ...
+
+## Convergence Summary
+- convergence_status: open | closed
+- open_blocking_count: 1
+- blocking_severities_considered: P0, P1, P2, P3
+
 ## Decision Summary
 - ...
 
@@ -182,7 +231,7 @@ PASS | FAIL | BLOCKED
 2. ...
 ```
 
-Every FAIL or BLOCKED outcome must include recovery directives that are specific enough for the next orchestrator decision or generator retry to act on without reopening the problem framing.
+Every FAIL or BLOCKED outcome must include recovery directives that are specific enough for the next orchestrator decision or generator retry to act on without reopening the problem framing. Every finding line must carry severity and `duplicate_of`, and `open_blocking_count` counts only open non-duplicate P0 / P1 / P2 / P3 findings.
 
 ## `.harness/<sprint-id>/status.json`
 
@@ -221,25 +270,29 @@ If the feature works but the generator touched out-of-contract files or behavior
 ## PASS / FAIL / BLOCKED routing
 
 ### PASS
-PASS means the implementation is verifiably complete. It does not mean “looks good enough.”
+PASS means the implementation is verifiably complete and the review loop is converged. It does not mean “looks good enough.”
 
 On PASS:
 - ensure `qa.md` and `review.md` both exist
 - ensure every contract criterion has evidence
 - ensure interactive or other stateful criteria include before/action/after proof and reversibility proof when applicable
+- ensure `coverage_status: complete`, `convergence_status: closed`, and `open_blocking_count: 0`
+- ensure no open non-duplicate P0 / P1 / P2 / P3 finding remains
 - route immediately to `state-update`
 
 ### FAIL
-FAIL means the sprint stays active and must be corrected. Preserve all evidence.
+FAIL means the sprint stays active and must be corrected. Preserve all evidence. FAIL is mandatory whenever any open non-duplicate P0 / P1 / P2 / P3 finding remains, or when required coverage / convergence metadata is missing or incomplete.
 
 On FAIL:
 - keep the sprint artifacts intact
 - name the failing criteria and reproduction steps
+- preserve finding ids, severities, statuses, and `duplicate_of` links so the next review loop can converge honestly
 - issue corrective directives ordered by importance
+- instruct the next owner to fix the findings and rerun review
 - route immediately to `state-update`
 
 ### BLOCKED
-BLOCKED means the reviewer could not truthfully reach PASS or FAIL because an environment, dependency, or missing-evidence problem prevented judgment.
+BLOCKED means the reviewer could not truthfully reach PASS or FAIL because an environment, dependency, or missing-prerequisite problem prevented judgment. Missing review bookkeeping is not BLOCKED; it is FAIL because the review is incomplete.
 
 On BLOCKED:
 - keep the sprint artifacts intact
