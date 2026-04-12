@@ -83,6 +83,13 @@ Bad candidates:
 
 A truthful outcome may be: no durable new learning survived. In that case, clear the queue and leave `docs/live/memory.md` unchanged.
 
+A candidate qualifies for extraction only when all are true:
+- it is reusable beyond this sprint rather than a one-off handoff note or chat-only conclusion
+- it can point to decisive artifact path(s) in the evidence bundle
+- it would change how a future worker scopes, routes, reviews, or validates similar work
+
+If any test fails, skip extraction instead of publishing a plausible-sounding note.
+
 ## Workflow
 
 ### 1. Confirm the queue entry is real

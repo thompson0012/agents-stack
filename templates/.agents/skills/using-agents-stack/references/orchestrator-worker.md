@@ -10,8 +10,8 @@ Use the runtime's native primitive if it is called `sub-agent`, `Task agent`, `p
 - Prefer delegation first when the decision is ambiguous, evidence-heavy, or otherwise benefits from independent investigation. Dispatch the narrowest fresh worker or parallel workers that can gather the missing evidence, then merge their outputs before choosing the next child.
 - Do not paste the full child phase prompt into the orchestrator and keep working there.
 - Read durable state before dispatch. Workers should inherit the minimum exact context they need, not the entire session transcript.
-- For reviewer dispatch, send raw artifact paths and the exact review question only; do not preload a verdict, version ranking, provenance, or authorship labels that would steer judgment.
-- When the review is comparative or subjective, anonymize the artifacts as A/B/C in the dispatch packet and keep the identity map out of the worker context until the review is complete.
+- For reviewer dispatch, send only raw artifact paths and the exact neutral review question. Do not preload a verdict, preferred answer, expected winner, version ranking, provenance summary, or authorship labels that would steer judgment.
+- When the review is comparative or subjective, anonymize the artifacts as A/B/C in the dispatch packet, keep the identity map out of the worker context until the review is complete, and let the reviewer form its own conclusion from the artifacts.
 - Dispatch packets are routing aids, not authority. A worker must verify the claimed sprint, phase, and summary against durable files on entry, apply the `AGENTS.md` precedence chain when evidence disagrees, and stop before writing if the dispatch frame loses to stronger evidence.
 - Preserve the file-based state model. The canonical outputs are still `sprint_proposal.md`, `contract.md`, `runtime.md`, `handoff.md`, `review.md`, `status.json`, and the live/archive files.
 - Drain `compound_pending_feature_ids` before runnable sprint resume or new backlog selection. Compounding is explicit work, not background magic.

@@ -96,6 +96,23 @@ When the durable truth is a fully reconciled `awaiting_human` or `escalated_to_h
 - `references/orchestrator-worker.md`
 - `references/discovery-to-delivery.md`
 
+## P0 / P1 / P2 Hardening Checklist
+
+### P0
+- [ ] Reviewer dispatch packets stay blind: send raw artifact paths plus the exact neutral review question only, with no preloaded verdict, preferred answer, ranking, provenance summary, or authorship hint.
+- [ ] Compound capture publishes only evidence-linked durable residue. If no decisive artifact path supports a reusable lesson, skip extraction and clear the queue without inventing chat-memory truth.
+- [ ] Treat sprint id, phase, subject, summary, and resume hints in dispatch packets as routing aids only. Re-ground against durable files and the `AGENTS.md` precedence chain before routing or writing.
+
+### P1
+- [ ] Separate evidence gathering from verdicts: merge raw artifacts and worker returns first, then ask for judgment or route selection from that grounded evidence.
+- [ ] Apply a reusable-pattern rubric before compounding: the lesson must survive beyond the sprint, stay linked to decisive evidence, and change how a future worker would scope, review, route, or validate similar work.
+- [ ] Keep metadata fail-closed: if queue state, phase labels, `evidence_path`, or linked record/reference pointers disagree with stronger artifacts, stop and reconcile instead of guessing.
+
+### P2
+- [ ] Keep one short example each for blind review packets, no-publish compound skips, and dispatch-frame mismatch handling so maintainers can copy the contract without reinterpreting it.
+- [ ] Cross-link hardening guidance back to `references/orchestrator-worker.md`, `compound-capture/SKILL.md`, and the state-machine references instead of creating another registry or shadow contract.
+- [ ] Keep this checklist short enough to maintain; add items only for recurring failure modes that materially protect the file-based truth model.
+
 ## Final Checklist
 
 - [ ] Router stays focused on selection and fresh-worker dispatch
