@@ -24,6 +24,7 @@ Do not perform the child workflow here. Prefer dispatching a fresh worker, sub-a
 - Parked sprints in `.harness/` with `awaiting_human` or `escalated_to_human` remain visible durable state, but they do not count as the single runnable active sprint.
 - `docs/live/tracked-work.json` remains the authoritative tracked-work ledger and runnable/backlog selector.
 - `docs/live/current-focus.md` is the live resume anchor; `docs/live/roadmap.md` is the durable initiative ledger for source goals, remaining slices, and re-authorization boundaries.
+- Treat `scripts/roadmap_ops.py` as the narrow mutation path for `docs/live/roadmap.md` and `scripts/render_current_focus.py` as the narrow render path for `docs/live/current-focus.md`; `scripts/validate_live_control.py` and `scripts/validate_bootstrap_alignment.py` are fail-closed guardrails before trusting changed control-plane files.
 - When a user introduces or changes a broad goal, normalize it into `docs/live/current-focus.md` plus `docs/live/roadmap.md` before continuing sprint chaining. Do not let cross-sprint intent live only in chat memory.
 - Brainstorm and Compound are explicit non-runnable phases. They may be the next router action, but they must not claim `runnable_active_sprint_id`.
 - When no runnable active sprint exists, drain `compound_pending_feature_ids` first, then choose the highest-priority dependency-ready `needs_brainstorm` backlog item, then the highest-priority dependency-ready `pending` item.

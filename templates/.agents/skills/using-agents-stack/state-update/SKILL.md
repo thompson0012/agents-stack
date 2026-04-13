@@ -55,6 +55,7 @@ That means:
 - Tool lane: durable state and archive operations only: `docs/live/tracked-work.json`, `docs/live/current-focus.md`, `docs/live/roadmap.md`, `docs/live/progress.md`, `.harness/<sprint-id>/*`, and `docs/archive/*` as required by the outcome. No product-code edits, no proposal rewriting, no new implementation work, and no `docs/live/memory.md` edits.
 - Not parallel-safe. This worker owns the single runnable active sprint's global reconciliation, archive decision, compounding queue update, roadmap truth, and focus-anchor refresh; do not split or race writes across multiple workers.
 - Before publishing tracked-work or progress mutations from a review outcome, run `templates/.agents/skills/using-agents-stack/scripts/validate_state_update.py` against the durable files. Trust the merged review convergence summary only after the reviewer await-all synthesis barrier has produced one decisive record and merged result ledger.
+- Prefer structured control-plane writes when the live files and required fields already exist: mutate `docs/live/roadmap.md` through `templates/docs/scripts/roadmap_ops.py` and refresh `docs/live/current-focus.md` through `templates/docs/scripts/render_current_focus.py` instead of ad hoc Markdown edits. Only fall back to direct bootstrap repair when the minimal starter state does not yet supply the required inputs.
 - Durable return contract: updated `docs/live/tracked-work.json`, `docs/live/current-focus.md`, `docs/live/roadmap.md`, `docs/live/progress.md`, `.harness/<sprint-id>/status.json`, and PASS-path archive contents. Include stable `worker_id` / `orchestrator_run_id` in the updated status or ledger entry when the host provides them, and preserve review convergence data instead of recomputing it from chat summaries.
 - Dispatch framing is non-authoritative. Before reconciling state, verify that the dispatched sprint still matches `docs/live/tracked-work.json`, that the claimed decisive phase still matches the strongest local artifact on disk, and that stronger evidence in the `AGENTS.md` precedence chain beats any dispatch summary, stale resume hint, or copied orchestrator context.
 - If those checks disagree with the dispatch frame, stop before writing live or sprint state, preserve the existing truthful files, and hand control back to the orchestrator for correct-lane dispatch.
@@ -72,8 +73,10 @@ If `status.json` or `review.md` says the sprint was reviewed, confirm all of the
 5. Coverage metadata is present: `areas_reviewed`, `areas_not_reviewed`, and `coverage_status`.
 6. Convergence metadata is present: `convergence_status` and `open_blocking_count`.
 7. `templates/.agents/skills/using-agents-stack/scripts/validate_state_update.py` returns `allow` for any PASS publication and explains any denial with reason codes.
-8. `status.json` points to the review checkpoint.
-9. The reviewed sprint matches the backlog item recorded in `docs/live/tracked-work.json`.
+8. After any tracked-work / roadmap / current-focus reconciliation, run `templates/docs/scripts/validate_live_control.py --repo-root <repo-root>` and fail closed on control-plane drift.
+9. If the control-plane mismatch looks like bootstrap-seed drift rather than sprint evidence drift, run `templates/docs/scripts/validate_bootstrap_alignment.py --repo-root <repo-root>` and route back to `project-initializer` instead of inventing a patched second control plane.
+10. `status.json` points to the review checkpoint.
+11. The reviewed sprint matches the backlog item recorded in `docs/live/tracked-work.json`.
 
 ### Execution-triage outcomes
 If `status.json` says `build_failed`, `awaiting_human`, or `escalated_to_human`, confirm all of the following:
@@ -187,6 +190,7 @@ Do not invent a new schema casually. Extend only when necessary and keep it cons
 > Treat this file as the non-runnable initiative control plane, not as the sprint selector.
 
 Refresh it whenever the decisive outcome changes what the repository can honestly say about the source goal, authorized initiative slice, or deferred follow-on work.
+When the roadmap file already exists and the source-goal fields are known, prefer `templates/docs/scripts/roadmap_ops.py` so the non-runnable control plane is mutated through its narrow allowed operations instead of freehand Markdown surgery.
 
 At minimum, make explicit:
 - the source goal or user-request lineage the current sprint belongs to
@@ -200,6 +204,7 @@ If late scope discovery or goal-lineage drift appears after execution or review 
 ### 4. Refresh `docs/live/current-focus.md`
 
 > Treat this file as a live resume aid, not a second contract.
+Prefer `templates/docs/scripts/render_current_focus.py` when rewriting `docs/live/current-focus.md`: render the canonical resume anchor from the current objective, source-goal lineage, roadmap stage, next owner, and next file to open, then validate the resulting control-plane files before publishing the next route.
 
 Rewrite or refresh a concise anchor that states:
 - the current objective and why it is the objective now

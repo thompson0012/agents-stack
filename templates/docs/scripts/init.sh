@@ -98,7 +98,7 @@ This file is a live resume anchor. It is not a second contract.
 
 - Current objective: Establish the first truthful source goal, roadmap, and backlog state for this repo.
 - Source-goal lineage: No durable source goal is recorded yet.
-- Current roadmap phase: Unset. Record the real source goal in `docs/live/roadmap.md` before proposing sprint work.
+- Current roadmap stage: Unset. Record the real source goal in `docs/live/roadmap.md` before proposing sprint work.
 - Next owner: `project-initializer`, or the next human or agent establishing durable state.
 - Next file to open: `docs/live/roadmap.md`
 # Contract truth: If a sprint is later opened, `.harness/<workstream-id>/contract.md` becomes the only runnable sprint contract.
@@ -108,9 +108,11 @@ write_file_if_missing "docs/live/roadmap.md" '# Initiative Roadmap
 
 This file is the non-runnable roadmap for broader goals. It does not select the runnable sprint; `docs/live/tracked-work.json` still does that.
 
+- Canonical tracked noun: `workstream`; `sprint` is the execution lifecycle label for a workstream, not a separate durable entity.
+- Backlog items may carry `roadmap_ref: docs/live/roadmap.md#initiative-roadmap` as a direct backlink when that makes the item easier to trace; the file-level `roadmap_path` remains the canonical roadmap pointer.
 - Source goal: Not recorded yet. Replace this line with the real user or repo objective.
 - Current slice: None selected yet.
-- Ordered remaining slices/phases:
+- Ordered remaining slices/stages:
   1. Record the source goal and any real constraints.
   2. Add the first bounded backlog item to `docs/live/tracked-work.json` when one is justified.
   3. Open proposal work only after one dependency-ready item is honestly `pending`.
@@ -138,7 +140,7 @@ When a record event is tied to tracked work, name the workstream id, record path
 
 write_file_if_missing "docs/records/README.md" '# Durable Records
 
-Use this folder for durable feature or decision pages created from a sprint, review, or scoped discussion when the material should survive chat loss but is not the active contract, not immutable archive evidence, and not stable project-wide reference truth.
+Use this folder for durable feature or decision pages created by an explicit agents-stack phase for a tracked feature when the material should survive chat loss but is not the active contract, not immutable archive evidence, and not stable project-wide reference truth. Do not use it as a raw chat dump or ad hoc inline persistence step.
 
 ## What belongs here
 - feature-local decision notes, investigation summaries, tradeoff writeups, or handoff context that remain useful after the sprint
@@ -149,7 +151,7 @@ Use this folder for durable feature or decision pages created from a sprint, rev
 - active sprint contracts, proposals, runtime logs, reviews, or status files
 - copied archive evidence from `.harness/<WORKSTREAM-ID>/` or `docs/archive/<WORKSTREAM-ID>_<timestamp>/`
 - current project-wide truth that belongs in `docs/reference/*`
-- untracked ideas; keep those in `docs/live/ideas.md` until a feature id exists
+- untracked ideas; keep those in `docs/live/ideas.md` until a workstream id exists
 
 ## Page metadata and backlinks
 At the top of each record, include:

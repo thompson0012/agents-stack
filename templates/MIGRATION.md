@@ -55,12 +55,15 @@ If a runnable sprint exists, read its local contract/evidence before moving file
 - move durable scoped docs into `docs/records/`
 - promote only verified current truth into `docs/reference/`
 - keep sprint execution evidence in `.harness/<WORKSTREAM-ID>/` or `docs/archive/<WORKSTREAM-ID>_<timestamp>/`
+- for agents-stack live-control changes, use `docs/scripts/roadmap_ops.py` for roadmap mutations and `docs/scripts/render_current_focus.py` for current-focus refreshes instead of inventing a parallel manual path
 - keep guides user-facing and separate from records
 
 ### 5. Verify
 - every moved doc is still reachable from the registry or backlink path that owns it
 - no orphaned durable docs remain
 - live control files still tell the truth
+- `docs/scripts/validate_live_control.py` passes so control-plane drift fails closed
+- `docs/scripts/validate_bootstrap_alignment.py` passes when bootstrap-facing live-control files changed
 - archive remains immutable history
 - reference remains current stable truth
 - there is still only one tracked-work registry
@@ -120,10 +123,12 @@ If a runnable sprint exists, read its local contract/evidence before moving file
 ## Repository-specific notes
 
 ### Agents-stack default bindings
-- `docs/live/tracked-work.json` is the only tracked-work registry.
+- `docs/live/tracked-work.json` is the only tracked-work registry and may hold `roadmap_ref`, `idea_ref`, `evidence_path`, `record_paths`, and `reference_paths`.
 - `docs/live/progress.md` is the append-only audit trail.
 - `docs/live/ideas.md` is pre-proposal exploration.
-- `docs/live/roadmap.md` and `docs/live/current-focus.md` are control-plane docs.
+- `docs/live/roadmap.md` and `docs/live/current-focus.md` are control-plane docs; prefer `docs/scripts/roadmap_ops.py` and `docs/scripts/render_current_focus.py` as the narrow mutation/render path.
+- `docs/scripts/live_control.py` is the shared helper layer behind those control-plane scripts; it does not define a second registry.
+- `docs/scripts/validate_live_control.py` and `docs/scripts/validate_bootstrap_alignment.py` are fail-closed guardrails for control-plane and bootstrap drift.
 - `docs/records/` is durable scoped residue.
 - `docs/reference/` is stable current truth.
 - `docs/archive/` is immutable PASS history.
@@ -131,6 +136,17 @@ If a runnable sprint exists, read its local contract/evidence before moving file
 - `docs/guides/` is user-facing walkthrough content.
 - If a runnable sprint exists, close, park, or escalate it before a bulk migration unless the migration itself is the sprint.
 - For template changes, update the source under `templates/` first so generated repos inherit the migration shape.
+
+### Legacy agents-stack harness upgrade path
+Use this when a downstream repo already has older agents-stack harness docs, for example a repo like `project-plutus`.
+- Inventory the existing live lane first: `docs/live/tracked-work.json`, `docs/live/current-focus.md`, `docs/live/roadmap.md`, `docs/live/progress.md`, `docs/live/ideas.md`, `.harness/<WORKSTREAM-ID>/`, `docs/records/*`, and `docs/archive/*`.
+- Preserve archive and record evidence. Do not rewrite historical PASS archives to fit the new shape; keep them as the old truth of record.
+- Normalize live control in place: keep `tracked-work.json` as the single registry/selector, trim `roadmap.md` to current authorization only, render `current-focus.md` as the resume anchor, and keep `progress.md` append-only for dated events.
+- Move completion chronology, retrospective narrative, and archive paths out of `roadmap.md`; those belong in `progress.md`, records, or archive, not in the current authorization file.
+- Translate terminology carefully: keep `status.json.phase` as lifecycle state, use `workstream` as the durable noun, and use `roadmap stage` / `remaining slices/stages` for initiative position.
+- Use the script path for live-control changes: `docs/scripts/roadmap_ops.py`, `docs/scripts/render_current_focus.py`, `docs/scripts/validate_live_control.py`, and `docs/scripts/validate_bootstrap_alignment.py`.
+- Re-run the validators from the repo root after cutover. If the target repo still needs a smaller move, keep it bounded and local; do not invent a compatibility registry or a parallel control plane.
+- Consider a more radical Phase 4 only if repeated real use still produces drift after the scripted path is in place: validators keep failing after honest updates, `roadmap.md` starts regaining retrospective history, `current-focus.md` and `roadmap.md` disagree about the active slice, or people keep bypassing `roadmap_ops.py` / `render_current_focus.py` in day-to-day use.
 
 ### Fill in per repo
 - Active sprint / blocker:

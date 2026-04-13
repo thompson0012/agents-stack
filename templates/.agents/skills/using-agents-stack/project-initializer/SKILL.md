@@ -35,7 +35,7 @@ This phase establishes the repo's current facts, not a fictional project narrati
 That durable state now sits inside a broader durable-doc topology:
 - `docs/live/tracked-work.json` for authoritative tracked work, runnable truth, and live file pointers
 - `docs/live/current-focus.md` for the current objective, goal lineage, next owner, and next file to open
-- `docs/live/roadmap.md` for the non-runnable source-goal roadmap across slices or phases
+- `docs/live/roadmap.md` for the non-runnable source-goal roadmap across slices or stages
 - `docs/live/ideas.md` for open exploration, rough candidates, and pre-proposal refinement that must survive across sessions
 
 Alongside those live artifacts, the harness preserves distinct durable lanes: `docs/reference/*` for current stable truth, `docs/records/*` for feature-linked durable records with page-local provenance, and `docs/archive/*` for PASS-history evidence. Initialization should recognize that topology, preserve existing records when present, and avoid inventing record content just to fill the tree.
@@ -46,6 +46,7 @@ Alongside those live artifacts, the harness preserves distinct durable lanes: `d
 - Only the orchestrator may spawn workers. This worker must not spawn another worker.
 - Tool lane: repository discovery plus writes to `docs/live/*` and `docs/reference/*` only. Read existing `docs/records/*` when they already exist so backlog traceability stays coherent, but do not author new record pages during bootstrap. No product-code edits, no `.harness/<workstream-id>/` execution work, no archive writes.
 - Durable return contract: `docs/live/tracked-work.json`, `docs/live/current-focus.md`, `docs/live/roadmap.md`, `docs/live/ideas.md`, `docs/live/progress.md`, `docs/live/memory.md`, `docs/reference/architecture.md`, and `docs/reference/design.md`. If the host provides worker metadata, record `worker_id` / `orchestrator_run_id` in the initialization ledger entry or equivalent durable note.
+- Prefer `templates/docs/scripts/roadmap_ops.py` for `docs/live/roadmap.md` mutations and `templates/docs/scripts/render_current_focus.py` for `docs/live/current-focus.md` rendering once those files exist and the required fields are known. If the repo is still at minimal bootstrap and those inputs do not exist yet, write the first truthful versions directly instead of inventing placeholder control-plane state.
 - Dispatch framing is non-authoritative. Before acting, verify that the dispatched repo state still matches durable files: `docs/live/tracked-work.json` for live tracked-work truth, the strongest existing local/live artifact for the claimed phase, and any stronger evidence identified by the `AGENTS.md` precedence chain.
 - If the dispatch frame conflicts with stronger durable evidence, stop before writing, preserve the existing truthful files, and hand control back to the orchestrator for correct-lane dispatch.
 
@@ -67,20 +68,20 @@ A truthful backlog snapshot and runnable selector.
 - If the human already named features, record them.
 - If no backlog is known yet, write an empty backlog or a clearly minimal seed set derived from explicit user goals only.
 - Preserve the runnable backlog fields and compound queue while adding live control-plane pointers such as `current_focus_path` and `roadmap_path`.
-- When existing tracked items already have durable traceability, preserve truthful pointers such as `idea_ref`, `record_paths`, `reference_paths`, and the feature's single canonical `evidence_path` instead of dropping them during bootstrap.
+- When existing tracked items already have durable traceability, preserve truthful pointers such as `roadmap_ref`, `idea_ref`, `record_paths`, `reference_paths`, and the feature's single canonical `evidence_path` instead of dropping them during bootstrap.
 - Never fabricate archived items, record links, or pretend a feature has already been selected.
 - Use `status: "needs_brainstorm"` when a tracked item is real enough to keep visible but not yet ready for proposal.
 
 ### `docs/live/current-focus.md`
 A concise live resume anchor.
-- State the current objective, source-goal lineage, current roadmap phase, next owner, and next file to open.
+- State the current objective, source-goal lineage, current roadmap stage, next owner, and next file to open.
 - Say explicitly that it is not a second contract.
 - If a runnable or parked sprint exists, point back to the strongest local sprint artifact for slice truth instead of duplicating the sprint contract.
 - If no meaningful work is active yet, keep the file minimal and honest rather than inventing a fake active lane.
 
 ### `docs/live/roadmap.md`
 A non-runnable initiative roadmap.
-- Record the source goal, current slice, ordered remaining slices or phases, the stop or re-authorization condition, and a visible remaining-work summary.
+- Record the source goal, current slice, ordered remaining slices or stages, the stop or re-authorization condition, and a visible remaining-work summary.
 - Keep it at initiative level. It must not become the runnable sprint selector or a hidden contract.
 - If the repo has no meaningful backlog yet, keep the roadmap minimal and honest instead of inventing fake slices.
 
@@ -138,9 +139,11 @@ A short description of the current product or UI intent.
 - Keep these documents concise enough to stay maintained.
 
 ### 5. Verify the initialized state is usable
+- When the live control-plane files now exist, run `templates/docs/scripts/validate_live_control.py --repo-root <repo-root>` before yielding.
+- If bootstrap seeding or starter-file repair was part of the initialization path, also run `templates/docs/scripts/validate_bootstrap_alignment.py --repo-root <repo-root>` so `docs/scripts/init.sh` and the committed starter files stay aligned.
 Confirm a future planner could answer all of the following from files alone:
 - What project is this?
-- What source goal and roadmap phase are currently active?
+- What source goal and roadmap stage are currently active?
 - What features are candidates for work?
 - Which items still need brainstorm versus proposal?
 - What is already known about architecture and design?
@@ -171,7 +174,7 @@ A good initialization pass:
 - tells the truth about what is known vs unknown
 - creates no fake project history
 - leaves the backlog usable for brainstorm or proposal without overcommitting
-- makes the source goal, roadmap phase, and next owner visible from files alone
+- makes the source goal, roadmap stage, and next owner visible from files alone
 - reflects the real repo topology and current architecture
 - gives the next agent enough durable context to start the correct pre-sprint phase without chat history
 

@@ -11,10 +11,10 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
 import time
 from pathlib import Path
 from typing import Any
+from live_control import ControlPlaneError, load_json, load_live_control
 
 DEFAULT_TIMEOUT_SECONDS = 15 * 60
 TERMINAL_PHASES = {"archived", "completed", "cancelled"}
@@ -61,162 +61,6 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def load_json(path: Path) -> Any:
-    with path.open("r", encoding="utf-8") as handle:
-        return json.load(handle)
-
-def load_optional_text(path: Path) -> str | None:
-    if not path.exists():
-        return None
-    return path.read_text(encoding="utf-8")
-
-
-def normalize_markdown_label(value: str) -> str:
-    cleaned = re.sub(r"[*_`#]", "", value)
-    cleaned = cleaned.strip().strip(":")
-    cleaned = re.sub(r"\s+", " ", cleaned)
-    return cleaned.lower()
-
-
-def extract_markdown_field(text: str, labels: tuple[str, ...]) -> str | None:
-    wanted = {normalize_markdown_label(label) for label in labels}
-    for raw_line in text.splitlines():
-        line = raw_line.strip()
-        if not line:
-            continue
-        candidate = line.lstrip("-* ").strip()
-        if ":" not in candidate:
-            continue
-        raw_label, raw_value = candidate.split(":", 1)
-        value = raw_value.strip()
-        if normalize_markdown_label(raw_label) in wanted and value:
-            return value
-    return None
-
-
-def extract_markdown_section(text: str, headings: tuple[str, ...]) -> str | None:
-    wanted = {normalize_markdown_label(heading) for heading in headings}
-    active_heading: str | None = None
-    collected: list[str] = []
-    for raw_line in text.splitlines():
-        stripped = raw_line.strip()
-        if stripped.startswith("#"):
-            heading = normalize_markdown_label(stripped.lstrip("#").strip())
-            if active_heading is not None:
-                break
-            if heading in wanted:
-                active_heading = heading
-            continue
-        if active_heading is None or not stripped:
-            continue
-        collected.append(stripped)
-    if not collected:
-        return None
-    return "\n".join(collected)
-
-
-def first_present(*values: str | None) -> str | None:
-    for value in values:
-        if value:
-            return value
-    return None
-
-
-def control_doc_field(
-    text: str | None,
-    *,
-    labels: tuple[str, ...],
-    headings: tuple[str, ...] = (),
-) -> str | None:
-    if not text:
-        return None
-    return first_present(
-        extract_markdown_field(text, labels),
-        extract_markdown_section(text, headings),
-    )
-
-
-def load_live_control(repo_root: Path) -> dict[str, Any]:
-    live_root = repo_root / "docs" / "live"
-    roadmap_path = live_root / "roadmap.md"
-    focus_path = live_root / "current-focus.md"
-    roadmap_text = load_optional_text(roadmap_path)
-    focus_text = load_optional_text(focus_path)
-
-    return {
-        "roadmap_path": roadmap_path,
-        "roadmap_exists": roadmap_text is not None,
-        "focus_path": focus_path,
-        "focus_exists": focus_text is not None,
-        "source_goal": control_doc_field(
-            roadmap_text,
-            labels=("source goal", "source objective", "initiative goal"),
-            headings=("source goal",),
-        ),
-        "roadmap_status": first_present(
-            control_doc_field(
-                roadmap_text,
-                labels=(
-                    "roadmap status",
-                    "initiative status",
-                    "status",
-                    "current roadmap phase",
-                ),
-                headings=(
-                    "roadmap status",
-                    "initiative status",
-                    "status",
-                    "current roadmap phase",
-                ),
-            ),
-            control_doc_field(
-                focus_text,
-                labels=("current roadmap phase", "roadmap phase"),
-                headings=("current roadmap phase", "roadmap phase"),
-            ),
-        ),
-        "remaining_work": control_doc_field(
-            roadmap_text,
-            labels=(
-                "remaining work",
-                "visible remaining-work summary",
-                "ordered remaining slices/phases",
-                "open work",
-                "next steps",
-            ),
-            headings=(
-                "remaining work",
-                "visible remaining-work summary",
-                "ordered remaining slices/phases",
-                "open work",
-                "next steps",
-            ),
-        ),
-        "current_objective": first_present(
-            control_doc_field(
-                focus_text,
-                labels=("current objective", "objective", "phase goal"),
-                headings=("current objective", "objective", "phase goal"),
-            ),
-            control_doc_field(
-                roadmap_text,
-                labels=("current objective", "plan goal", "phase goal"),
-                headings=("current objective", "plan goal", "phase goal"),
-            ),
-        ),
-        "next_owner": first_present(
-            control_doc_field(
-                focus_text,
-                labels=("next owner", "owner", "resume owner"),
-                headings=("next owner", "owner"),
-            ),
-            control_doc_field(
-                roadmap_text,
-                labels=("next owner", "owner"),
-                headings=("next owner", "owner"),
-            ),
-        ),
-    }
 
 
 def load_statuses(harness_root: Path) -> list[dict[str, Any]]:
@@ -441,7 +285,7 @@ def load_tracked_work(repo_root: Path) -> tuple[dict[str, Any] | None, str | Non
         return None, f"Missing backlog file: {tracked_work_path}", tracked_work_path
     try:
         data = load_json(tracked_work_path)
-    except json.JSONDecodeError as exc:
+    except ControlPlaneError as exc:
         return None, f"Invalid JSON in {tracked_work_path}: {exc}", tracked_work_path
     if not isinstance(data, dict):
         return None, f"Expected top-level object in {tracked_work_path}", tracked_work_path
@@ -878,7 +722,7 @@ def main() -> int:
     if harness_root.exists():
         try:
             entries = load_statuses(harness_root)
-        except json.JSONDecodeError as exc:
+        except ControlPlaneError as exc:
             print(f"ERROR: invalid JSON in harness status: {exc}")
             return 2
     elif features_error:

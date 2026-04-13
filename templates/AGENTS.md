@@ -55,7 +55,12 @@ This repository uses the agents-stack harness. The harness is stateful, resumabl
     │   └── design.md
     └── scripts/
         ├── init.sh
-        └── orchestrator.py
+        ├── orchestrator.py
+        ├── live_control.py                 # shared helper layer for live-control state
+        ├── validate_live_control.py       # fail-closed control-plane validator
+        ├── validate_bootstrap_alignment.py # fail-closed starter/bootstrap drift check
+        ├── roadmap_ops.py                 # narrow roadmap mutation path
+        └── render_current_focus.py        # narrow current-focus render path
 ```
 
 ## What Each Area Means
@@ -66,10 +71,10 @@ The repository constitution. Read this first. It defines topology, lifecycle, st
 ### `docs/live/*`
 Global durable state for the whole repo.
 
-- `tracked-work.json`: the authoritative tracked-work ledger, dependency graph, idea backlog pointer, compound queue, runnable active sprint pointer, and only registry for per-feature traceability. Use it to record pointers such as `idea_ref`, `evidence_path`, `record_paths`, and `reference_paths`; durable docs link from here rather than self-registering in a second index.
+- `tracked-work.json`: the authoritative tracked-work ledger, dependency graph, idea backlog pointer, compound queue, runnable active sprint pointer, and only registry for per-feature traceability. Use it to record pointers such as `roadmap_ref`, `idea_ref`, `evidence_path`, `record_paths`, and `reference_paths`; durable docs link from here rather than self-registering in a second index.
 - `ideas.md`: durable pre-proposal exploration. It stores brainstorm detail and rejected directions, but it does not choose the runnable sprint.
-- `roadmap.md`: the initiative-level source-goal and remaining-work control artifact. It captures source-goal lineage, roadmap status, and non-runnable initiative sequencing, but it must not become a second runnable selector or sprint contract.
-- `current-focus.md`: the live current-objective and next-owner resume anchor. It points a cold-start agent at the active or parked lane and the strongest artifact to read next, but it is only a resume aid and does not replace the roadmap, backlog ledger, outcome ledger, or cross-sprint memory.
+- `roadmap.md`: the initiative-level source-goal and remaining-work control artifact. It captures source-goal lineage, roadmap status, non-runnable initiative sequencing, and optional per-item `roadmap_ref` backlinks, but it must not become a second runnable selector or sprint contract. Prefer `docs/scripts/roadmap_ops.py` for bounded mutations, then fail closed with `docs/scripts/validate_live_control.py`.
+- `current-focus.md`: the live current-objective and next-owner resume anchor. It points a cold-start agent at the active or parked lane and the strongest artifact to read next, but it is only a resume aid and does not replace the roadmap, backlog ledger, outcome ledger, or cross-sprint memory. Refresh it through `docs/scripts/render_current_focus.py`; treat `docs/scripts/validate_live_control.py` and `docs/scripts/validate_bootstrap_alignment.py` as fail-closed guardrails before trusting drift-prone bootstrap changes.
 - `progress.md`: append-only ledger of reviewed outcomes, failures, pauses, escalations, compound publication, and next actions. It may log record creation, promotion, supersession, expiry, and archive cutover events, but it must not become a second registry.
 - `memory.md`: durable cross-sprint learning written by the explicit Compound phase, not a dump of routine state reconciliation. Memory entries must keep artifact-linked provenance to decisive sprint evidence; a direct inline artifact-path citation is sufficient.
 
@@ -112,6 +117,11 @@ Repository-local harness utilities.
 
 - `init.sh`: safe bootstrap that creates missing baseline directories and files without overwriting user work.
 - `orchestrator.py`: optional helper that inspects durable state and prepares or records worker dispatch and resume decisions. It is not the source of truth and it must not turn the orchestrator into an inline executor.
+- `live_control.py`: shared helper layer for schema-aware live-control reads, writes, and validation wiring. It supports the control-plane scripts but does not create a second registry.
+- `validate_live_control.py`: fail-closed validator for `docs/live/*` control-plane coherence after scripted mutations or bootstrap refreshes.
+- `validate_bootstrap_alignment.py`: fail-closed check that starter/bootstrap control files still align with the harness contract before agents trust them.
+- `roadmap_ops.py`: narrow mutation path for `docs/live/roadmap.md`; prefer it over ad hoc hand edits when changing roadmap entries.
+- `render_current_focus.py`: narrow render path for `docs/live/current-focus.md`; refresh the resume anchor from stronger live state instead of treating it as a freeform parallel contract.
 
 ### `.agents/skills/skill-authoring/*`
 
@@ -175,8 +185,8 @@ Use this precedence when files disagree:
 Interpretation rules:
 - For an active or parked sprint, the strongest local artifact defines the real phase even if `status.json` is stale.
 - `docs/live/tracked-work.json` is the project-wide selector for whether any sprint should be runnable, which pending work is dependency-ready next, and where that feature's linked ideas, records, references, and single canonical `evidence_path` live. Do not invent a second tracked-work registry.
-- `docs/live/roadmap.md` is the initiative-level non-runnable control plane. It should explain source-goal lineage, roadmap status, and remaining work, but it must not overrule sprint-local evidence or claim the runnable slot.
-- `docs/live/current-focus.md` is a live resume aid. If it drifts from stronger local artifacts, `tracked-work.json`, or `roadmap.md`, refresh it; do not treat it as an alternate contract.
+- `docs/live/roadmap.md` is the initiative-level non-runnable control plane. It should explain source-goal lineage, roadmap status, and remaining work, but it must not overrule sprint-local evidence or claim the runnable slot. Prefer `docs/scripts/roadmap_ops.py` for mutations and `docs/scripts/validate_live_control.py` as the fail-closed check.
+- `docs/live/current-focus.md` is a live resume aid. If it drifts from stronger local artifacts, `tracked-work.json`, or `roadmap.md`, refresh it through `docs/scripts/render_current_focus.py`; do not treat it as an alternate contract. `docs/scripts/validate_live_control.py` and `docs/scripts/validate_bootstrap_alignment.py` are the fail-closed guards for that control-plane refresh path.
 - `docs/records/*` provides scoped durable context with its own provenance and validity window, but it does not override the active contract, the runnable selector, or `docs/reference/*` current truth.
 - Archive files never override active live or local state.
 
