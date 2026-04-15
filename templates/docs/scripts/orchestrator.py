@@ -19,6 +19,7 @@ from live_control import ControlPlaneError, load_json, load_live_control
 DEFAULT_TIMEOUT_SECONDS = 15 * 60
 TERMINAL_PHASES = {"archived", "completed", "cancelled"}
 PARKED_PHASES = {"awaiting_human", "escalated_to_human"}
+PLANNING_PHASES = {"needs_brainstorm", "pending"}
 STALE_PHASES = {"in_progress", "in_review"}
 RETRYABLE_PHASES = {"review_failed", "build_failed"}
 DEPENDENCY_SATISFIED_STATUSES = {"archived", "completed", "done", "passed"}
@@ -91,11 +92,15 @@ def is_parked(status: dict[str, Any]) -> bool:
 
 def is_runnable(status: dict[str, Any]) -> bool:
     phase = normalize_phase(status)
-    return phase not in TERMINAL_PHASES and phase not in PARKED_PHASES
+    return phase not in TERMINAL_PHASES and phase not in PARKED_PHASES and phase not in PLANNING_PHASES
 
 
 def find_runnable_sprints(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return [entry for entry in entries if is_runnable(entry["status"])]
+
+
+def find_planning_workspaces(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [entry for entry in entries if normalize_phase(entry["status"]) in PLANNING_PHASES]
 
 
 def find_parked_sprints(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -490,6 +495,16 @@ def report_parked_sprints(parked_entries: list[dict[str, Any]]) -> None:
             print(f"  human action required: {human_action}")
 
 
+def report_planning_workspace(entry: dict[str, Any]) -> int:
+    status = entry["status"]
+    sprint_id = status.get("sprint_id", entry["sprint_dir"].name)
+    phase = normalize_phase(status)
+    next_worker = "generator-brainstorm" if phase == "needs_brainstorm" else "generator-proposal"
+    print(f"Selected planning workstream: {sprint_id} ({phase})")
+    print(f"Status file: {entry['path']}")
+    print(f"Next worker phase: {next_worker}")
+    print("Worker checkpoint: resume from the local planning status before selecting a different backlog item.")
+    return 0
 def report_compound_queue(
     features: dict[str, Any] | None,
     features_error: str | None,
@@ -737,6 +752,7 @@ def main() -> int:
         return report_next_backlog_feature(features, features_error, tracked_work_path)
 
     runnable_entries = find_runnable_sprints(entries)
+    planning_entries = find_planning_workspaces(entries)
     parked_entries = find_parked_sprints(entries)
 
     if len(runnable_entries) > 1:
@@ -745,11 +761,27 @@ def main() -> int:
             print(f"- {describe_sprint(entry)}")
         report_parked_sprints(parked_entries)
         return 2
+    if len(planning_entries) > 1:
+        print("ERROR: expected at most one selected planning workspace, but found:")
+        for entry in planning_entries:
+            print(f"- {describe_sprint(entry)}")
+        report_parked_sprints(parked_entries)
+        return 2
+    if runnable_entries and planning_entries:
+        print("ERROR: runnable sprint and selected planning workspace are both present.")
+        for entry in runnable_entries + planning_entries:
+            print(f"- {describe_sprint(entry)}")
+        report_parked_sprints(parked_entries)
+        return 2
 
     compound_result = report_compound_queue(features, features_error, tracked_work_path)
     if compound_result is not None:
         report_parked_sprints(parked_entries)
         return compound_result
+
+    if planning_entries and not runnable_entries:
+        report_parked_sprints(parked_entries)
+        return report_planning_workspace(planning_entries[0])
 
     if not runnable_entries:
         print("No runnable active sprint found.")

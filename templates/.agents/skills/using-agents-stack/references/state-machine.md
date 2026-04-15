@@ -5,10 +5,11 @@ This reference defines the durable phase model for the starter-pack harness. The
 ## Core invariants
 
 - Exactly one sprint may be runnable at a time.
-- Additional non-terminal sprint folders may remain in `.harness/` only when they are explicitly parked in `awaiting_human` or `escalated_to_human`.
-- Parked sprints stay visible in durable state, but they do not count as the runnable active sprint.
+- A selected planning workstream may also keep a local `.harness/<workstream-id>/status.json` checkpoint in `needs_brainstorm` or `pending` without claiming the runnable active sprint slot.
+- Additional non-terminal sprint folders may remain in `.harness/` when they are the selected planning lane or are explicitly parked in `awaiting_human` or `escalated_to_human`.
+- Parked and planning-local workspaces stay visible in durable state, but they do not count as the runnable active sprint.
 - Global state in `docs/live/*` tracks project-level priority, dependencies, parked visibility, history, the live resume anchor, and the durable initiative roadmap. `docs/live/tracked-work.json` remains the only tracked-work registry and stores per-feature links such as `idea_ref`, `evidence_path`, `record_paths`, and `reference_paths`.
-- Local state in `.harness/<workstream-id>/*` tracks one sprint's current checkpoint, retry budget, and human handoff boundary.
+- Local state in `.harness/<workstream-id>/*` tracks one workstream's current planning or sprint checkpoint, retry budget, and human handoff boundary.
 - Scoped durable records in `docs/records/*` may preserve discussion or sprint outputs that are not the active contract, immutable archive evidence, or current reference truth.
 - Archived state in `docs/archive/<workstream-id>_<timestamp>/` preserves archived sprint artifacts after PASS archive cutover.
 - A sprint is not terminal when code exists. It becomes archived only after review passes, state is updated, and the archive cutover is recorded.
@@ -40,8 +41,11 @@ The root router keeps family-trigger judgment, broad goal-lineage interpretation
 3. If `compound_pending_feature_ids` is non-empty, route `compound-capture` before any runnable sprint resume or new backlog selection.
 4. If `review.md` exists and the verdict has not yet been reconciled into local and live state, route `state-update`.
 5. If exactly one runnable sprint exists, route from the strongest local artifact in precedence order: reconciled `review.md` plus `review_failed` state -> retry path candidate; `handoff.md` -> `adversarial-live-review`; `runtime.md` plus `build_failed` evidence -> retry path candidate; `contract.md` or active execution evidence -> `generator-execution`; `sprint_proposal.md` -> `evaluator-contract-review`.
-6. If the strongest durable truth is a parked `awaiting_human` or `escalated_to_human` gate with no new human edits, do not blur it into runnable work. Return `no_family_child` and surface the human boundary.
-7. If no runnable sprint exists, choose the highest-priority dependency-ready `needs_brainstorm` item, then the highest-priority dependency-ready `pending` item, else surface parked or dependency blockers honestly.
+6. If no runnable sprint exists but exactly one local planning workspace exists in `.harness/` with phase `needs_brainstorm` or `pending`, route from that local planning checkpoint instead of inventing a different backlog winner.
+7. If the strongest durable truth is a parked `awaiting_human` or `escalated_to_human` gate with no new human edits, do not blur it into runnable work. Return `no_family_child` and surface the human boundary.
+8. If no runnable sprint exists and no selected planning workspace exists, choose the highest-priority dependency-ready `needs_brainstorm` item, then the highest-priority dependency-ready `pending` item, else surface parked or dependency blockers honestly.
+9. After a retry-route candidate is found, retry eligibility is still decided separately by `scripts/verify_retry_guard.py`; the dispatcher does not author that verdict.
+10. After a PASS-route candidate is found, publishability is still decided separately by `state-update` plus review-convergence evidence; the dispatcher does not publish PASS.
 8. After a retry-route candidate is found, retry eligibility is still decided separately by `scripts/verify_retry_guard.py`; the dispatcher does not author that verdict.
 9. After a PASS-route candidate is found, publishability is still decided separately by `state-update` plus review-convergence evidence; the dispatcher does not publish PASS.
 ## Scheduling order when no runnable sprint exists
@@ -83,8 +87,8 @@ This lets explicit compounding run before new work and lets the backlog advance 
 | Phase | Durable evidence | Owner skill | Meaning | Normal next step |
 | --- | --- | --- | --- | --- |
 | `uninitialized` | `docs/live/tracked-work.json` missing, empty, or unusable | `project-initializer` worker | Repo is not ready for sprint routing yet. | Seed durable live state, including initial focus and roadmap truth. |
-| `needs_brainstorm` | `docs/live/tracked-work.json` tracks a dependency-ready item as `needs_brainstorm`, optionally with supporting notes in `docs/live/ideas.md` and initiative context in `docs/live/roadmap.md` | `generator-brainstorm` worker | The candidate is real enough to track, but still too vague for honest proposal work. | Refine or promote it to `pending`. |
-| `proposal_needed` | No runnable active sprint and at least one dependency-ready pending feature | `generator-proposal` worker | A ready backlog item exists but no local sprint has been proposed. | Cut one runnable slice from the roadmap into `.harness/<feature>/sprint_proposal.md`. |
+| `needs_brainstorm` | `docs/live/tracked-work.json` tracks a dependency-ready item as `needs_brainstorm`, optionally with supporting notes in `docs/live/ideas.md`, and `.harness/<workstream-id>/status.json` when the item is the currently selected planning lane | `generator-brainstorm` worker | The candidate is real enough to track, but still too vague for honest proposal work. | Refine or promote it to `pending`. |
+| `proposal_needed` | No runnable active sprint and at least one dependency-ready pending feature; a selected proposal lane may already have `.harness/<workstream-id>/status.json` | `generator-proposal` worker | A ready backlog item exists but no local sprint has been proposed yet. | Cut one runnable slice from the roadmap into `.harness/<feature>/sprint_proposal.md`. |
 | `proposal_ready` | `sprint_proposal.md` exists | `evaluator-contract-review` worker | Proposed scope exists and needs adversarial contract review. | Approve into `contract.md` or reject with revisions. |
 | `contracted` | `contract.md` exists and no later artifact exists | `generator-execution` worker | Boundaries and QA criteria are approved; implementation can begin. | Execute or resume work. |
 | `executing` | `status.json` shows active execution, no later artifact exists | `generator-execution` worker | Work is underway. | Finish implementation, or record an execution-time failure honestly. |
@@ -105,11 +109,11 @@ This lets explicit compounding run before new work and lets the backlog advance 
 - `uninitialized` -> `needs_brainstorm` or `proposal_needed`
   - Trigger: `project-initializer` worker seeds `docs/live/tracked-work.json`, `docs/live/ideas.md`, `docs/live/current-focus.md`, `docs/live/roadmap.md`, `progress.md`, and related live files truthfully.
 - `needs_brainstorm` -> `proposal_needed`
-  - Trigger: `generator-brainstorm` worker clarifies the candidate enough to promote it into `pending` backlog state and, when needed, sharpens the roadmap slice it belongs to.
+  - Trigger: `generator-brainstorm` worker clarifies the candidate enough to promote it into `pending` backlog state, writes or refreshes `.harness/<workstream-id>/status.json` when the planning lane is selected, and, when needed, sharpens the roadmap slice it belongs to.
 - `needs_brainstorm` -> `needs_brainstorm`
-  - Trigger: the idea is still too vague for honest proposal work, so brainstorming leaves it tracked but non-runnable.
+  - Trigger: the idea is still too vague for honest proposal work, so brainstorming leaves it tracked but non-runnable and preserves the planning checkpoint in `.harness/<workstream-id>/status.json` when one exists.
 - `proposal_needed` -> `proposal_ready`
-  - Trigger: `generator-proposal` worker creates `.harness/<workstream-id>/sprint_proposal.md` from the current durable roadmap slice and marks the sprint as proposed.
+  - Trigger: `generator-proposal` worker advances the selected planning workspace by creating `.harness/<workstream-id>/sprint_proposal.md` and marking the sprint as proposed.
 - `proposal_needed` -> `needs_brainstorm`
   - Trigger: proposal discovery proves the candidate is still too vague or forked, so it is explicitly returned to brainstorming instead of getting a mushy proposal.
 - `proposal_needed` -> `proposal_needed`

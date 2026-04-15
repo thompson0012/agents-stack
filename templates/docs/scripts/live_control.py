@@ -47,7 +47,9 @@ RUNNABLE_STATUSES = {
     "review_failed",
 }
 PARKED_STATUSES = {"awaiting_human", "escalated_to_human"}
-TERMINAL_STATUSES = {"archived", "cancelled", "completed", "done", "passed"}
+PLANNING_STATUSES = {"needs_brainstorm", "pending"}
+TRACEABLE_TERMINAL_STATUSES = {"archived", "completed", "done", "passed"}
+TERMINAL_STATUSES = TRACEABLE_TERMINAL_STATUSES | {"cancelled"}
 
 REQUIRED_TRACKED_WORK_KEYS: dict[str, type | tuple[type, ...]] = {
     "project": str,
@@ -539,6 +541,14 @@ def validate_tracked_work(data: Any) -> list[str]:
             parked_ids.append(item_id)
             if evidence_path is None:
                 errors.append(f"parked backlog item {item_id} must declare canonical evidence_path")
+        if status in PLANNING_STATUSES and isinstance(evidence_path, str) and not re.fullmatch(
+            r"\.harness/[^/]+/?", evidence_path
+        ):
+            errors.append(
+                f"planning backlog item {item_id} evidence_path must stay on one canonical .harness/ directory while planning remains local"
+            )
+        if status in TRACEABLE_TERMINAL_STATUSES and evidence_path is None:
+            errors.append(f"terminal backlog item {item_id} must declare canonical evidence_path")
 
     runnable_active_sprint_id = data.get("runnable_active_sprint_id")
     if len(runnable_ids) > 1:

@@ -15,8 +15,8 @@ Use the runtime's native primitive if it is called `sub-agent`, `Task agent`, `p
 - Dispatch packets are routing aids, not authority. A worker must verify the claimed sprint, phase, and summary against durable files on entry, apply the `AGENTS.md` precedence chain when evidence disagrees, and stop before writing if the dispatch frame loses to stronger evidence.
 - Preserve the file-based state model. The canonical outputs are still `sprint_proposal.md`, `contract.md`, `runtime.md`, `handoff.md`, `review.md`, `status.json`, and the live/archive files.
 - Drain `compound_pending_feature_ids` before runnable sprint resume or new backlog selection. Compounding is explicit work, not background magic.
-- Distinguish runnable active work from non-runnable brainstorm and parked work. `needs_brainstorm`, `awaiting_human`, and `escalated_to_human` stay visible, but they must not be mistaken for the one runnable active sprint.
-- When no runnable active sprint exists and the compound queue is empty, choose the highest-priority dependency-ready `needs_brainstorm` item before ordinary `pending` proposal work.
+- Distinguish runnable active work from non-runnable brainstorm and parked work. `needs_brainstorm`, `pending`, `awaiting_human`, and `escalated_to_human` stay visible, but they must not be mistaken for the one runnable active sprint.
+- When no runnable active sprint exists and the compound queue is empty, resume the selected local planning workspace first when one exists; otherwise choose the highest-priority dependency-ready `needs_brainstorm` item before ordinary `pending` proposal work.
 - Treat `docs/live/current-focus.md` as the live resume anchor and `docs/live/roadmap.md` as the initiative ledger for source goals, remaining slices, and re-authorization boundaries. Neither file replaces `.harness/<workstream-id>/contract.md` for an active sprint.
 - If a user's broad goal or direction change is not yet reflected durably, pause sprint chaining long enough to publish or refresh that source-goal truth in `current-focus.md` plus `roadmap.md` before selecting the next owner.
 
@@ -34,8 +34,8 @@ Use the runtime's native primitive if it is called `sub-agent`, `Task agent`, `p
 
 Workers get only the tools their phase needs.
 
-- Brainstorm workers may read `docs/live/*` and `docs/reference/*`, and write only `docs/live/ideas.md` plus the narrow `docs/live/tracked-work.json` update needed to track or promote the candidate.
-- Proposal workers may inspect backlog, `docs/live/current-focus.md`, and `docs/live/roadmap.md` to cut one runnable sprint from a broader initiative, and may refresh those live planning files when proposal work legitimately re-slices what comes next, but they are not execution workers.
+- Brainstorm workers may read `docs/live/*` and `docs/reference/*`, and write `docs/live/ideas.md`, the narrow `docs/live/tracked-work.json` update needed to track or promote the candidate, and `.harness/<workstream-id>/status.json` when the selected tracked workstream needs a canonical planning checkpoint.
+- Proposal workers may inspect backlog, `docs/live/current-focus.md`, and `docs/live/roadmap.md` to cut one runnable sprint from a broader initiative, may refresh those live planning files when proposal work legitimately re-slices what comes next, and should advance the selected workstream's `.harness/<workstream-id>/` checkpoint rather than inventing a parallel planning lane.
 - Contract-review and live-review workers must stay independent and must not receive write access to implementation files.
 - Execution workers may change only the approved contract scope, must perform build/startup triage before requesting review, and must not mark their own work approved.
 - State-update workers reconcile state and archive history, refresh `docs/live/current-focus.md` plus `docs/live/roadmap.md` when decisive outcomes change the remaining initiative path or re-authorization boundary, and do not silently redo proposal, execution, review, or durable learning capture.
@@ -46,8 +46,8 @@ Treat tool scope as part of the contract. If the runtime supports per-worker too
 ## Explicit non-runnable phase ordering
 
 - `compound-capture` runs before runnable sprint resume or new backlog selection when `compound_pending_feature_ids` is non-empty.
-- `generator-brainstorm` runs only when no runnable sprint exists and the highest-priority dependency-ready candidate still says `needs_brainstorm`.
-- Neither Brainstorm nor Compound may claim `runnable_active_sprint_id` or open a second runnable sprint.
+- `generator-brainstorm` runs only when no runnable sprint exists and the selected local planning workspace or highest-priority dependency-ready candidate still says `needs_brainstorm`.
+- Neither Brainstorm nor Compound may claim `runnable_active_sprint_id` or open a second runnable sprint; brainstorming may keep `.harness/<workstream-id>/status.json` as canonical planning evidence without making the lane runnable.
 
 ## Parallel-safe dispatch
 

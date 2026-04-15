@@ -24,7 +24,7 @@ This repository uses the agents-stack harness. The harness is stateful, resumabl
 │           ├── state-update/
 │           └── compound-capture/
 ├── .harness/
-│   ├── <WORKSTREAM-ID>/                     # the one runnable sprint workspace, or a parked human-gated sprint
+│   ├── <WORKSTREAM-ID>/                     # canonical selected-workstream workspace; planning, runnable, or parked per `status.json`
 │   │   ├── sprint_proposal.md
 │   │   ├── contract.md
 │   │   ├── runtime.md                       # optional but expected once execution starts
@@ -32,7 +32,7 @@ This repository uses the agents-stack harness. The harness is stateful, resumabl
 │   │   ├── qa.md                            # optional until review writes it
 │   │   ├── review.md
 │   │   └── status.json
-│   └── ... parked awaiting_human / escalated_to_human sprint folders when needed
+│   └── ... additional parked or retained planning-history folders when needed
 └── docs/
     ├── live/
     │   ├── tracked-work.json
@@ -100,7 +100,7 @@ For an active or parked sprint, the only canonical execution contract is `.harne
 Generators and reviewers build from the approved local contract on disk, not from remembered proposal text or paraphrased scope in chat. If the live state points at a sprint whose local contract is missing, execution must stop until the checkpoint is re-established.
 `docs/live/roadmap.md` may explain the source goal, initiative status, and remaining work, but it is a non-runnable control artifact and must never override `tracked-work.json` as the runnable selector or `.harness/<WORKSTREAM-ID>/contract.md` as slice truth.
 `docs/live/current-focus.md` may summarize why the sprint matters and who should act next, but it must point back to `docs/live/roadmap.md` and `.harness/<WORKSTREAM-ID>/contract.md` for durable truth and must never become a second execution contract.
-For any feature, `docs/live/tracked-work.json` should name exactly one canonical `evidence_path` at a time. While work is active or parked, that path points to `.harness/<WORKSTREAM-ID>/`. After PASS archive cutover, `state-update` must switch `evidence_path` to `docs/archive/<WORKSTREAM-ID>_<timestamp>/` and clear the runnable slot; there is never a period where both locations are canonical evidence for the same feature.
+For any feature, `docs/live/tracked-work.json` should name exactly one canonical `evidence_path` at a time. While a selected planning lane, active sprint, or parked sprint still lives locally, that path points to `.harness/<WORKSTREAM-ID>/`. After PASS archive cutover, `state-update` must switch `evidence_path` to `docs/archive/<WORKSTREAM-ID>_<timestamp>/` and clear the runnable slot; there is never a period where both locations are canonical evidence for the same feature. Planning-only work that never reaches PASS may remain canonically traced in `.harness/`.
 
 ### `docs/archive/*`
 Historical evidence for archived sprints.
@@ -108,9 +108,9 @@ Historical evidence for archived sprints.
 Each archived folder is read-only history for one sprint after `state-update` processes a PASS result and cuts the canonical `evidence_path` over from `.harness/<WORKSTREAM-ID>/` to `docs/archive/<WORKSTREAM-ID>_<timestamp>/`. Archive artifacts exist for audit and learning; they are never the active source of truth for an in-flight sprint and they never override active live or local state.
 
 ### `.harness/<WORKSTREAM-ID>/*`
-Local workspace for one runnable sprint at a time plus any explicitly parked human-gated sprints.
+Local workspace for the currently selected workstream, whether that lane is non-runnable planning, runnable execution, or a parked human gate.
 
-This folder is where proposal, contract, execution evidence, review evidence, and resume state live while the sprint is active or parked. It survives interruption and failure, and it is the canonical `evidence_path` during that time. On PASS it is archived and stops being canonical once live state points at the archive; on FAIL, `build_failed`, `awaiting_human`, or `escalated_to_human` it stays in `.harness/` until corrected, resumed, canceled, or explicitly closed.
+This folder is where planning checkpoints, proposal state, contract and execution evidence, review evidence, and resume state live while the workstream is selected or parked. It survives interruption and failure, and it is the canonical `evidence_path` during that time. On PASS it is archived and stops being canonical once live state points at the archive; on FAIL, `build_failed`, `awaiting_human`, or `escalated_to_human` it stays in `.harness/` until corrected, resumed, canceled, or explicitly closed. Planning-only work that completes without PASS archive cutover may remain terminal in `.harness/` for traceability.
 
 ### `docs/scripts/*`
 Repository-local harness utilities.
@@ -147,7 +147,7 @@ The `using-agents-stack` root skill is the orchestrator. It dispatches exactly o
 
 1. **Files beat chat memory.** If the repo and the conversation disagree, the repo wins.
 2. **One runnable active sprint only.** At most one feature may be runnable in `docs/live/tracked-work.json`, and at most one `.harness/<WORKSTREAM-ID>/` folder may represent runnable non-terminal work.
-3. **Parked sprints must say so explicitly.** Additional non-terminal `.harness/<WORKSTREAM-ID>/` folders are allowed only when their durable phase is `awaiting_human` or `escalated_to_human`. Parked sprints never count as the runnable active sprint.
+3. **Non-runnable local lanes must say so explicitly.** A selected planning workspace uses `.harness/<WORKSTREAM-ID>/status.json` with a durable phase such as `needs_brainstorm` or `pending`; parked human gates use `awaiting_human` or `escalated_to_human`. None of those phases count as the runnable active sprint.
 4. **Brainstorm and Compound are explicit non-runnable phases.** They may be the next router action, but they must not claim `runnable_active_sprint_id` or open a second runnable sprint.
 5. **Compounding drains before new work.** If `compound_pending_feature_ids` is non-empty, route `compound-capture` before resuming or opening any sprint work.
 6. **Execution does not self-approve.** Code or artifact generation cannot mark itself complete.
@@ -273,9 +273,9 @@ The lifecycle is explicit. Typical state flow:
 1. **Uninitialized**  
    Missing or untrustworthy `docs/live/*`. Owner: `project-initializer`.
 2. **Brainstorm candidate**  
-   A tracked item still needs ideation before proposal and is usually marked `needs_brainstorm` in `docs/live/tracked-work.json` with supporting detail in `docs/live/ideas.md`. Owner: `generator-brainstorm`. Non-runnable.
+   A tracked item still needs ideation before proposal and is usually marked `needs_brainstorm` in `docs/live/tracked-work.json` with supporting detail in `docs/live/ideas.md`. When the item is actively being worked, `.harness/<WORKSTREAM-ID>/status.json` is the canonical planning checkpoint. Owner: `generator-brainstorm`. Non-runnable.
 3. **Pending backlog item**  
-   A tracked item is ready for bounded proposal work but no runnable sprint workspace exists yet. Owner: `generator-proposal`.
+   A tracked item is ready for bounded proposal work and may already have `.harness/<WORKSTREAM-ID>/status.json` as its canonical planning checkpoint even though no runnable sprint is active yet. Owner: `generator-proposal`.
 4. **Proposed**  
    `.harness/<WORKSTREAM-ID>/sprint_proposal.md` exists. Owner: `evaluator-contract-review`.
 5. **Contracted**  

@@ -11,6 +11,7 @@ from typing import Any
 SCHEMA_VERSION = 1
 TERMINAL_PHASES = {"archived", "completed", "cancelled"}
 PARKED_PHASES = {"awaiting_human", "escalated_to_human"}
+PLANNING_LOCAL_PHASES = {"needs_brainstorm", "pending"}
 FAILED_PHASES = {"build_failed", "review_failed"}
 RUNNABLE_BACKLOG_STATUSES = {
     "in_progress",
@@ -242,7 +243,7 @@ def select_next_feature(
 
 
 def is_runnable_phase(phase: str) -> bool:
-    return bool(phase) and phase not in TERMINAL_PHASES and phase not in PARKED_PHASES
+    return bool(phase) and phase not in TERMINAL_PHASES and phase not in PARKED_PHASES and phase not in PLANNING_LOCAL_PHASES
 
 
 def strongest_artifact(sprint_dir: Path) -> str | None:
@@ -348,6 +349,43 @@ def runnable_backlog_ids(backlog: list[dict[str, Any]]) -> tuple[list[str], list
         if isinstance(status, str) and status.strip() in RUNNABLE_BACKLOG_STATUSES:
             ids.append(item_id.strip())
     return ids, errors
+
+
+def backlog_workstream_id(item: dict[str, Any]) -> str | None:
+    raw_sprint_id = item.get("sprint_id")
+    if isinstance(raw_sprint_id, str) and raw_sprint_id.strip():
+        return raw_sprint_id.strip()
+    raw_item_id = item.get("id")
+    if isinstance(raw_item_id, str) and raw_item_id.strip():
+        return raw_item_id.strip()
+    return None
+
+
+def feature_evidence_path(feature: dict[str, Any], fallback: str) -> str:
+    raw_evidence_path = feature.get("evidence_path")
+    if isinstance(raw_evidence_path, str) and raw_evidence_path.strip():
+        return raw_evidence_path.strip()
+    return fallback
+
+
+def selected_planning_features(backlog: list[dict[str, Any]]) -> tuple[list[tuple[str, dict[str, Any]]], list[str]]:
+    selected: list[tuple[str, dict[str, Any]]] = []
+    for item in backlog:
+        status = item.get("status")
+        if not isinstance(status, str) or status.strip() not in PLANNING_LOCAL_PHASES:
+            continue
+        evidence_path = item.get("evidence_path")
+        if not isinstance(evidence_path, str) or not evidence_path.strip().startswith(".harness/"):
+            continue
+        workstream_id = backlog_workstream_id(item)
+        if workstream_id is None:
+            raw_item_id = item.get("id")
+            item_label = raw_item_id.strip() if isinstance(raw_item_id, str) and raw_item_id.strip() else "unknown"
+            return [], [f"planning_feature_missing_workstream_id_{item_label}"]
+        selected.append((workstream_id, item))
+    if len(selected) > 1:
+        return [], ["multiple_live_planning_workspaces"]
+    return selected, []
 
 
 def run_retry_guard(repo_root: Path, workstream_id: str) -> tuple[str, list[str]]:
@@ -680,12 +718,25 @@ def compute_decision(repo_root: Path) -> Decision:
 
     local_by_id = {entry["sprint_id"]: entry for entry in local_entries}
     runnable_entries = [entry for entry in local_entries if is_runnable_phase(entry["phase"])]
+    planning_entries = [entry for entry in local_entries if entry["phase"] in PLANNING_LOCAL_PHASES]
     parked_entries = [entry for entry in local_entries if entry["phase"] in PARKED_PHASES]
 
     if len(runnable_entries) > 1:
         return route(
             "state-update",
             reason_codes=["multiple_runnable_local_sprints"],
+            evidence_path=relative_path(repo_root / ".harness", repo_root),
+        )
+    if len(planning_entries) > 1:
+        return route(
+            "state-update",
+            reason_codes=["multiple_local_planning_workspaces"],
+            evidence_path=relative_path(repo_root / ".harness", repo_root),
+        )
+    if planning_entries and runnable_entries:
+        return route(
+            "state-update",
+            reason_codes=["local_planning_conflicts_with_runnable_sprint"],
             evidence_path=relative_path(repo_root / ".harness", repo_root),
         )
 
@@ -704,6 +755,91 @@ def compute_decision(repo_root: Path) -> Decision:
         )
 
     active_pointer = runnable_active_pointer(tracked_work)
+    selected_planning, selected_planning_errors = selected_planning_features(backlog)
+    if selected_planning_errors:
+        return route(
+            "state-update",
+            reason_codes=selected_planning_errors,
+            evidence_path=relative_path(tracked_work_path, repo_root),
+        )
+
+    if planning_entries:
+        planning_entry = planning_entries[0]
+        planning_sprint_id = planning_entry["sprint_id"]
+        if active_pointer is not None:
+            return route(
+                "state-update",
+                reason_codes=["active_runnable_pointer_conflicts_with_local_planning"],
+                workstream_id=planning_sprint_id,
+                evidence_path=relative_path(planning_entry["status_path"], repo_root),
+            )
+        if not selected_planning:
+            return route(
+                "state-update",
+                reason_codes=["local_planning_workspace_missing_live_evidence"],
+                workstream_id=planning_sprint_id,
+                evidence_path=relative_path(planning_entry["status_path"], repo_root),
+            )
+        selected_sprint_id, selected_feature = selected_planning[0]
+        if selected_sprint_id != planning_sprint_id:
+            return route(
+                "state-update",
+                reason_codes=["live_local_planning_workspace_mismatch"],
+                feature_id=str(selected_feature.get("id", "")).strip() or None,
+                workstream_id=planning_sprint_id,
+                evidence_path=relative_path(planning_entry["status_path"], repo_root),
+            )
+        live_status = str(selected_feature.get("status", "")).strip()
+        if live_status != planning_entry["phase"]:
+            return route(
+                "state-update",
+                reason_codes=["planning_workspace_status_mismatch"],
+                feature_id=str(selected_feature.get("id", "")).strip() or None,
+                workstream_id=planning_sprint_id,
+                evidence_path=relative_path(planning_entry["status_path"], repo_root),
+            )
+        if queue:
+            queued_feature_id = queue[0]
+            queued_feature = next((item for item in backlog if item.get("id") == queued_feature_id), None)
+            queued_workstream_id = backlog_workstream_id(queued_feature) if isinstance(queued_feature, dict) else None
+            queued_evidence_path = (
+                feature_evidence_path(queued_feature, relative_path(tracked_work_path, repo_root))
+                if isinstance(queued_feature, dict)
+                else relative_path(tracked_work_path, repo_root)
+            )
+            return route(
+                "compound-capture",
+                reason_codes=["compound_queue_not_empty"],
+                feature_id=queued_feature_id,
+                workstream_id=queued_workstream_id,
+                evidence_path=queued_evidence_path,
+            )
+        feature_id = str(selected_feature.get("id", "")).strip() or None
+        child = "generator-brainstorm" if planning_entry["phase"] == "needs_brainstorm" else "generator-proposal"
+        reason_code = (
+            "selected_planning_workspace_needs_brainstorm"
+            if planning_entry["phase"] == "needs_brainstorm"
+            else "selected_planning_workspace_pending"
+        )
+        return route(
+            child,
+            reason_codes=[reason_code],
+            feature_id=feature_id,
+            workstream_id=planning_sprint_id,
+            resume_from="status.json",
+            evidence_path=relative_path(planning_entry["status_path"], repo_root),
+        )
+
+    if selected_planning:
+        selected_sprint_id, selected_feature = selected_planning[0]
+        return route(
+            "state-update",
+            reason_codes=["missing_local_planning_workspace"],
+            feature_id=str(selected_feature.get("id", "")).strip() or None,
+            workstream_id=selected_sprint_id,
+            evidence_path=feature_evidence_path(selected_feature, relative_path(tracked_work_path, repo_root)),
+        )
+
     if runnable_entries:
         active_entry = runnable_entries[0]
         active_sprint_id = active_entry["sprint_id"]
@@ -750,13 +886,20 @@ def compute_decision(repo_root: Path) -> Decision:
             )
 
         if queue:
-            queued_feature = queue[0]
+            queued_feature_id = queue[0]
+            queued_feature = next((item for item in backlog if item.get("id") == queued_feature_id), None)
+            queued_workstream_id = backlog_workstream_id(queued_feature) if isinstance(queued_feature, dict) else None
+            queued_evidence_path = (
+                feature_evidence_path(queued_feature, relative_path(tracked_work_path, repo_root))
+                if isinstance(queued_feature, dict)
+                else relative_path(tracked_work_path, repo_root)
+            )
             return route(
                 "compound-capture",
                 reason_codes=["compound_queue_not_empty"],
-                feature_id=queued_feature,
-                workstream_id=active_sprint_id,
-                evidence_path=relative_path(tracked_work_path, repo_root),
+                feature_id=queued_feature_id,
+                workstream_id=queued_workstream_id,
+                evidence_path=queued_evidence_path,
             )
 
         return dispatch_active_sprint(
@@ -785,17 +928,18 @@ def compute_decision(repo_root: Path) -> Decision:
     if queue:
         queued_feature_id = queue[0]
         queued_feature = next((item for item in backlog if item.get("id") == queued_feature_id), None)
-        workstream_id = None
-        if isinstance(queued_feature, dict):
-            raw_sprint_id = queued_feature.get("sprint_id")
-            if isinstance(raw_sprint_id, str) and raw_sprint_id.strip():
-                workstream_id = raw_sprint_id.strip()
+        queued_workstream_id = backlog_workstream_id(queued_feature) if isinstance(queued_feature, dict) else None
+        queued_evidence_path = (
+            feature_evidence_path(queued_feature, relative_path(tracked_work_path, repo_root))
+            if isinstance(queued_feature, dict)
+            else relative_path(tracked_work_path, repo_root)
+        )
         return route(
             "compound-capture",
             reason_codes=["compound_queue_not_empty"],
             feature_id=queued_feature_id,
-            workstream_id=workstream_id,
-            evidence_path=relative_path(tracked_work_path, repo_root),
+            workstream_id=queued_workstream_id,
+            evidence_path=queued_evidence_path,
         )
 
     brainstorm_item, brainstorm_errors = select_next_feature(backlog, {"needs_brainstorm"})
@@ -807,16 +951,13 @@ def compute_decision(repo_root: Path) -> Decision:
         )
     if brainstorm_item is not None:
         feature_id = str(brainstorm_item.get("id", "")).strip() or None
-        workstream_id = None
-        raw_sprint_id = brainstorm_item.get("sprint_id")
-        if isinstance(raw_sprint_id, str) and raw_sprint_id.strip():
-            workstream_id = raw_sprint_id.strip()
+        workstream_id = backlog_workstream_id(brainstorm_item)
         return route(
             "generator-brainstorm",
             reason_codes=["ready_needs_brainstorm_backlog_item"],
             feature_id=feature_id,
             workstream_id=workstream_id,
-            evidence_path=relative_path(tracked_work_path, repo_root),
+            evidence_path=feature_evidence_path(brainstorm_item, relative_path(tracked_work_path, repo_root)),
         )
 
     pending_item, pending_errors = select_next_feature(backlog, {"pending"})
@@ -828,16 +969,13 @@ def compute_decision(repo_root: Path) -> Decision:
         )
     if pending_item is not None:
         feature_id = str(pending_item.get("id", "")).strip() or None
-        workstream_id = None
-        raw_sprint_id = pending_item.get("sprint_id")
-        if isinstance(raw_sprint_id, str) and raw_sprint_id.strip():
-            workstream_id = raw_sprint_id.strip()
+        workstream_id = backlog_workstream_id(pending_item)
         return route(
             "generator-proposal",
             reason_codes=["ready_pending_backlog_item"],
             feature_id=feature_id,
             workstream_id=workstream_id,
-            evidence_path=relative_path(tracked_work_path, repo_root),
+            evidence_path=feature_evidence_path(pending_item, relative_path(tracked_work_path, repo_root)),
         )
 
     if parked_entries:

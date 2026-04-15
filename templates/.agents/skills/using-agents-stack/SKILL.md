@@ -22,12 +22,13 @@ Do not perform the child workflow here. Prefer dispatching a fresh worker, sub-a
 - Use `scripts/verify_retry_guard.py` as the bounded retry-eligibility gate for these invariants. It reads durable retry state, returns allow/deny plus reason codes, and never chooses the next child.
 - For closed-world file-state routing, the root router may delegate to `scripts/dispatch_phase.py` as a read-only fast path. Treat its fixed JSON output as route input only; it does not decide family-trigger fit, PASS publishability, or retry eligibility.
 - Parked sprints in `.harness/` with `awaiting_human` or `escalated_to_human` remain visible durable state, but they do not count as the single runnable active sprint.
+- A selected planning workstream may also keep `.harness/<WORKSTREAM-ID>/status.json` with phase `needs_brainstorm` or `pending`; that local checkpoint is canonical planning evidence, but it still does not claim `runnable_active_sprint_id`.
 - `docs/live/tracked-work.json` remains the authoritative tracked-work ledger and runnable/backlog selector.
 - `docs/live/current-focus.md` is the live resume anchor; `docs/live/roadmap.md` is the durable initiative ledger for source goals, remaining slices, and re-authorization boundaries.
 - Treat `scripts/roadmap_ops.py` as the narrow mutation path for `docs/live/roadmap.md` and `scripts/render_current_focus.py` as the narrow render path for `docs/live/current-focus.md`; `scripts/validate_live_control.py` and `scripts/validate_bootstrap_alignment.py` are fail-closed guardrails before trusting changed control-plane files.
 - When a user introduces or changes a broad goal, normalize it into `docs/live/current-focus.md` plus `docs/live/roadmap.md` before continuing sprint chaining. Do not let cross-sprint intent live only in chat memory.
 - Brainstorm and Compound are explicit non-runnable phases. They may be the next router action, but they must not claim `runnable_active_sprint_id`.
-- When no runnable active sprint exists, drain `compound_pending_feature_ids` first, then choose the highest-priority dependency-ready `needs_brainstorm` backlog item, then the highest-priority dependency-ready `pending` item.
+- When no runnable active sprint exists, drain `compound_pending_feature_ids` first; once the queue is clear, resume any selected local planning workspace before choosing the highest-priority dependency-ready `needs_brainstorm` backlog item and then the highest-priority dependency-ready `pending` item.
 - Protect the orchestrator context: it selects, merges worker evidence, dispatches, and waits for structured outputs; it does not implement, review, or rewrite state inline.
 - When the orchestrator fans out to sibling workers, it must wait for all of them to return, merge their structured outputs into sprint-local durable state keyed by stable worker ID, and only then decide the next dispatch or emit a completion message.
 - The root router still owns family-trigger judgment, semantic ambiguity handling, and the final fresh-worker dispatch after any dispatcher or evidence-gathering step.
@@ -46,8 +47,9 @@ Do not perform the child workflow here. Prefer dispatching a fresh worker, sub-a
 9. If `review.md` exists but live and local state have not yet reconciled the verdict, route to `state-update` before any new execution or proposal work.
 10. If the sprint is in `build_failed` or reconciled `review_failed`, route to `generator-execution` only when retry eligibility is separately confirmed by `scripts/verify_retry_guard.py` and `clean_restore_ref` defines a safe restore boundary.
 11. If the sprint is in `awaiting_human` or `escalated_to_human` and that parked state is already reflected durably, do not auto-dispatch execution. Surface the parked state unless new human edits have changed the checkpoint.
-12. If no runnable active sprint exists, choose the highest-priority dependency-ready `needs_brainstorm` backlog item for `generator-brainstorm`.
-13. If no dependency-ready `needs_brainstorm` item exists, choose the highest-priority dependency-ready `pending` backlog item for `generator-proposal`.
+12. If no runnable active sprint exists but exactly one local planning workspace exists with phase `needs_brainstorm` or `pending`, route from that checkpoint before selecting a different backlog item.
+13. If no runnable active sprint exists and no selected local planning workspace exists, choose the highest-priority dependency-ready `needs_brainstorm` backlog item for `generator-brainstorm`.
+14. If no dependency-ready `needs_brainstorm` item exists, choose the highest-priority dependency-ready `pending` backlog item for `generator-proposal`.
 14. Pick the narrowest child that matches the strongest durable evidence.
 15. If the selected child is missing, install it when possible or disclose the fallback.
 16. Dispatch a fresh worker for the selected child with a stable worker ID, phase-appropriate tools, and explicit artifact return targets after any useful evidence-gathering workers have all returned and been merged into the sprint-local result ledger.

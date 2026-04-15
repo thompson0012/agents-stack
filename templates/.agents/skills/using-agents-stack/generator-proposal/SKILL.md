@@ -14,13 +14,13 @@ inputs:
   - docs/reference/*
   - linked docs/records/* for the selected feature when present
   - existing implementation in the target area
-  - .harness/<workstream-id>/sprint_proposal.md if revising an existing proposal
+  - existing `.harness/<workstream-id>/status.json` or `.harness/<workstream-id>/sprint_proposal.md` when continuing a selected planning workspace
 outputs:
   - .harness/<workstream-id>/sprint_proposal.md
   - .harness/<workstream-id>/status.json
   - optional scoped `docs/records/*` note when durable feature-linked discussion residue should survive outside the sprint contract
   - optional precise updates to docs/live/roadmap.md and docs/live/current-focus.md when broad-goal truth must be made durable before sprint reservation
-  - optional precise update to docs/live/tracked-work.json to reserve the active sprint and register any touched `record_paths`
+  - optional precise update to docs/live/tracked-work.json to reserve the active sprint, keep canonical `.harness/<workstream-id>/` evidence truthful, and register any touched `record_paths`
 boundaries:
   - Scope exactly one bounded sprint as a slice of the broader initiative, not a rewrite of it.
   - Do not implement code during this phase.
@@ -46,7 +46,7 @@ When the feature came from `docs/live/ideas.md`, carry forward only the parts th
 
 - Run proposal drafting in a fresh worker context. The orchestrator dispatches this worker; it does not swap into proposal mode inline.
 - Only the orchestrator may spawn workers. This worker must not spawn another worker.
-- Tool lane: repo discovery, sprint-local planning writes under `.harness/<workstream-id>/`, optional scoped `docs/records/*`, and the narrow live-state updates needed to make source-goal truth durable in `docs/live/roadmap.md`, `docs/live/current-focus.md`, and `docs/live/tracked-work.json`. No product-code edits.
+- Tool lane: repo discovery, sprint-local planning writes under `.harness/<workstream-id>/`, optional scoped `docs/records/*`, and the narrow live-state updates needed to make source-goal truth durable in `docs/live/roadmap.md`, `docs/live/current-focus.md`, and `docs/live/tracked-work.json`. Proposal work advances the selected planning workspace rather than inventing a parallel planning lane. No product-code edits.
 - Parallel-safe only for read-only research across clearly disjoint code areas. One worker owns `.harness/<workstream-id>/sprint_proposal.md`, `status.json`, and any scoped record update for that feature; parallel helpers must not write those same files or overlap target areas.
 - Durable return contract: `.harness/<workstream-id>/sprint_proposal.md`, `.harness/<workstream-id>/status.json`, any optional `docs/records/*`, and any required `docs/live/roadmap.md` / `docs/live/current-focus.md` refresh before reservation, plus optional `docs/live/tracked-work.json`. Include `worker_id` and `orchestrator_run_id` in `status.json` when the host provides them.
 - Dispatch framing is non-authoritative. Before acting, verify that the dispatched feature still matches `docs/live/tracked-work.json`, that the claimed phase still matches the strongest local/live artifact on disk, and that stronger evidence in the `AGENTS.md` precedence chain beats any dispatch summary, stale resume hint, or copied orchestrator context.
@@ -98,12 +98,11 @@ If the sprint already has retry metadata such as `attempt_count`, `max_attempts`
 
 ### Optional live-state and record updates
 If the selected work came from a broad user goal, first make the source-goal lineage explicit in `docs/live/roadmap.md` and `docs/live/current-focus.md`.
-Reserve the feature in `docs/live/tracked-work.json` only after that lineage is durable and only if no other runnable item is already `in_progress`.
+Reserve the feature in `docs/live/tracked-work.json` only after that lineage is durable and only if no other runnable item is already `in_progress`. Keep the feature's canonical `evidence_path` pointed at `.harness/<workstream-id>/` while proposal work is still local.
 Prefer the narrow control-plane helpers when the initializer has already seeded the live files and you know the required values: update `docs/live/roadmap.md` through `templates/docs/scripts/roadmap_ops.py`, refresh `docs/live/current-focus.md` through `templates/docs/scripts/render_current_focus.py`, then run `templates/docs/scripts/validate_live_control.py --repo-root <repo-root>` before reserving the sprint.
 If those files do not exist yet because the repo is still in minimal bootstrap, stop and route through `project-initializer` instead of inventing a second control-plane shape from proposal work.
 If the control files appear to drift from the committed bootstrap seeds rather than from current sprint truth, run `templates/docs/scripts/validate_bootstrap_alignment.py --repo-root <repo-root>` and hand control back to `project-initializer` instead of patching around the drift here.
 Do not use proposal work to pull a feature forward when the backlog still says `needs_brainstorm`; resolve that truth first. `tracked-work.json` remains the runnable/backlog selector and single registry, not the place to hide multi-sprint initiative intent.
-
 If durable feature-linked discussion residue is too large or nuanced for `docs/live/ideas.md` but is not stable reference truth, you may create or refresh one scoped page under `docs/records/*` only when the feature already exists in `docs/live/tracked-work.json`. Register that path in the same feature entry's `record_paths`; do not let the record replace the proposal or become a shadow contract.
 ## Workflow
 
@@ -193,6 +192,7 @@ The proposal must let an evaluator answer:
 ### 8. Set durable state for resume
 - Write or update `status.json` so the next agent can resume from `sprint_proposal.md`.
 - If this is a revision, replace stale proposal content rather than accumulating contradictory plans.
+- If this workstream entered proposal from a local planning checkpoint, replace stale `needs_brainstorm` / `pending` phase state with truthful proposal state instead of leaving two competing local stories.
 - Do not reserve or chain the sprint forward until `docs/live/roadmap.md` and `docs/live/current-focus.md` tell the same source-goal story as the proposal.
 
 ## File Write Expectations
@@ -201,7 +201,7 @@ The proposal must let an evaluator answer:
 - Do not touch `docs/archive/*`.
 - Do not edit product code, tests, or app assets.
 - Update `docs/live/roadmap.md` and `docs/live/current-focus.md` only when needed to make source-goal lineage and current authorization durable.
-- Only update `docs/live/tracked-work.json` after that lineage is durable and only if needed to represent the single runnable active sprint truthfully or to register feature-linked `record_paths`.
+- Only update `docs/live/tracked-work.json` after that lineage is durable and only if needed to represent the single runnable active sprint truthfully, keep canonical `.harness/<workstream-id>/` evidence truthful, or register feature-linked `record_paths`.
 - Read `docs/live/ideas.md` and any linked `docs/records/*` only when they materially narrow the selected feature; do not bloat the proposal with generic brainstorm notes or turn records into a shadow contract.
 
 ## Refusal and Stop Conditions

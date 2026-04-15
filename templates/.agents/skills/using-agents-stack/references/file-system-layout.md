@@ -67,8 +67,9 @@ Rules:
 - more than one runnable active feature is invalid
 - parked `awaiting_human` and `escalated_to_human` features may remain listed, but they must not also be marked as the runnable active sprint
 - a feature marked runnable-active should have a matching `.harness/<workstream-id>/` folder unless the proposal has not been created yet
+- a selected planning item may also keep `.harness/<workstream-id>/status.json` as its canonical local checkpoint while `runnable_active_sprint_id` remains null
 - `tracked-work.json` remains the only tracked-work registry; fields such as `idea_ref`, `evidence_path`, `record_paths`, and `reference_paths` belong here rather than in a second registry
-- each feature should have exactly one canonical `evidence_path` at a time: `.harness/<workstream-id>/` while active or parked, then `docs/archive/<workstream-id>_<timestamp>/` after PASS archive cutover
+- each feature should have exactly one canonical `evidence_path` at a time: `.harness/<workstream-id>/` while selected locally, active, or parked, then `docs/archive/<workstream-id>_<timestamp>/` after PASS archive cutover
 - when no runnable active sprint exists, routing chooses the highest-priority dependency-ready `needs_brainstorm` item before ordinary `pending` proposal work
 - `docs/live/roadmap.md` may explain initiative continuation, but `tracked-work.json` still selects runnable truth and backlog order
 
@@ -134,9 +135,9 @@ This is not scratch space. It should store information the next agent actually n
 
 ## `.harness/<workstream-id>/`
 
-This folder contains sprint-local durable state. One folder may be the runnable active sprint. Additional non-terminal folders are allowed only when they are explicitly parked in `awaiting_human` or `escalated_to_human`.
+This folder contains selected-workstream durable state. One folder may be the runnable active sprint. A selected planning workstream may also live here with `status.json.phase = needs_brainstorm` or `pending`, and additional non-terminal folders are otherwise allowed only when they are explicitly parked in `awaiting_human` or `escalated_to_human`.
 
-Fresh workers come and go, but the sprint folder stays stable. Retries, review cycles, human pauses, and resume attempts write back into the same sprint-local evidence set.
+Fresh workers come and go, but the workstream folder stays stable. Planning passes, retries, review cycles, human pauses, and resume attempts write back into the same local evidence set.
 
 ### Canonical sprint-local artifact layout
 

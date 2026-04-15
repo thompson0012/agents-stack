@@ -48,46 +48,48 @@
     },
     {
       "id": "parked-sprint-does-not-block-brainstorm-route",
-      "prompt": "A sprint is durably parked awaiting human input, there is no runnable active sprint, and the highest-priority dependency-ready backlog item is needs_brainstorm. Which child should run next?",
-      "expected_output": "Routes to using-agents-stack/generator-brainstorm because parked work stays visible but does not occupy the one runnable slot when a dependency-ready brainstorm item exists.",
+      "prompt": "A sprint is durably parked awaiting human input, there is no runnable active sprint, and the selected planning workspace is still in needs_brainstorm. Which child should run next?",
+      "expected_output": "Routes to using-agents-stack/generator-brainstorm because parked work stays visible but does not occupy the one runnable slot when the local planning checkpoint still says brainstorming owns the selected workstream.",
       "expected_dispatch": {
         "schema_version": 1,
         "decision": "route",
         "child": "generator-brainstorm",
         "target": "using-agents-stack/generator-brainstorm",
         "reason_codes": [
-          "ready_needs_brainstorm_backlog_item"
+          "selected_planning_workspace_needs_brainstorm"
         ],
         "feature_id": "FEATURE-006",
-        "workstream_id": null,
-        "resume_from": null,
-        "evidence_path": "docs/live/tracked-work.json"
+        "workstream_id": "WORKSTREAM-006",
+        "resume_from": "status.json",
+        "evidence_path": ".harness/WORKSTREAM-006/status.json"
       },
       "files": [
-        "docs/live/tracked-work.json: runnable_active_sprint_id = null; compound_pending_feature_ids = []; a parked sprint remains visible; backlog entry FEATURE-006 is highest priority, status needs_brainstorm, dependencies satisfied.",
+        "docs/live/tracked-work.json: runnable_active_sprint_id = null; compound_pending_feature_ids = []; a parked sprint remains visible; backlog entry FEATURE-006 is highest priority, status needs_brainstorm, sprint_id WORKSTREAM-006, evidence_path .harness/WORKSTREAM-006/, dependencies satisfied.",
         ".harness/WORKSTREAM-005/status.json: phase = awaiting_human; resume_from = contract.md; human_action_required = update API credentials file.",
-        "docs/live/current-focus.md: current focus notes the parked blocker but names FEATURE-006 as the next dependency-ready backlog lane once routing resumes."
+        ".harness/WORKSTREAM-006/status.json: phase = needs_brainstorm; resume_from = ideas.md.",
+        "docs/live/current-focus.md: current focus notes the parked blocker but names WORKSTREAM-006 as the selected planning lane once routing resumes."
       ]
     },
     {
       "id": "direct-new-proposal-from-pending-backlog",
-      "prompt": "No runnable sprint exists, no compound work is queued, and the highest-priority dependency-ready backlog item is pending rather than needs_brainstorm. Which child should run next?",
-      "expected_output": "Routes to using-agents-stack/generator-proposal because the repository has proposal-ready backlog truth and nothing in compound, retry, or brainstorm lanes outranks it.",
+      "prompt": "No runnable sprint exists, no compound work is queued, and the selected planning workspace is pending rather than needs_brainstorm. Which child should run next?",
+      "expected_output": "Routes to using-agents-stack/generator-proposal because the repository already has a canonical local planning checkpoint for the proposal-ready workstream and nothing in compound or retry lanes outranks it.",
       "expected_dispatch": {
         "schema_version": 1,
         "decision": "route",
         "child": "generator-proposal",
         "target": "using-agents-stack/generator-proposal",
         "reason_codes": [
-          "ready_pending_backlog_item"
+          "selected_planning_workspace_pending"
         ],
         "feature_id": "FEATURE-007",
-        "workstream_id": null,
-        "resume_from": null,
-        "evidence_path": "docs/live/tracked-work.json"
+        "workstream_id": "WORKSTREAM-007",
+        "resume_from": "status.json",
+        "evidence_path": ".harness/WORKSTREAM-007/status.json"
       },
       "files": [
-        "docs/live/tracked-work.json: runnable_active_sprint_id = null; compound_pending_feature_ids = []; backlog entry FEATURE-007 is highest priority, status pending, dependencies satisfied; no higher-priority needs_brainstorm item is dependency-ready.",
+        "docs/live/tracked-work.json: runnable_active_sprint_id = null; compound_pending_feature_ids = []; backlog entry FEATURE-007 is highest priority, status pending, sprint_id WORKSTREAM-007, evidence_path .harness/WORKSTREAM-007/, dependencies satisfied; no higher-priority needs_brainstorm item is dependency-ready.",
+        ".harness/WORKSTREAM-007/status.json: phase = pending; resume_from = ideas.md.",
         "docs/live/roadmap.md: FEATURE-007 is still an authorized remaining slice, not yet proposed."
       ]
     },

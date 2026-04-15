@@ -15,9 +15,10 @@ outputs:
   - updated docs/live/ideas.md
   - optional scoped `docs/records/*` note for an already-tracked feature or initiative
   - optional precise update to docs/live/tracked-work.json
+  - `.harness/<workstream-id>/status.json` when the selected item is already a tracked workstream
 boundaries:
-  - Operate only on durable idea, record, and backlog artifacts.
-  - Do not edit product code, tests, app assets, or `.harness/<workstream-id>/` sprint files.
+  - Operate only on durable idea, record, backlog, and selected-workstream planning artifacts.
+  - Do not edit product code, tests, app assets, or later-phase `.harness/<workstream-id>/` execution/review files.
   - Do not claim `runnable_active_sprint_id` or otherwise mark a runnable active sprint.
   - Do not turn brainstorming notes into an implementation plan disguised as a proposal.
   - Do not create a record for untracked ideation or let `docs/records/*` become a second registry, contract, or archive.
@@ -36,15 +37,15 @@ A good brainstorm output makes one of two truths obvious:
 - this candidate still needs more thinking, so it stays in `docs/live/ideas.md` and may remain `needs_brainstorm`
 - this candidate is now concrete enough to promote into `docs/live/tracked-work.json` for bounded proposal work
 
-Brainstorm never claims the single runnable active sprint slot. It prepares work for later selection; it does not open `.harness/<workstream-id>/` or start execution.
+Brainstorm never claims the single runnable active sprint slot. It prepares work for later selection; when the item is already tracked, it may refresh `.harness/<workstream-id>/status.json` as the canonical planning checkpoint, but it does not start execution.
 
 ## Worker Dispatch Contract
 
 - Run brainstorming in a fresh worker context. The orchestrator dispatches this worker; it does not brainstorm inline.
 - Only the orchestrator may spawn workers. This worker must not spawn another worker.
-- Tool lane: durable backlog state only. Reads across `docs/live/*`, `docs/reference/*`, `docs/records/*` when linked, and `AGENTS.md`; writes to `docs/live/ideas.md`, optional scoped `docs/records/*`, and the narrow `docs/live/tracked-work.json` updates needed to promote or restate candidate backlog truth.
-- Not parallel-safe for writes. This worker owns `docs/live/ideas.md`, any scoped record page it creates or updates for the selected tracked feature, and any related `tracked-work.json` update during its run.
-- Durable return contract: an updated `docs/live/ideas.md` plus optional truthful `docs/records/*` and `docs/live/tracked-work.json` updates. Include `worker_id` and `orchestrator_run_id` in any durable note only if the host already provides them.
+- Tool lane: durable backlog state plus the selected workstream's planning checkpoint. Reads across `docs/live/*`, `docs/reference/*`, `docs/records/*` when linked, `AGENTS.md`, and existing `.harness/<workstream-id>/status.json` when present; writes to `docs/live/ideas.md`, optional scoped `docs/records/*`, the narrow `docs/live/tracked-work.json` updates needed to promote or restate candidate backlog truth, and `.harness/<workstream-id>/status.json` for the selected tracked workstream.
+- Not parallel-safe for writes. This worker owns `docs/live/ideas.md`, any scoped record page it creates or updates for the selected tracked feature, any related `tracked-work.json` update during its run, and the selected workstream's `.harness/<workstream-id>/status.json` when that file exists or must be created.
+- Durable return contract: an updated `docs/live/ideas.md` plus optional truthful `docs/records/*`, `docs/live/tracked-work.json`, and `.harness/<workstream-id>/status.json` updates. Include `worker_id` and `orchestrator_run_id` in durable notes only if the host already provides them.
 - Dispatch framing is non-authoritative. Before acting, verify that the dispatched feature still matches `docs/live/tracked-work.json`, that the claimed phase still matches the strongest local/live artifact on disk, and that stronger evidence in the `AGENTS.md` precedence chain beats any dispatch summary, stale resume hint, or copied orchestrator context.
 - If those checks disagree with the dispatch frame, stop before writing, preserve the existing truthful files, and hand control back to the orchestrator for correct-lane dispatch.
 
@@ -57,6 +58,7 @@ Read these before changing anything:
 4. `docs/live/progress.md` and `docs/live/memory.md`
 5. Relevant `docs/reference/*` that constrain the idea space
 6. Any existing `docs/records/*` already linked from the selected tracked feature or initiative
+7. Existing `.harness/<workstream-id>/status.json` when the selected tracked workstream already has a local planning checkpoint
 
 If `docs/live/ideas.md` is missing or obviously boilerplate, repair it first instead of inventing ephemeral brainstorm context in chat.
 
@@ -164,7 +166,7 @@ If the answer is still unclear, that is a failure to refine the idea enough. Fix
 - `docs/live/ideas.md` is the primary artifact for this phase.
 - `docs/live/tracked-work.json` may change only to truthfully track brainstorm-needed or proposal-ready backlog state and to register any linked `record_paths` for the touched feature.
 - Scoped `docs/records/*` pages are optional supporting artifacts only for already-tracked features; they must never replace `ideas.md`, `tracked-work.json`, or later sprint-local contracts.
-- Do not create `.harness/<workstream-id>/` from brainstorming.
+- When the item is already a tracked workstream, create or update `.harness/<workstream-id>/status.json` so the selected planning lane has a canonical local checkpoint without claiming runnable status.
 - Do not edit `docs/archive/*` during this phase.
 - Do not touch product code, tests, or runtime assets.
 
@@ -188,4 +190,4 @@ A good brainstorm pass:
 - preserves the single-runnable-sprint rule by staying pre-sprint and non-runnable
 
 ## Done Definition
-This skill is done when `docs/live/ideas.md` truthfully captures the explored candidate, any related backlog item in `docs/live/tracked-work.json` accurately says `needs_brainstorm` or `pending`, any optional record is feature-linked through `record_paths` instead of becoming a second registry, and no runnable sprint slot has been claimed.
+This skill is done when `docs/live/ideas.md` truthfully captures the explored candidate, any related backlog item in `docs/live/tracked-work.json` accurately says `needs_brainstorm` or `pending`, any optional record is feature-linked through `record_paths` instead of becoming a second registry, any selected tracked workstream has a truthful `.harness/<workstream-id>/status.json` planning checkpoint, and no runnable sprint slot has been claimed.
