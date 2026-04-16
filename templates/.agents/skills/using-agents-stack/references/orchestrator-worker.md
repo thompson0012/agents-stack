@@ -4,6 +4,23 @@ This family uses a lead orchestrator plus fresh workers. The orchestrator reads 
 
 Use the runtime's native primitive if it is called `sub-agent`, `Task agent`, `parallel agent`, or something else. The rule is behavioral, not API-specific: when delegation is useful, gather evidence in a fresh worker context and bring the results back to the orchestrator for the routing decision. If delegation would not materially help, or durable state already settles the answer, the orchestrator may keep the step direct.
 
+## Delegation constitution
+
+This file is the canonical portable delegation constitution for the harness. It defines the reliability-first default for routing and task delegation. Project-specific architecture belongs in `docs/reference/architecture.md`; harness delegation rules belong here.
+
+Later sections in this file contain the operational details. Use this summary as the governing default:
+
+1. Keep the control plane thin. The orchestrator reads durable state, routes, dispatches fresh workers, merges results, and does not perform child phase work inline.
+2. Planning already exists. Use brainstorm and proposal phases to turn a high-level goal into scope, dependencies, acceptance criteria, and candidate subtasks instead of adding a separate runtime planning layer.
+3. Decompose only when it materially lowers uncertainty, improves verification, enables safe parallelism, reduces failure blast radius, or creates clearer ownership boundaries.
+4. Keep hierarchical task trees in planning, not as router-owned runtime truth. The router selects phases from durable evidence; workers consume bounded tasks.
+5. Workers own leaf tasks and phase-bounded outputs. Each worker operates at one level of abstraction and must not spawn nested workers.
+6. Parallelism is bounded. Use sibling workers only for genuinely independent work, await all of them, and merge their outputs into durable state before the next routing decision.
+7. Evaluation, truth publication, and learning capture remain separate. Generators do not self-approve; reviewers verify; state-update reconciles truth; compound-capture records durable lessons.
+8. Files are canonical. Durable truth belongs in the appropriate live, harness, record, reference, or archive file lane rather than in chat memory.
+9. Escalate complexity only when evidence justifies it. This thin-orchestrator plus specialist-worker model is the template's default, not a universal optimum for every workload.
+10. Avoid router-owned recursive task trees as canonical truth, nested worker spawning, decentralized swarm coordination as the core sprint lifecycle, and collapsing planning, execution, and review into one worker.
+
 ## Lead orchestrator protections
 
 - Keep the orchestrator thin. Its job is route, dispatch, merge, and retry orchestration.
