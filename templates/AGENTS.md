@@ -367,6 +367,7 @@ Archive only after all of the following are true:
 On archive:
 - prefer move or verified rename of the complete sprint evidence into `docs/archive/<WORKSTREAM-ID>_<timestamp>/`
 - if the environment requires copying instead of moving, verify the archive, switch the feature's canonical `evidence_path` to the archive, and explicitly clear or de-canonicalize the source `.harness/<WORKSTREAM-ID>/` workspace so the archive is the only canonical PASS evidence
+- when the archive files do not already exist, create them with write/copy or a verified move; do not use edit to create the archive bundle
 - preserve at minimum `sprint_proposal.md`, `contract.md`, `handoff.md`, `review.md`, and `status.json`
 - keep the archive immutable except for corrections required to preserve historical truth
 

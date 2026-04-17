@@ -237,6 +237,7 @@ Archive rules:
 - PASS archive cutover should prefer move or verified rename; if copying is required, update the feature's canonical `evidence_path` to the archive and explicitly de-canonicalize the source `.harness/<workstream-id>/` workspace after verification
 - never reuse the active `.harness/<workstream-id>/` folder as the archive itself
 - archive naming should include the workstream ID and a timestamp or equivalent unique suffix
+- when the target archive files do not already exist, create them with write/copy or a verified move; do not use `edit` to create the archive bundle
 - preserve the final `status.json` snapshot so worker IDs, attempt counters, restore boundaries, and parked history remain visible in historical evidence when those fields were recorded
 - archive never overrides active live or local sprint truth
 

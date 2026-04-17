@@ -317,6 +317,7 @@ On PASS:
 2. Verify the review evidence is complete and that the preserved convergence summary still says `coverage_status: complete`, `all_acceptance_criteria_accounted_for: true`, `convergence_status: closed`, and `open_blocking_findings_count: 0`.
 3. Update `docs/live/*` first, including the feature's `archived` terminal status and the archive-bound `evidence_path`.
 4. Archive the full sprint artifact set to `docs/archive/<sprint-id>_<timestamp>/`.
+   - Create new archive files with a write/copy or verified move; do not use `edit` to mint a missing archive file.
 5. Ensure the archive contains, at minimum:
    - `sprint_proposal.md` if it exists
    - `contract.md`
