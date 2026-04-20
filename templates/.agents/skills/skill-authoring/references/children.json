@@ -47,6 +47,27 @@
         "package": "skill-authoring/create-router-skill",
         "notes": "Install this nested child path before routing if the runtime cannot discover bundled children automatically."
       }
+    },
+    {
+      "name": "create-agents",
+      "target": "skill-authoring/create-agents",
+      "relationship": "routes_to",
+      "summary": "Creates reusable agent manifests or small agent teams with explicit model profile metadata and harness-style contracts.",
+      "route_when": [
+        "The package is a reusable agent manifest, not a skill package.",
+        "The work needs ready-to-use task, explore, plan, librarian, or similar specialist agents."
+      ],
+      "avoid_when": [
+        "The job is clearly a leaf skill or router family under the skill package system.",
+        "The request is only a one-off chat instruction that should stay outside the repo."
+      ],
+      "requires": [],
+      "recommends": [],
+      "fallbacks_to": [],
+      "install_if_missing": {
+        "package": "skill-authoring/create-agents",
+        "notes": "Install this nested child path before routing if the runtime cannot discover bundled children automatically."
+      }
     }
   ]
 }
