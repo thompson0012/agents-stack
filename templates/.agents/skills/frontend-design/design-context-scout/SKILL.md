@@ -1,27 +1,6 @@
 ---
 name: design-context-scout
 description: Use when a design sprint is starting and no trusted design context document exists yet for this feature.
-purpose: Explore the repository and any provided design sources to produce a durable design context document that the proposer and builder can work from.
-trigger: When `.harness/<sprint-id>/context.md` is absent or flagged stale, before `design-proposer` can begin scoping.
-inputs:
-  - AGENTS.md
-  - docs/reference/design.md
-  - docs/reference/architecture.md
-  - docs/live/tracked-work.json
-  - docs/live/ideas.md
-  - docs/live/memory.md
-  - codebase component and styling files (see Discovery Order below)
-  - any attached screenshots, Figma links, or brand briefs provided by the human
-outputs:
-  - .harness/<sprint-id>/context.md
-  - .harness/<sprint-id>/status.json
-boundaries:
-  - Do not produce a proposal, contract, or artifact.
-  - Do not invent design tokens or vocabulary that are not grounded in actual repo evidence or explicit human input.
-  - Do not bulk-copy design assets; reference and describe them.
-  - Do not start building anything.
-next_skills:
-  - design-proposer
 ---
 
 # Design Context Scout
@@ -37,6 +16,14 @@ Starting design work without understanding the existing system always produces g
 - Tool lane: read-only access to all repo files, plus write access to `.harness/<sprint-id>/context.md` and `.harness/<sprint-id>/status.json`.
 - Parallel-safe for read-only discovery across disjoint file areas. One worker owns the context write.
 - Dispatch framing is non-authoritative. Verify the dispatched sprint against `docs/live/tracked-work.json` and the strongest local artifact before writing.
+
+## Re-Entry Check
+
+Before beginning discovery, check whether `context.md` already exists from a prior scouting run:
+
+- If `context.md` exists and `status.json` shows `phase: "context_ready"` or later → the context was accepted; do not re-scout unless explicitly instructed.
+- If `context.md` exists but `status.json` shows `phase: "context_needed"` or `"building"` → the prior run was interrupted; overwrite `context.md` entirely from scratch.
+- If `context.md` does not exist → begin discovery normally.
 
 ## Discovery Order
 
@@ -196,3 +183,12 @@ A good context document:
 - leaves the proposer and builder with enough vocabulary to stay on-brand without re-reading the entire codebase
 
 A context document that invents tokens, fabricates vocabulary, or papers over a missing design system is worse than a document that honestly records "no system found."
+
+## Final Checklist
+
+- [ ] Prior `context.md` checked — if interrupted, overwrite from scratch; if complete and accepted, skip re-scouting
+- [ ] All token values cite actual file paths, not assumptions
+- [ ] Confirmed tokens distinguished from inferences
+- [ ] Open gaps named explicitly (no silent skips)
+- [ ] If no design system found: `no_design_system_found: true` in `context.md`, `phase: "awaiting_human"` in `status.json`, `human_action_required` populated
+- [ ] If context is complete: `phase: "context_ready"` in `status.json`

@@ -1,33 +1,6 @@
 ---
 name: design-compounder
-description: Use after state-update has reconciled a design sprint outcome and queued the feature id in compound_pending_feature_ids.
-purpose: Distill durable design learnings — token decisions, component patterns, visual vocabulary choices, failure modes — into docs/live/memory.md and optionally into docs/reference/design.md when the lesson is stable current truth.
-trigger: After `state-update` has queued the feature id in `docs/live/tracked-work.json` under `compound_pending_feature_ids`.
-inputs:
-  - AGENTS.md
-  - docs/live/tracked-work.json
-  - docs/live/memory.md
-  - docs/reference/design.md
-  - .harness/<sprint-id>/* or docs/archive/<sprint-id>_<timestamp>/* (decisive sprint evidence)
-  - .harness/<sprint-id>/context.md
-  - .harness/<sprint-id>/review.md
-  - .harness/<sprint-id>/handoff.md
-outputs:
-  - updated docs/live/memory.md (when durable learning survives with artifact-linked provenance)
-  - optional precise update to docs/reference/design.md (when the lesson is stable current truth)
-  - optional scoped docs/records/* page (when durable but non-reference residue should persist)
-  - updated docs/live/tracked-work.json (feature id removed from compound_pending_feature_ids)
-boundaries:
-  - Do not reopen proposal, execution, or review.
-  - Do not claim or change runnable_active_sprint_id.
-  - Do not persist chat-only conclusions or paraphrased conversation logs.
-  - Do not invent lessons from a single artifact without decisive sprint evidence.
-  - Do not let docs/records/* become a second contract or hidden registry.
-  - Do not update docs/reference/design.md unless the lesson is genuinely stable current truth, not sprint-local observation.
-next_skills:
-  - design-context-scout (next sprint)
-  - generator-brainstorm
-  - generator-proposal
+description: Use when state-update has reconciled a design sprint outcome and queued the feature id in compound_pending_feature_ids.
 ---
 
 # Design Compounder

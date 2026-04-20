@@ -1,29 +1,6 @@
 ---
 name: design-builder
 description: Use when contract.md is approved and the design artifact must be implemented.
-purpose: Produce the HTML artifact within the approved contract scope, record reproducible delivery evidence, and hand off only verifiable work.
-trigger: After human has approved `.harness/<sprint-id>/contract.md` and `status.json` shows `phase: "contracted"`.
-inputs:
-  - AGENTS.md
-  - .harness/<sprint-id>/contract.md
-  - .harness/<sprint-id>/context.md
-  - docs/reference/design.md
-  - docs/live/memory.md
-  - .harness/<sprint-id>/status.json
-outputs:
-  - .harness/<sprint-id>/artifact/<filename>.html (and supporting files)
-  - .harness/<sprint-id>/runtime.md
-  - .harness/<sprint-id>/handoff.md
-  - .harness/<sprint-id>/status.json
-boundaries:
-  - Do not widen scope beyond contract.md.
-  - Do not self-approve or write review.md.
-  - Do not edit product source code or docs/live/*.
-  - Do not ship filler content, placeholder text, or invented data.
-  - Do not use forbidden design patterns (see Quality Rules below).
-next_skills:
-  - design-reviewer
-  - state-update
 ---
 
 # Design Builder
@@ -70,6 +47,18 @@ When resuming after `review_failed` or `build_failed`:
 - increment `attempt_count` at the start of the attempt, not at the end
 - if `attempt_count` would exceed `max_attempts`, set `phase: "escalated_to_human"` immediately
 
+### clean_restore_ref Convention
+
+`clean_restore_ref` identifies the restore point for the sprint's artifact directory.
+
+**Format:** use the sprint-id string (e.g., `"DESIGN-001"`). Restoring means deleting all contents of `.harness/<sprint-id>/artifact/` and rebuilding from `contract.md` and `context.md` — these source files are never modified by the builder and always remain valid as the restore baseline.
+
+**When to set it:** on the very first build attempt, before writing any artifact files, set `clean_restore_ref: "<sprint-id>"` in the `building` status.json. This ensures a restore point exists before any failure can occur.
+
+**If git is available** and the `.harness/` folder is tracked, prefer using the git SHA of the pre-build commit: `clean_restore_ref: "<git-sha>"`. Restoring then means `git checkout <sha> -- .harness/<sprint-id>/artifact/`.
+
+A sprint that reaches `build_failed` or `review_failed` without a `clean_restore_ref` in status.json cannot be retried — the router will escalate to human immediately.
+
 ## Build Procedure
 
 ### 1. Determine the scaffold
@@ -89,6 +78,7 @@ Select the scaffold pattern that matches the contract's output type:
           integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y"
           crossorigin="anonymous"></script>
   ```
+  > **Hash note:** verify SRI hashes at `https://unpkg.com/{package}/{path}` before first use and after any version bump. A wrong hash produces an integrity console error on every load, failing AC-001 (zero console errors).
 - Vanilla HTML/CSS/JS — acceptable when React adds no value (static layouts, simple interactions).
 
 **`slide-deck`**
@@ -304,3 +294,17 @@ Route to `design-reviewer` only when all of the following are true:
 - `status.json` says `awaiting_review`
 
 Otherwise, stop cleanly and leave the sprint in `build_failed`, `awaiting_human`, or `escalated_to_human`.
+
+## Final Checklist
+
+- [ ] `clean_restore_ref` set in `status.json` before any artifact file is written
+- [ ] All entry checks passed: `contract.md` exists, no unresolved `[human must clarify]` fields, `phase: "contracted"` confirmed
+- [ ] No content invented beyond what the contract specifies
+- [ ] No forbidden visual patterns used (gradient bg, emoji, left-border card, SVG imagery, forbidden fonts)
+- [ ] All stateful elements persist via `localStorage` as contracted
+- [ ] `scrollIntoView()` not used anywhere in the artifact
+- [ ] Minimum contrast (4.5:1 body, 3:1 large text) and touch targets (44×44px) met
+- [ ] At least 3 variation axes exposed and accessible
+- [ ] `runtime.md` contains artifact path and per-AC evidence
+- [ ] `handoff.md` says `READY_FOR_REVIEW` with reviewer start instructions
+- [ ] `status.json` set to `awaiting_review`

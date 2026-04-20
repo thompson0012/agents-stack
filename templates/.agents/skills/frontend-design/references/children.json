@@ -1,0 +1,85 @@
+[
+  {
+    "name": "design-context-scout",
+    "description": "Explores the repository and any provided design sources to produce a durable design context document.",
+    "skill_path": "frontend-design/design-context-scout",
+    "prerequisite_artifacts": [],
+    "produces_artifacts": [
+      ".harness/<sprint-id>/context.md",
+      ".harness/<sprint-id>/status.json"
+    ],
+    "phase_in": "context_needed",
+    "phase_out": "context_ready",
+    "fallback": "If no design system is found, parks at awaiting_human with no_design_system_found: true — human must provide design reference before scout can complete."
+  },
+  {
+    "name": "design-proposer",
+    "description": "Converts design context and user intent into a bounded sprint proposal and contract, then parks for human approval.",
+    "skill_path": "frontend-design/design-proposer",
+    "prerequisite_artifacts": [
+      ".harness/<sprint-id>/context.md (phase: context_ready)"
+    ],
+    "produces_artifacts": [
+      ".harness/<sprint-id>/sprint_proposal.md",
+      ".harness/<sprint-id>/contract.md (after human approval and re-dispatch)",
+      ".harness/<sprint-id>/status.json"
+    ],
+    "phase_in": "context_ready",
+    "phase_out": "awaiting_human → approved → contracted",
+    "fallback": "If proposal inputs are ambiguous, parks at awaiting_human with human_action_required populated. If design context is untrusted, stops and returns to scout."
+  },
+  {
+    "name": "design-builder",
+    "description": "Implements the HTML artifact within the approved contract scope.",
+    "skill_path": "frontend-design/design-builder",
+    "prerequisite_artifacts": [
+      ".harness/<sprint-id>/contract.md",
+      ".harness/<sprint-id>/context.md",
+      "status.json phase: contracted"
+    ],
+    "produces_artifacts": [
+      ".harness/<sprint-id>/artifact/<filename>.html",
+      ".harness/<sprint-id>/runtime.md",
+      ".harness/<sprint-id>/handoff.md",
+      ".harness/<sprint-id>/status.json"
+    ],
+    "phase_in": "contracted",
+    "phase_out": "awaiting_review",
+    "fallback": "If entry checks fail, parks at awaiting_human. If attempt budget exhausted, escalates to human. Requires clean_restore_ref in status.json before any artifact file is written."
+  },
+  {
+    "name": "design-reviewer",
+    "description": "Adversarially evaluates the artifact against the contract, runs the design quality audit, and issues a PASS, FAIL, or BLOCKED verdict.",
+    "skill_path": "frontend-design/design-reviewer",
+    "prerequisite_artifacts": [
+      ".harness/<sprint-id>/handoff.md (READY_FOR_REVIEW)",
+      ".harness/<sprint-id>/runtime.md",
+      ".harness/<sprint-id>/contract.md",
+      ".harness/<sprint-id>/artifact/<file>.html"
+    ],
+    "produces_artifacts": [
+      ".harness/<sprint-id>/qa.md",
+      ".harness/<sprint-id>/review.md",
+      ".harness/<sprint-id>/status.json"
+    ],
+    "phase_in": "awaiting_review",
+    "phase_out": "reviewed_pass | reviewed_fail | reviewed_blocked",
+    "fallback": "If browser tool is unavailable, uses static analysis fallback (see design-reviewer/SKILL.md Capability Requirements). Sprint-wide BLOCKED only when artifact file is missing or unreadable."
+  },
+  {
+    "name": "design-compounder",
+    "description": "Distills durable design learnings from a concluded sprint into docs/live/memory.md with artifact-linked provenance.",
+    "skill_path": "frontend-design/design-compounder",
+    "prerequisite_artifacts": [
+      "docs/live/tracked-work.json (feature in compound_pending_feature_ids)",
+      "docs/archive/<sprint-id>_<timestamp>/* or .harness/<sprint-id>/*"
+    ],
+    "produces_artifacts": [
+      "docs/live/memory.md (new entries or deliberate-skip note)",
+      "docs/live/tracked-work.json (feature removed from compound_pending_feature_ids)"
+    ],
+    "phase_in": "post-state-update (compound queued)",
+    "phase_out": "compound cleared",
+    "fallback": "If no durable learning survives the 3-criteria filter, records a dated deliberate-skip note. Never invents lessons without artifact-linked provenance."
+  }
+]

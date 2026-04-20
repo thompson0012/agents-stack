@@ -1,29 +1,6 @@
 ---
 name: design-proposer
 description: Use when context.md exists and the design sprint needs a bounded scope, output contract, and human approval gate before building begins.
-purpose: Convert design context and user intent into a bounded sprint proposal and approved contract, then park for human review before any artifact is built.
-trigger: After `design-context-scout` has written `.harness/<sprint-id>/context.md` and `status.json` shows `phase: "context_ready"`.
-inputs:
-  - AGENTS.md
-  - .harness/<sprint-id>/context.md
-  - docs/live/tracked-work.json
-  - docs/live/current-focus.md
-  - docs/live/ideas.md
-  - docs/live/memory.md
-  - docs/reference/design.md
-  - .harness/<sprint-id>/status.json
-outputs:
-  - .harness/<sprint-id>/sprint_proposal.md
-  - .harness/<sprint-id>/contract.md
-  - .harness/<sprint-id>/status.json (phase: awaiting_human)
-boundaries:
-  - Do not build any HTML artifact.
-  - Do not approve the contract yourself — that is the human's gate.
-  - Do not invent acceptance criteria that cannot be verified from the artifact file alone.
-  - Do not widen scope beyond what the user brief and context support.
-  - Do not create a second context document or shadow design system.
-next_skills:
-  - design-builder (after human clears the awaiting_human gate)
 ---
 
 # Design Proposer
@@ -208,7 +185,7 @@ Only write this file when all proposal inputs are answered and the proposal surv
   "owner_role": "human",
   "resume_from": "sprint_proposal.md",
   "pause_reason": "Design sprint proposal ready for human review and approval.",
-  "human_action_required": "Review sprint_proposal.md. Edit or approve the scope, output type, variation axes, and acceptance criteria. When approved, update status.json phase to 'contracted' and create/confirm contract.md.",
+  "human_action_required": "Review sprint_proposal.md. Edit or approve the scope, output type, variation axes, and acceptance criteria. When satisfied, set phase to 'approved' in status.json — the router will re-dispatch design-proposer to formalize contract.md. Do not write contract.md manually.",
   "last_verified_step": "design-proposer completed",
   "last_updated_at": "<ISO timestamp>"
 }
@@ -233,3 +210,14 @@ Do not proceed and set `awaiting_human` immediately when:
 - Design context is absent or untrusted (`no_design_system_found: true` in `context.md`)
 - The requested artifact type is not in the output type table above
 - Another runnable sprint is already active
+
+## Final Checklist
+
+- [ ] All proposal inputs are answered or explicitly flagged `[human must clarify]`
+- [ ] Output type selected and matches the human brief
+- [ ] At least 3 variation axes defined with a non-palette-swap rationale
+- [ ] `AC-001` through `AC-008` present in contract.md
+- [ ] Output-type criteria from `references/design-quality-contract-recipe.md` added
+- [ ] No `[human must clarify]` fields remain in `contract.md` (if writing contract.md)
+- [ ] `status.json` set to `awaiting_human` with `human_action_required` populated
+- [ ] Self-challenge passed — proposal survives all five adversarial questions

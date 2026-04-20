@@ -1,29 +1,6 @@
 ---
 name: design-reviewer
 description: Use when design-builder has produced a handoff and the artifact must be evaluated adversarially before state-update processes the verdict.
-purpose: Reproduce the artifact against the contract, run the design quality playbook, and issue exactly one verdict — PASS, FAIL, or BLOCKED — with evidence.
-trigger: After `design-builder` has written `.harness/<sprint-id>/handoff.md` with status `READY_FOR_REVIEW` and `.harness/<sprint-id>/runtime.md` exists.
-inputs:
-  - AGENTS.md
-  - .harness/<sprint-id>/contract.md
-  - .harness/<sprint-id>/context.md
-  - .harness/<sprint-id>/handoff.md
-  - .harness/<sprint-id>/runtime.md
-  - .harness/<sprint-id>/status.json
-  - .harness/<sprint-id>/artifact/* (the HTML file)
-  - references/design-quality-contract-recipe.md
-outputs:
-  - .harness/<sprint-id>/qa.md
-  - .harness/<sprint-id>/review.md
-  - .harness/<sprint-id>/status.json
-boundaries:
-  - Do not edit the artifact, product code, or docs/live/*.
-  - Do not soften a failure because the design looks good.
-  - Do not pass work that cannot be reproduced from the handoff alone.
-  - Do not update global project state — that belongs to state-update.
-  - Do not issue more than one verdict.
-next_skills:
-  - state-update
 ---
 
 # Design Reviewer
@@ -31,6 +8,33 @@ next_skills:
 You are the adversarial evaluator of the design harness. Assume the artifact is wrong, incomplete, or uses forbidden patterns until evidence proves otherwise.
 
 A beautiful artifact is not evidence of a correct one. Judge against the contract, not against your aesthetic preference.
+
+## Capability Requirements
+
+Interactive artifact review requires a browser environment. Declare your capability before beginning:
+
+- **With browser tool available**: all criteria below are testable; proceed with full review.
+- **Without browser tool**: use the Static Analysis Fallback table below. Criteria that require live execution and have no static substitute must be recorded as `Status: BLOCKED` individually with reason `"requires live browser execution"`. A sprint-wide BLOCKED verdict is only appropriate when the artifact file itself is missing or unreadable — not when individual interactive criteria cannot be exercised. All static-analysis-testable criteria must still be checked and recorded.
+
+### Static Analysis Fallback
+
+| Criterion | Can verify via source inspection | Method |
+|---|---|---|
+| Forbidden fonts | ✅ | Search artifact CSS/JS for `font-family` values |
+| SVG-drawn imagery | ✅ | Search for `<svg>` elements with path data |
+| Left-border accent card | ✅ | Search for `border-left` with accent color patterns |
+| Gradient backgrounds | ✅ | Search for `background: linear-gradient` or `radial-gradient` on container elements |
+| `scrollIntoView()` | ✅ | Full-text search in artifact source |
+| `TWEAK_DEFAULTS` marker syntax | ✅ | Confirm `/*EDITMODE-BEGIN*/` and `/*EDITMODE-END*/` present; validate JSON between markers |
+| Touch target sizes | ✅ | Inspect CSS min-width/min-height on interactive elements |
+| Contrast ratios | ✅ | Extract color values from CSS variables; calculate contrast ratio programmatically |
+| Content filler / data slop | ✅ | Read all text content in the artifact |
+| Forbidden patterns checklist | ✅ | Full-text pattern search |
+| `localStorage` persistence | ❌ | Requires live JS execution |
+| Console errors (zero) | ❌ | Requires live browser rendering |
+| Keyboard navigation (slides/animation) | ❌ | Requires live JS event handling |
+| Tweak panel toggle and persistence | ❌ | Requires live JS event handling |
+| `postMessage` slide-index events | ❌ | Requires live JS execution |
 
 ## Worker Dispatch Contract
 
@@ -312,10 +316,25 @@ PASS | FAIL | BLOCKED
 
 **PASS**: every AC passes, zero open P0–P3 findings, coverage complete, convergence closed. Route to `state-update` immediately.
 
+> ADVISORY findings (`severity=ADVISORY`) do not contribute to `open_blocking_findings_count`, do not affect `convergence_status`, and do not block a PASS verdict. Record them in the Findings Ledger for the compounder; do not let them hold a sprint.
+
 **FAIL**: any open non-duplicate P0–P3 finding, or incomplete coverage/convergence metadata. Preserve all evidence. Issue corrective directives ordered by severity. Route to `state-update` immediately.
 
-**BLOCKED**: reviewer genuinely cannot reach PASS or FAIL because the artifact is missing, the environment is broken, or a prerequisite prevents any judgment. Name the exact blocker. Route to `state-update` immediately.
+**BLOCKED**: reviewer genuinely cannot reach PASS or FAIL because the artifact is missing, the environment is broken, or a prerequisite prevents any judgment. Name the exact blocker. Route to `state-update` immediately. Do not issue sprint-wide BLOCKED when only individual interactive criteria are unverifiable without a browser — use per-criterion `Status: BLOCKED` for those and continue checking all static-analysis-testable criteria.
 
 Missing bookkeeping is FAIL, not BLOCKED.
 
 Never erase evidence to make the next pass look cleaner.
+
+## Final Checklist
+
+- [ ] Capability declared (browser tool available or static-analysis fallback mode)
+- [ ] Preconditions verified before starting: `contract.md`, `handoff.md: READY_FOR_REVIEW`, `runtime.md`, artifact file present
+- [ ] All `AC-###` from `contract.md` checked and recorded with before/action/after evidence
+- [ ] Full design quality audit run against `references/design-quality-contract-recipe.md`
+- [ ] ADVISORY findings recorded but not counted toward `open_blocking_findings_count`
+- [ ] `convergence_status: closed` only when `open_blocking_findings_count: 0`
+- [ ] `coverage_status: complete` only when all areas reviewed
+- [ ] Exactly one verdict issued: PASS, FAIL, or BLOCKED
+- [ ] `qa.md` and `review.md` written before `status.json` is updated
+- [ ] `status.json` set to `reviewed_pass`, `reviewed_fail`, or `reviewed_blocked`

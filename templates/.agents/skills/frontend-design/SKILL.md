@@ -32,15 +32,20 @@ Do not perform child phase work here. Dispatch one fresh worker per phase. Merge
    - `review.md` exists and is unreconciled → route to `state-update` (harness) before next step
    - `handoff.md` with `READY_FOR_REVIEW` and no `review.md` → `design-reviewer`
    - `contract.md` approved and `phase: "contracted"` or `"building"` → `design-builder`
+   - `sprint_proposal.md` exists and `phase: "approved"` (human-approved, no `contract.md` yet) → `design-proposer` to formalize the contract
    - `sprint_proposal.md` exists and `phase: "awaiting_human"` → surface to human; do not auto-dispatch
+   - `context.md` exists with `no_design_system_found: true` and `phase: "awaiting_human"` → surface to human; do not advance to proposer until human provides design reference
    - `context.md` exists but no `sprint_proposal.md` → `design-proposer`
    - `.harness/<sprint-id>/` folder exists with only `status.json` and no `context.md` → `design-context-scout`
 6. If no runnable sprint and no active harness folder exists:
    - First read `docs/live/tracked-work.json` for a pending design feature; if found, route `design-context-scout` to begin scouting for it.
    - If no tracked feature exists yet, a `project-initializer` pass may be needed first.
 7. `review_failed` with valid `clean_restore_ref` and remaining budget → `design-builder` retry.
-8. `build_failed` or `review_failed` without `clean_restore_ref`, or budget exhausted → `state-update` → `escalated_to_human`.
-9. `review.md` PASS → `state-update` (harness), then queue compound, then `design-compounder`.
+8. `reviewed_blocked` → route to `state-update` (harness) to record the blocker, then surface to human. Do not auto-retry a BLOCKED verdict.
+9. `build_failed` or `review_failed` without `clean_restore_ref`, or budget exhausted → `state-update` → `escalated_to_human`.
+10. `review.md` PASS → route to `state-update` (harness) to reconcile verdict and queue compound.
+11. After `state-update` confirms `compound_pending_feature_ids` is non-empty → route to `design-compounder`.
+12. After `design-compounder` clears the queue → sprint is complete; open next sprint if pending.
 
 ## Phase Model
 
@@ -54,6 +59,7 @@ Do not perform child phase work here. Dispatch one fresh worker per phase. Merge
 | `awaiting_review` | `handoff.md` | `design-reviewer` |
 | `reviewed_pass` | `review.md` PASS | `state-update` → `design-compounder` |
 | `reviewed_fail` | `review.md` FAIL | `design-builder` retry |
+| `reviewed_blocked` | `review.md` BLOCKED | `state-update` → human |
 | `build_failed` | `runtime.md` with failure | `state-update` |
 | `escalated_to_human` | `status.json` | human |
 
@@ -81,3 +87,18 @@ Return one of these forms, then dispatch the selected child as a fresh worker:
 - `Route to using-agents-stack/state-update.` (after review verdict or build failure)
 - `Escalated to human. No family child fits without human action.`
 - `No family child fits.` (if the work is not a design artifact task)
+
+## References
+
+- [design-quality-contract-recipe](references/design-quality-contract-recipe.md)
+
+## Final Checklist
+
+- [ ] Only one routing target selected per session
+- [ ] `compound_pending_feature_ids` checked before opening a new sprint
+- [ ] `context.md` verified present before routing to `design-proposer`
+- [ ] `awaiting_human` phase not auto-dispatched — surfaced to human
+- [ ] `state-update` invoked after every review verdict (PASS, FAIL, or BLOCKED)
+- [ ] `reviewed_blocked` routes to `state-update` + human, not to builder retry
+- [ ] `reviewed_pass` sequence: `state-update` → confirm compound queued → `design-compounder`
+- [ ] Children inventory in `references/children.json` is current
