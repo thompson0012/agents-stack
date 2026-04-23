@@ -34,6 +34,7 @@ Do not use this skill for backend implementation, pure architecture or design wo
 - [Framework](references/framework.md)
 - [Playbook](references/playbook.md)
 - [Reporting](references/reporting.md)
+- [QA Inventory Template](../../../docs/reference/qa-inventory.md)
 
 ## Failure Modes
 - Mistaking one successful request for backend signoff.

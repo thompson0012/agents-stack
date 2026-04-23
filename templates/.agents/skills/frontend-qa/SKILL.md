@@ -36,6 +36,7 @@ Do not use this skill for backend-only correctness, static design critique witho
 - [Framework](references/framework.md)
 - [Playbook](references/playbook.md)
 - [Reporting](references/reporting.md)
+- [QA Inventory Template](../../../docs/reference/qa-inventory.md)
 
 ## Failure Modes
 - Confusing a passing happy path with signoff.
