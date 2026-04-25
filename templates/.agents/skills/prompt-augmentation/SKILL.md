@@ -36,6 +36,7 @@ Identify the target generation mode first:
 
 - text-to-image
 - text-to-video
+- text-to-design or UI generation
 - text-to-text generation
 - text-to-audio or sound design
 - 3D or scene generation
@@ -101,6 +102,24 @@ For text generation prompts, consider:
 - length expectations
 - examples only when they improve precision
 - delimiters or sections when they help parsing
+
+Use structure to compartmentalize meaning, not to redesign the whole prompt.
+
+### 3a. Use domain-specific references for visual and design prompts
+
+When augmenting image, video, or design prompts, substitute generic description with precise domain terminology rather than filler adjectives. Read the relevant reference files in this skill's `references/` directory before expanding, and pull precise terms from them.
+
+| Mode | References to consult |
+|---|---|
+| text-to-image | `references/optics-camera.md`, `references/composition-framing.md`, `references/lighting-atmosphere.md`, `references/medium-rendering.md`, `references/color-mood.md` |
+| text-to-video | All image references plus `references/camera-movement.md`, `references/film-grammar-editing.md`, `references/temporal-pacing.md`, `references/continuity-cues.md` |
+| text-to-design | `references/typography-terms.md`, `references/layout-grid-systems.md`, `references/ui-component-states.md`, `references/color-system-design.md`, `references/design-system-tokens.md`, `references/accessibility-specs.md` |
+
+Rules when using references:
+- Do not dump every term. Select only the ones that increase control for the user's specific subject.
+- Replace vague cues with precise ones: "good lighting" → "three-point Rembrandt with soft key and subtle rim"; "camera moves" → "slow dolly-in with rack focus".
+- Respect the core subject lock from Step 2. Do not let the reference vocabulary override the user's non-negotiables.
+- Cross-check against `references/negative-prompt-pitfalls.md` when writing negative prompts.
 
 When structure helps reliability, prefer lightweight organization such as:
 - `<context>`
