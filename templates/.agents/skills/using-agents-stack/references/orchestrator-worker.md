@@ -20,6 +20,7 @@ Later sections in this file contain the operational details. Use this summary as
 8. Files are canonical. Durable truth belongs in the appropriate live, harness, record, reference, or archive file lane rather than in chat memory.
 9. Escalate complexity only when evidence justifies it. This thin-orchestrator plus specialist-worker model is the template's default, not a universal optimum for every workload.
 10. Avoid router-owned recursive task trees as canonical truth, nested worker spawning, decentralized swarm coordination as the core sprint lifecycle, and collapsing planning, execution, and review into one worker.
+11. Keep the verification chain honest with bounded independent depth. The orchestrator dispatches work, never self-verifies when a specialist can do it. After one specialist completes its work (analysis, implementation, or review), the orchestrator may dispatch a second independent specialist to audit the first specialist's output. A third independent specialist may audit the second if needed. Orchestrator self-verification is the fallback, not the default. The chain is explicitly bounded: the orchestrator sets a max depth per sprint (typically 2–3) and must not recurse infinitely. Dispatch packets carry **only objective facts** — what the user said, what files exist, what artifacts were produced. The orchestrator must not inject its own analysis, opinions, or unverified conclusions into any dispatch packet.
 
 ## Lead orchestrator protections
 
@@ -27,7 +28,7 @@ Later sections in this file contain the operational details. Use this summary as
 - Prefer delegation first when the decision is ambiguous, evidence-heavy, or otherwise benefits from independent investigation. Dispatch the narrowest fresh worker or parallel workers that can gather the missing evidence, then merge their outputs before choosing the next child.
 - Do not paste the full child phase prompt into the orchestrator and keep working there.
 - Read durable state before dispatch. Workers should inherit the minimum exact context they need, not the entire session transcript.
-- For reviewer dispatch, send only raw artifact paths and the exact neutral review question. Do not preload a verdict, preferred answer, expected winner, version ranking, provenance summary, or authorship labels that would steer judgment. See `references/dispatch-packet-examples.md` for copyable packets.
+- For reviewer dispatch, send only raw artifact paths and the exact neutral review question. Do not preload a verdict, preferred answer, expected winner, version ranking, provenance summary, authorship labels, **or any analysis or opinion the orchestrator formed while communicating with the user**. The orchestrator's unverified interpretations must not reach the reviewer's context. See `references/dispatch-packet-examples.md` for copyable packets.
 - When the review is comparative or subjective, anonymize the artifacts as A/B/C in the dispatch packet, keep the identity map out of the worker context until the review is complete, and let the reviewer form its own conclusion from the artifacts.
 - Dispatch packets are routing aids, not authority. A worker must verify the claimed sprint, phase, and summary against durable files on entry, apply the `AGENTS.md` precedence chain when evidence disagrees, and stop before writing if the dispatch frame loses to stronger evidence. `references/dispatch-packet-examples.md` also includes the expected mismatch-handling pattern.
 - Preserve the file-based state model. The canonical outputs are still `sprint_proposal.md`, `contract.md`, `runtime.md`, `handoff.md`, `review.md`, `status.json`, and the live/archive files.
@@ -37,6 +38,39 @@ Later sections in this file contain the operational details. Use this summary as
 - Treat `docs/live/current-focus.md` as the live resume anchor and `docs/live/roadmap.md` as the initiative ledger for source goals, remaining slices, and re-authorization boundaries. Neither file replaces `.harness/<workstream-id>/contract.md` for an active sprint.
 - If a user's broad goal or direction change is not yet reflected durably, pause sprint chaining long enough to publish or refresh that source-goal truth in `current-focus.md` plus `roadmap.md` before selecting the next owner.
 
+## Neutral verification chain
+
+The orchestrator is the communication bridge with the user. It dispatches, it does not judge. All substantive evaluation follows a bounded chain of independent specialists, each verifying the one before.
+
+### Chain model
+
+```
+User ↔ Orchestrator(communicate + dispatch)
+  → Specialist A (analysis / implementation / review)
+  → Specialist B (verify A's output independently)
+  → Specialist C (verify B's output independently, if needed)
+  → Orchestrator (report results to user)
+```
+
+### Core rules
+
+1. **Orchestrator dispatches, never self-verifies when a specialist can.** The orchestrator may only self-verify when the cost of dispatching a fresh worker exceeds the benefit, or the question is purely mechanical (e.g., "does this JSON parse?"). In all substantive cases — code review, design audit, test validation — dispatch a specialist.
+
+2. **Dispatch packets carry only objective facts.** What the user reported, what files exist, what artifacts were produced, what commands were run. No orchestrator analysis, opinions, suspicions, or preferred conclusions. The specialist must form its own independent judgment from the raw facts.
+
+   ✅ Allowed: "User reports clicking submit shows no response. Files touched: src/Login.tsx (lines 42-58). Error log: TypeError: Cannot read property 'x' of undefined."
+   
+   ❌ Not allowed: "I suspect the submit handler has a state-update bug. Can you check if lines 42-58 properly update the loading state?"
+
+3. **Chain depth is bounded.** The orchestrator sets a `max_verification_depth` per sprint (typically 2–3). A → B → C is the expected maximum. Do not add D unless the sprint contract explicitly allows deeper verification. Infinite verification chains are a defect.
+
+4. **Each specialist receives only the output of the immediately preceding specialist** plus the original raw context. B does not receive A's internal reasoning or intermediate notes — only A's published output. This prevents cascading bias.
+
+5. **Chain stops when a specialist finds no material issues.** If B audits A and finds no substantive problems, C is not needed. The orchestrator reports results. If B finds issues, the orchestrator may dispatch C to verify B's findings, or route back to A for correction.
+
+6. **Chain output must be self-contained for the next link.** Every specialist must produce structured output that a subsequent specialist can independently audit without access to the original specialist's chat context. This means findings must carry stable IDs, severity labels, evidence paths, and actionable verdicts — not prose impressions.
+
+7. **Verification chain is not infinite regression.** If B and C disagree, the orchestrator does not dispatch D. Instead it records the disagreement, preserves both verdicts as artifacts, and may route to `awaiting_human` or `escalated_to_human` for a human to resolve. The chain converges on human judgment, not unbounded machine recursion.
 
 ## Deterministic dispatcher fast path
 

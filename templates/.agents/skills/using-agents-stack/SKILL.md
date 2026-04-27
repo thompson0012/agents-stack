@@ -31,7 +31,8 @@ Each child lives under `using-agents-stack/<child-name>/`, and child SKILL.md fi
 - When a user introduces or changes a broad goal, normalize it into `docs/live/current-focus.md` plus `docs/live/roadmap.md` before continuing sprint chaining. Do not let cross-sprint intent live only in chat memory.
 - Brainstorm and Compound are explicit non-runnable phases. They may be the next router action, but they must not claim `runnable_active_sprint_id`.
 - When no runnable active sprint exists, drain `compound_pending_feature_ids` first; once the queue is clear, resume any selected local planning workspace before choosing the highest-priority dependency-ready `needs_brainstorm` backlog item and then the highest-priority dependency-ready `pending` item.
-- Protect the orchestrator context: it selects, merges worker evidence, dispatches, and waits for structured outputs; it does not implement, review, or rewrite state inline.
+- Protect the orchestrator context: it selects, merges worker evidence, dispatches, and waits for structured outputs; it does not implement, review, write, self-verify, or rewrite state inline. When verification is needed, dispatch a fresh specialist worker; do not perform the check in the orchestrator context.
+- Verification follows a bounded independent chain, not orchestrator self-check. Specialist A does the work. Specialist B verifies A independently. Specialist C may verify B if the sprint contract allows deeper depth. Orchestrator self-verification is only for purely mechanical questions. The chain converges on human judgment, not infinite machine recursion.
 - When the orchestrator fans out to sibling workers, it must wait for all of them to return, merge their structured outputs into sprint-local durable state keyed by stable worker ID, and only then decide the next dispatch or emit a completion message.
 - The root router still owns family-trigger judgment, semantic ambiguity handling, and the final fresh-worker dispatch after any dispatcher or evidence-gathering step.
 - If the best child is missing, say to install it rather than quietly doing weaker work under the wrong child.
@@ -104,6 +105,9 @@ When the durable truth is a fully reconciled `awaiting_human` or `escalated_to_h
 ## P0 / P1 / P2 Hardening Checklist
 
 ### P0
+- [ ] Orchestrator dispatch packets carry only objective facts: what the user reported, what files exist, what artifacts were produced. No orchestrator analysis, opinions, suspicions, or preferred conclusions. The recipient worker must form its own independent judgment.
+- [ ] Orchestrator does not self-verify when a specialist can do it. All substantive evaluation (code review, design audit, test validation) goes through a bounded chain of independent specialists. Self-verification is the fallback for purely mechanical questions only.
+- [ ] Verification chain depth is explicitly bounded per sprint (typically 2–3). Do not recurse infinitely. If the chain would exceed max depth without converging, route to `awaiting_human` rather than dispatching another worker.
 - [ ] Reviewer dispatch packets stay blind: send raw artifact paths plus the exact neutral review question only, with no preloaded verdict, preferred answer, ranking, provenance summary, or authorship hint.
 - [ ] Compound capture publishes only evidence-linked durable residue. If no decisive artifact path supports a reusable lesson, skip extraction and clear the queue without inventing chat-memory truth.
 - [ ] Treat sprint id, phase, subject, summary, and resume hints in dispatch packets as routing aids only. Re-ground against durable files and the `AGENTS.md` precedence chain before routing or writing.

@@ -140,6 +140,19 @@ FAIL the sprint when you observe any of the following, even if the final screen 
 - an interactive or other stateful criterion passes only because of a hardcoded final state, static mock, canned response, pre-seeded data, or other shortcut that does not exercise the real transition
 - a toggle, undo, or reversible behavior reaches the final state once but cannot reverse cleanly when the contract implies reversibility
 
+## Auditability: your review may itself be reviewed
+
+Your review output is subject to independent audit by a subsequent reviewer worker. The orchestrator may dispatch a second specialist to verify your findings, severity labels, evidence paths, and verdict. This means:
+
+- Every finding must reference specific, repeatable evidence — a command output, a URL with observed state, a before/action/after log — not subjective impressions or unverifiable claims.
+- Another agent must be able to reproduce your checks from `qa.md` alone, without access to your chat history or intermediate notes.
+- Severity labels (P0–P3, ADVISORY) must be justified in the finding description, not asserted without support.
+- `duplicate_of` links must name a specific finding ID that the auditor can independently verify is the same root cause.
+- `coverage_status`, `convergence_status`, and `open_blocking_findings_count` must match the evidence in `qa.md` — an auditor can recompute them from first principles.
+- If a follow-up reviewer disagrees with your verdict or finds that your evidence does not support your conclusion, that disagreement is recorded as a separate audit finding, not suppressed.
+
+Write your output as if a skeptical colleague will read it tomorrow. This protects the verification chain from cascading bias.
+
 ## Required outputs
 If the host keeps reviewer workers read-only, return exact file payloads for these artifacts and let the orchestrator persist them without altering their substance.
 
