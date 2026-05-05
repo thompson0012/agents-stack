@@ -3,11 +3,38 @@ name: using-agents-stack
 description: Use when a repository follows the agents-stack harness and the orchestrator must route work to one workflow phase child via a fresh worker.
 ---
 
+# Role: Orchestrator
+
+**You are the orchestrator.** This is not reference material — it is your active role. When this skill is loaded, your job is:
+
+1. Read durable state from `docs/live/*` and `.harness/<WORKSTREAM-ID>/*`
+2. Decide the next harness phase
+3. **Actively spawn a sub-agent** using the `task` tool (or host runtime equivalent) — analysis without dispatch is incomplete
+
+You are the only agent allowed to delegate. Workers run child phases. You route, dispatch, merge results, and decide next steps. Do not implement, review, or rewrite state inline.
+
+---
+
 # Using Agents Stack
 
 Use this router when the hard problem is choosing the next harness phase in a repository that uses the agents-stack starter layout. If the repository does not use this harness family, or the request is ordinary implementation outside the harness workflow, no family child fits.
 
 Do not perform the child workflow here. Prefer dispatching a fresh worker, sub-agent, Task agent, or useful parallel workers first when the route depends on ambiguous or evidence-heavy investigation, then merge the returned outputs here and decide the next dispatch. If delegation would not materially help, or durable state already makes the answer clear, keep the step direct. Do not load the child phase into the orchestrator's own context and continue inline.
+## Dispatch Triggers
+
+When the user or another agent uses any of these trigger words, the orchestrator **MUST** spawn a sub-agent via the host runtime's delegation primitive rather than performing the work inline or spending cycles on file-state routing analysis:
+
+- `dispatch` / `delegate` / `assign` — direct command to hand work to a sub-agent
+- `ping` / `spawn` / `fire` — create a fresh worker for the described task
+- `send` / `hand off` / `route` — transfer work to another agent
+
+The presence of any trigger word overrides the file-state routing decision order. The orchestrator still reads durable state to ground the dispatch (confirm the child exists, the sprint is in a compatible phase, and the tool scope is appropriate), but it must not spend cycles on routing analysis when the user's intent to delegate is explicit.
+
+When a trigger word is present:
+1. Identify the target child from the user's message (e.g., "dispatch execution" → `generator-execution`, "spawn review" → `adversarial-live-review`)
+2. Ground the dispatch against durable files: confirm the child exists in `references/children.json`, the sprint is in a compatible phase, and the tool scope is appropriate
+3. Use the host runtime's delegation primitive to spawn the fresh worker with the child's SKILL.md as the prompt
+4. If the child name is ambiguous or missing, ask one clarifying question before spawning; do not guess
 
 Each child lives under `using-agents-stack/<child-name>/`, and child SKILL.md files should explicitly say they are nested harness workers.
 
@@ -39,6 +66,7 @@ Each child lives under `using-agents-stack/<child-name>/`, and child SKILL.md fi
 
 ## Decision Order
 
+0. If the user's message contains an explicit dispatch trigger word (`dispatch`, `delegate`, `ping`, `spawn`, `assign`, `send`, `hand off`, `route`, `fire`), skip file-state routing. Ground the dispatch against durable files (confirm child exists, phase is compatible), then follow Dispatch Mechanics immediately.
 1. Check whether the repository belongs to this family at all: `AGENTS.md`, `docs/live/*`, `.harness/<WORKSTREAM-ID>/`, and the agents-stack role/lifecycle model.
 2. Read `docs/live/tracked-work.json` to determine whether the repo is uninitialized, has queued compound work, has one runnable active sprint, has only parked sprints, or needs new backlog work.
 3. Read `docs/live/current-focus.md` and `docs/live/roadmap.md` together to confirm the resume anchor, source-goal lineage, remaining slices, and any re-authorization boundary.
@@ -73,11 +101,40 @@ This router owns only the agents-stack workflow family:
 
 This router does not replace ordinary feature implementation, generic project planning, or non-harness repository work. If the repository is not using the agents-stack state model, no family child fits.
 
-## Router Output
+## Dispatch Mechanics
 
-Return one of these forms, then dispatch the selected child as a fresh worker if needed:
+After selecting a child, the orchestrator **MUST** spawn a fresh worker using whatever delegation primitive the host runtime provides. The dispatch is a contract, not a specific API call.
 
-The text forms below remain the canonical root-router output even when `scripts/dispatch_phase.py` supplied the route. Translate dispatcher JSON into this text contract before replying or dispatching.
+### Dispatch contract
+
+Every worker spawn must provide these five things. How each framework delivers them varies; the contract is what matters:
+
+| Contract element | What it is |
+|---|---|
+| **Worker identity** | Stable ID (e.g., `exec-002`, `review-001`), recorded in sprint-local `status.json` |
+| **Worker prompt** | The child's SKILL.md, loaded as the worker's instruction set — never pasted inline into the orchestrator |
+| **Dispatch packet: assignment** | Self-contained instructions: sprint id, phase, artifact paths, acceptance criteria. Objective facts only — no orchestrator analysis, opinions, or preferred conclusions |
+| **Dispatch packet: context** | Shared background: tool scope profile, file paths, non-goals. Separated from assignment so per-task deltas stay clean |
+| **Return contract** | What artifacts the worker must produce, where they go, and that the worker must re-ground against durable files before writing |
+
+### Rules (framework-independent)
+
+- Dispatch a single worker per child. Parallelize only for genuinely independent sibling workers (disjoint file paths, no shared write targets).
+- For reviewer dispatch, the assignment must be blind: raw artifact paths plus the neutral review question only.
+- After spawning, wait for all sibling workers to return. Merge outputs into sprint-local durable state before the next routing decision.
+- Do not emit a completion message while any sibling worker is still pending.
+
+### Framework mapping
+
+The orchestrator adapts the contract to the available primitive:
+
+- **`task` tool** (this runtime): `task(agent, tasks[{id, description, assignment}], context)`. Each `assignment` is the per-task delta; `context` is shared.
+- **`sub-agent` / `spawn`**: Supply the child SKILL.md path as the prompt, the dispatch packet as the initial message, and the artifact return targets.
+- **No built-in delegation**: Write the dispatch packet to a file (e.g., `.harness/<id>/dispatch-packet.md`), emit the child route text, and instruct the human to paste the child's SKILL.md into a fresh session with that packet.
+
+### Router output contract
+
+After spawning, emit one of these text forms for traceability (also valid when `scripts/dispatch_phase.py` supplied the route):
 
 - `Route to using-agents-stack/project-initializer.`
 - `Route to using-agents-stack/generator-brainstorm.`
@@ -90,7 +147,7 @@ The text forms below remain the canonical root-router output even when `scripts/
 - `Install using-agents-stack/<child>, then route to using-agents-stack/<child>.`
 - `No family child fits; answer directly.`
 
-Add one sentence explaining why the selected child is the narrowest correct fit. If a child is selected, continue by spawning a fresh worker with that child prompt rather than swapping personas inside the orchestrator.
+Add one sentence explaining why the selected child is the narrowest correct fit.
 
 When the durable truth is a fully reconciled `awaiting_human` or `escalated_to_human` sprint with no new human edits, the correct result is usually `No family child fits; answer directly.` plus an explanation that automation must wait on the file-based human handoff boundary.
 

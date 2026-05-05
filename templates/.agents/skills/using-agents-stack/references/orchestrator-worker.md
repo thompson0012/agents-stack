@@ -22,6 +22,8 @@ Later sections in this file contain the operational details. Use this summary as
 10. Avoid router-owned recursive task trees as canonical truth, nested worker spawning, decentralized swarm coordination as the core sprint lifecycle, and collapsing planning, execution, and review into one worker.
 11. Keep the verification chain honest with bounded independent depth. The orchestrator dispatches work, never self-verifies when a specialist can do it. After one specialist completes its work (analysis, implementation, or review), the orchestrator may dispatch a second independent specialist to audit the first specialist's output. A third independent specialist may audit the second if needed. Orchestrator self-verification is the fallback, not the default. The chain is explicitly bounded: the orchestrator sets a max depth per sprint (typically 2–3) and must not recurse infinitely. Dispatch packets carry **only objective facts** — what the user said, what files exist, what artifacts were produced. The orchestrator must not inject its own analysis, opinions, or unverified conclusions into any dispatch packet.
 
+12. Trigger words from users or peer agents (`dispatch`, `delegate`, `ping`, `spawn`, `assign`, `send`, `hand off`, `route`, `fire`) are explicit delegation commands that bypass file-state routing. When any trigger word is present, the orchestrator must ground the dispatch against durable files (confirm child exists, phase is compatible) and then spawn the worker immediately — it must not perform routing analysis or do the work inline.
+
 ## Lead orchestrator protections
 
 - Keep the orchestrator thin. Its job is route, dispatch, merge, and retry orchestration.
@@ -81,6 +83,37 @@ User ↔ Orchestrator(communicate + dispatch)
 - The merged result ledger is the handoff boundary from evidence gathering into deterministic routing. Stable worker IDs, artifact paths, blockers, and next-owner hints must be merged first; the dispatcher reads that reconciled ledger or the orchestrator routes directly without it.
 - The dispatcher returns fixed JSON for route selection only. The orchestrator still translates that result into the root router's text output contract and performs the actual fresh-worker dispatch.
 - Keep route selection separate from other gates: retry eligibility still comes from `scripts/verify_retry_guard.py`, contract approval still comes from `scripts/validate_contract.py`, review-against-contract truth still comes from `scripts/validate_review_against_contract.py`, and PASS publishability still comes from `state-update` plus review-convergence evidence rather than the dispatcher.
+## Dispatch mechanism
+
+After the routing decision, the orchestrator spawns the worker using whatever delegation primitive the host runtime provides. The dispatch is a contract, not a specific API call.
+
+### Dispatch contract
+
+Every worker spawn must deliver these, regardless of framework:
+
+| Contract element | What it is |
+|---|---|
+| **Worker identity** | Stable ID (e.g., `exec-002`, `review-001`), recorded in sprint-local `status.json` |
+| **Worker prompt** | The child's SKILL.md, loaded as the worker's instruction set — never pasted inline into the orchestrator |
+| **Dispatch packet: assignment** | Self-contained instructions: sprint id, phase, artifact paths, acceptance criteria. Objective facts only — no orchestrator analysis, opinions, or preferred conclusions |
+| **Dispatch packet: context** | Shared background: tool scope profile, file paths, non-goals. Separated from assignment so per-task deltas stay clean |
+| **Return contract** | What artifacts the worker must produce, where they go, and that the worker must re-ground against durable files before writing |
+
+Rules:
+- The child's SKILL.md is the worker's prompt, loaded by the runtime — not pasted inline.
+- `assignment` and `context` form the dispatch packet. They carry only objective facts; no orchestrator analysis, opinions, or preferred conclusions.
+- For reviewer dispatch, `assignment` must be blind: raw artifact paths plus the neutral review question.
+- Worker ID must be stable and recorded in sprint-local state (`status.json`) for traceability.
+- Sibling workers fire in parallel only when file ownership is disjoint.
+- The orchestrator must not emit a completion message while any sibling worker is still pending.
+
+### Framework mapping
+
+- **`task` tool** (this runtime): `task(agent, tasks[{id, description, assignment}], context)`.
+- **`sub-agent` / `spawn`**: Supply the child SKILL.md path as the prompt, the dispatch packet as the initial message.
+- **No built-in delegation**: Write the dispatch packet to a file, emit the child route text, instruct the human to paste the child's SKILL.md into a fresh session with that packet.
+
+
 ## Lane walls and tool scope
 
 Workers get only the tools their phase needs.
