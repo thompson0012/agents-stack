@@ -152,6 +152,12 @@ Fresh workers come and go, but the workstream folder stays stable. Planning pass
 └── status.json
 ```
 
+### Template source
+
+Canonical templates for every sprint-local artifact live at `references/templates/.harness/`. Workers that create or overwrite these files should copy the template and fill placeholders rather than constructing the file from memory. The templates are annotated — delete comment blocks before use.
+
+Migration and audit: diff an existing `.harness/<workstream-id>/` artifact against its template to detect missing fields or drift.
+
 ### Canonical sprint-local files and meanings
 
 #### `sprint_proposal.md`

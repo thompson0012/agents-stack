@@ -1,0 +1,28 @@
+{
+  "_comment": "Canonical sprint-local status template. Copy this file into .harness/<WORKSTREAM-ID>/status.json and fill placeholders. Delete _comment before use.",
+
+  "sprint_id": "WORKSTREAM-###",
+  "phase": "pending",
+  "owner_role": "generator-proposal",
+  "last_updated_at": 0,
+  "resume_from": "sprint_proposal.md",
+
+  "attempt_count": 0,
+  "max_attempts": 3,
+
+  "clean_restore_ref": null,
+  "local_url": null,
+  "active_pids": [],
+  "blocked_on": null,
+
+  "worker_id": null,
+  "worker_subject": null,
+  "tool_scope_profile": null,
+  "spawn_depth": 1,
+  "parent_worker_id": "orchestrator",
+
+  "pause_reason": null,
+  "human_action_required": null,
+  "escalation_reason": null,
+  "parked_at": null
+}
