@@ -184,6 +184,19 @@ Priority levels: `Critical` → `Essential` → `Nice-to-have`
 
 ---
 
+## Cross-Skill Integration
+
+These skills work well with `design-token-spec` in a loose pipeline:
+
+| Skill | Role | When to route |
+|---|---|---|
+| [`brand-identity-extractor`](../../brand-identity-extractor/SKILL.md) | **Downstream deep extraction** | After design-token-spec produces a structured brand context, BIE can consume it as a pre-validated input and skip the discovery phase — going straight to its 3-stage extraction (tokens, component specs, AI prompt kit). BIE's output written to `docs/reference/brand-system.md` is parseable by design-context-scout. |
+| [`frontend-design/design-context-scout`](../../frontend-design/design-context-scout/SKILL.md) | **Downstream consumer** | Token specs produced by design-token-spec (at `docs/reference/design.md`) are discoverable by design-context-scout as a design system source for UI sprint planning. |
+
+**Recommended pipeline:** `design-token-spec` (discovery + conflict resolution) → `brand-identity-extractor` (deep extraction) → `design-context-scout` (harness integration)
+
+---
+
 ## Common Mistakes
 
 | Mistake | Fix |

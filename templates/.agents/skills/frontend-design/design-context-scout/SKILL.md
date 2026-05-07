@@ -35,12 +35,21 @@ Scout in this order. Stop and record what was found at each level before continu
 ### 1. Project-Level Design Reference
 ```
 Check in order:
-1. docs/reference/design.md          → product intent, brand, visual system
-2. docs/reference/architecture.md    → tech stack, rendering targets, constraints
-3. docs/live/memory.md               → prior design decisions with provenance
-4. docs/live/ideas.md                → any design-related brainstorm notes
-5. README.md                         → project purpose, audience, screenshot links
+0. docs/reference/brand-system.md    → brand-identity-extractor Stage 2 output (design tokens JSON, component specs, motion, responsive rules, accessibility guide, code configs)
+1. docs/reference/brand-identity.md  → brand-identity-extractor Stage 1 output (brand soul, visual universe, typography, rulebook)
+2. docs/reference/design.md          → product intent, brand, visual system (also from design-token-spec)
+3. docs/reference/architecture.md    → tech stack, rendering targets, constraints
+4. docs/live/memory.md               → prior design decisions with provenance
+5. docs/live/ideas.md                → any design-related brainstorm notes
+6. README.md                         → project purpose, audience, screenshot links
 ```
+
+When `docs/reference/brand-system.md` is found, parse its structured sections into the Token Inventory:
+- **2.1 Core Design Tokens (JSON)** → Colors, Typography, Spacing, BorderRadius, Shadows, Opacity tables
+- **2.2 Component Specification** → Component Inventory (component names, states, visual traits)
+- **2.4 Motion & Interaction Design** → Motion tokens
+- **2.3 Responsive Behaviour** → Layout constraints
+- **2.5 Accessibility Guide** → Accessibility baseline
 
 ### 2. Design Token Sources
 ```
@@ -49,6 +58,7 @@ Look for:
 - tokens.css / _variables.scss / design-tokens.{js,ts,json}
 - theme.{ts,js} / colors.{ts,js}    → semantic color system
 - globals.css / base.css            → root-level CSS custom properties
+- docs/reference/brand-system.md    → BIE output — JSON token block in Stage 2.1 (already checked in Step 1 if found)
 ```
 
 For each token file found, extract:
