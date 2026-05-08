@@ -464,7 +464,7 @@ def validate_control_files(paths: LivePaths) -> list[str]:
     return errors
 
 
-def validate_tracked_work(data: Any) -> list[str]:
+def validate_tracked_work(data: Any, repo_root: Path | None = None) -> list[str]:
     errors: list[str] = []
     if not isinstance(data, dict):
         return ["tracked-work.json must be a JSON object"]
@@ -482,6 +482,12 @@ def validate_tracked_work(data: Any) -> list[str]:
         errors.append("tracked-work.json must keep single_runnable_active_sprint set to true")
     if "evidence_path" in data:
         errors.append("tracked-work.json top-level must not define evidence_path; keep it on backlog items only")
+
+    # Check records_root_path is canonical
+    records_root = data.get("records_root_path", "")
+    if records_root != "docs/records/":
+        errors.append(f"records_root_path must be 'docs/records/', got {records_root!r}")
+
 
     backlog = data.get("backlog")
     if not isinstance(backlog, list):
@@ -521,6 +527,21 @@ def validate_tracked_work(data: Any) -> list[str]:
                 continue
             if not isinstance(value, list) or any(not isinstance(entry, str) or not entry.startswith(prefix) for entry in value):
                 errors.append(f"backlog item {item_id} {key} must be a list of paths under {prefix}")
+
+            # Validate record files exist on disk and carry required metadata
+            if repo_root is not None:
+                for entry in value:
+                    full_path = repo_root / entry
+                    if not full_path.exists():
+                        errors.append(f"backlog item {item_id} {key} entry '{entry}' does not exist on disk")
+                    elif entry.endswith(".md"):
+                        try:
+                            content = full_path.read_text(encoding="utf-8")
+                            for meta_field in ("workstream_id", "scope", "status"):
+                                if meta_field + ":" not in content[:500]:
+                                    errors.append(f"backlog item {item_id} record '{entry}' missing required metadata field: {meta_field}")
+                        except Exception:
+                            pass
         evidence_path = item.get("evidence_path")
         if evidence_path is not None:
             if not isinstance(evidence_path, str):

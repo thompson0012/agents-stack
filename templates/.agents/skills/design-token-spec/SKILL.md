@@ -10,7 +10,7 @@ description: Use when turning brand inputs or existing product docs into a porta
 Transforms brand discovery inputs into a conflict-free, specification-ready design token spec. Resolves input tensions (e.g., warm personality vs. restrained visual references), derives atomic design tokens, and records design principles — all traceable back to discovery sources.
 
 **Primary output:** a design token spec document (for example `docs/reference/design.md` or a project-specific brand spec)
-**Extended output:** `Brand_System_Architecture.md` (tokens + component inventory)
+**Extended output:** `docs/records/product/Brand_System_Architecture.md` (tokens + component inventory)
 
 ---
 
@@ -19,7 +19,7 @@ Transforms brand discovery inputs into a conflict-free, specification-ready desi
 - Brand discovery answers exist (any of the 6 questions below)
 - Need atomic design tokens (color, spacing, radius, typography, shadow, motion)
 - Inputs contain potential conflicts (personality vs. visual references)
-- Output target: a design token spec or `Brand_System_Architecture.md`
+- Output target: a design token spec or `docs/records/product/Brand_System_Architecture.md`
 
 **Do NOT use for:**
 - Pure copywriting with no visual output
@@ -35,7 +35,7 @@ Transforms brand discovery inputs into a conflict-free, specification-ready desi
 ```
 Check in order:
 1. docs/reference/design.md     → product intent, behavior, brand direction
-2. docs/reference/memory.md     → durable decisions, brand notes
+2. docs/live/memory.md              → durable decisions, brand notes
 3. docs/ or product/ folders    → roadmap docs, vision docs, brand briefs
 4. README.md                    → project purpose, audience
 ```
@@ -152,7 +152,7 @@ Key rules when filling:
 
 ---
 
-## Phase 3: Extended Output — Brand_System_Architecture.md
+## Phase 3: Extended Output — docs/records/product/Brand_System_Architecture.md
 
 When a full spec (tokens + component inventory) is requested, extend the design token spec output with:
 
@@ -190,7 +190,7 @@ These skills work well with `design-token-spec` in a loose pipeline:
 
 | Skill | Role | When to route |
 |---|---|---|
-| [`brand-identity-extractor`](../../brand-identity-extractor/SKILL.md) | **Downstream deep extraction** | After design-token-spec produces a structured brand context, BIE can consume it as a pre-validated input and skip the discovery phase — going straight to its 3-stage extraction (tokens, component specs, AI prompt kit). BIE's output written to `docs/reference/brand-system.md` is parseable by design-context-scout. |
+| [`brand-identity-extractor`](../../brand-identity-extractor/SKILL.md) | **Downstream deep extraction** | After design-token-spec produces a structured brand context, BIE can consume it as a pre-validated input and skip the discovery phase — going straight to its 3-stage extraction (tokens, component specs, AI prompt kit). BIE writes to `docs/reference/design.md`, which is parseable by design-context-scout. |
 | [`frontend-design/design-context-scout`](../../frontend-design/design-context-scout/SKILL.md) | **Downstream consumer** | Token specs produced by design-token-spec (at `docs/reference/design.md`) are discoverable by design-context-scout as a design system source for UI sprint planning. |
 
 **Recommended pipeline:** `design-token-spec` (discovery + conflict resolution) → `brand-identity-extractor` (deep extraction) → `design-context-scout` (harness integration)

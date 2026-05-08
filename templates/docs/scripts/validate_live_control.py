@@ -31,7 +31,7 @@ def main() -> int:
     except ControlPlaneError as exc:
         errors.append(str(exc))
     else:
-        errors.extend(validate_tracked_work(tracked_work))
+        errors.extend(validate_tracked_work(tracked_work, repo_root))
 
     errors.extend(validate_control_files(paths))
 

@@ -254,12 +254,36 @@ Purpose:
 - durable, traceable, scoped records from discussion or sprint work
 - a home for artifacts that should outlive chat but are not the active contract, immutable archive evidence, or universally current reference truth
 
+### Subdirectory convention
+
+Records are organized by domain. Flat dumping is prohibited — every record must go into the correct subdirectory.
+
+| Path | Domain | Example contents |
+|---|---|---|
+| `docs/records/design/` | Design artifacts | `design-tokens.json`, `design-tokens.css`, `figma-variables.json`, `ai-prompt-templates.md`, `ai-prompt-params.md` |
+| `docs/records/product/` | Product definition | `requirements.md`, `Brand_System_Architecture.md` |
+| `docs/records/architecture/` | Implementation design | `implementation.md` |
+| `docs/records/qa/` | QA templates and inventories | `qa-inventory.md` |
+
+Additional subdirectories may be added when a new domain emerges. Create the directory and document it here before writing files into it.
+
+### Required metadata
+
+Every record file must carry page-local provenance and validity metadata. At minimum, include these fields near the top of the file:
+
+- `workstream_id`: owning tracked workstream, when one exists
+- `scope`: what question, slice, or discussion window this page covers
+- `status`: one of `informative`, `promoted`, `superseded`, `expired`
+- `superseded_by`: replacement record or reference path, if any
+
+Records without metadata are invalid and must be rejected by the validator.
+
 Rules:
 
 - records are optional; do not imply that every sprint must create one
-- record pages must carry page-local provenance and validity metadata such as `scope`, `status`, `superseded_by`, and the sprint or archive contributions they summarize
 - records may be superseded, expired, or promoted later; keep those lifecycle facts on the page and log them in `docs/live/progress.md`
-- feature-linked records should be referenced from `docs/live/tracked-work.json` via `record_paths`, not through a second registry
+- feature-linked records must be referenced from `docs/live/tracked-work.json` via `record_paths`, not through a second registry
+- unlinked records are orphaned and will be flagged by the validator
 
 ## `docs/reference/`
 
@@ -268,12 +292,14 @@ Purpose:
 - stable architecture, design, and domain references shared across sprints
 - current truth that proposals, contracts, execution, and review must respect
 
-Starter-pack examples:
+### Canonical files — exactly two
 
-- `architecture.md`
-- `design.md`
+**Only these two files are canonical under `docs/reference/`.** Do not create additional reference files.
 
-These files are current reference material, not sprint-local notes. Promote content here only when it is the stable present truth; otherwise keep it in `docs/records/` with explicit provenance.
+- `architecture.md`: runtime, entrypoints, major subsystems, integration boundaries, tech stack, and orchestration rules.
+- `design.md`: the single canonical entry point for ALL design and brand truth — product intent, interaction model, visual system, brand identity, design tokens summary, component specifications, motion rules, accessibility guide, AI prompt methodology, and design QA checklist. External artifacts (token JSON, CSS, Figma variables, prompt templates, tool parameters) are referenced from here via relative links into `docs/records/design/`.
+
+New stable truth must be inlined into one of these two files, or live in `docs/records/` with explicit provenance until promoted. Promote content into `docs/reference/*` only when it is the stable present truth; otherwise keep it in `docs/records/`.
 
 ## `docs/scripts/`
 

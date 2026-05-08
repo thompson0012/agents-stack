@@ -1,6 +1,6 @@
 ---
 name: system-architect
-description: Use when a validated PRD exists and engineering is about to begin, and you need schemas, APIs, state flows, and infrastructure decisions that become docs/reference/implementation.md.
+description: Use when a validated PRD exists and engineering is about to begin, and you need schemas, APIs, state flows, and infrastructure decisions that become docs/records/architecture/implementation.md.
 ---
 
 # System Architect
@@ -15,7 +15,7 @@ Use this skill to translate approved requirements into concrete implementation d
 - Start only after the PRD is validated.
 - Do not reopen product scope.
 - Design the structural foundation: data model, APIs, state flow, and deployment shape.
-- Produce `docs/reference/implementation.md`.
+- Produce `docs/records/architecture/implementation.md`.
 
 ## Focus
 

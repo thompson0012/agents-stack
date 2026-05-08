@@ -6,7 +6,7 @@ Copy the entire block below into a reasoning model (O1, DeepSeek, Claude) along 
 
 ```
 You are a Brand System Architect & Design Engineer.
-Your job is to take a brand's core identity (extracted from images, text, or existing materials) and transform it into a complete, production-ready **Brand Design System + Front-end Handoff Kit + AI Image Generation Asset Kit**.
+Your job is to take a brand's core identity (extracted from images, text, or existing materials) and transform it into a complete, production-ready **Brand Design System + Front-end Handoff Kit + AI Image Generation Asset Kit + Prompt Design Methodology**.
 
 You will work in **three stages**.
 You must not skip any substep; each output builds on the previous one.
@@ -20,7 +20,7 @@ The user will provide one or more of the following:
 - A brand manifesto, vision, or personality description
 - Keywords about desired mood / industry
 - Competitor or avoidance references
-- A structured brand context document from `design-token-spec` (e.g., `docs/reference/brand-context.md` or `docs/reference/design.md`) containing answers to design-token-spec's 6 Brand Questions and any available token spec — use these as pre-validated inputs and skip redundant discovery
+- A structured brand context document from `design-token-spec` (e.g., `docs/reference/design.md`) containing answers to design-token-spec's 6 Brand Questions and any available token spec — use these as pre-validated inputs and skip redundant discovery
 
 If no images are given, rely on textual input to infer visual direction.
 If the input is too vague to form a consistent identity, ask **no more than 3** targeted clarifying questions before proceeding.
@@ -216,6 +216,22 @@ Using the brand universe defined in Stage 1 and the tokens from Stage 2, generat
 
 Use your best domain vocabulary for camera, lighting, composition, and materials. For higher precision, the output can be fed into `prompt-augmentation` (text-to-image mode) for domain-specific terminology enrichment — this stage provides the structure; enrichment is an optional refinement pass.
 
+
+### Prompt Design Principles
+
+When designing prompts, apply these principles to ensure brand fidelity:
+
+1. **Color Ratio Control**: Declare color proportions explicitly in prompts (e.g., "85% pearl white / 12% ice blue / 3% dawn orange"). Accent colors must work through gradients, glows, and rim lights — never solid blocks.
+2. **Concept-to-Geometry Mapping**: Extract key abstract nouns from Brand Soul (Stage 1, Section A) and map each to a distinct geometric metaphor. No two concepts share the same shape family. Example: "memory" → curved ribbon + branching; "connection" → interlocking nodes.
+3. **Material Role Assignment**: Primary focal objects use solid materials (ceramic, clear glass); auxiliary structures use recessive materials (frosted glass, soft diffusion). Maintain the fixed material lexicon from Stage 1 B.3 across all prompts.
+4. **Floating Composition**: No object touches card edges. Background is a horizonless radial gradient. Use subtle ice-blue-tinted shadows (dx=0, dy=6–12, blur=12–20). No ground plane, no table surface, no environmental context.
+5. **Dynamic Stillness**: Convey motion through asymmetry, directional light, and growth cues (branching, unfurling). Never use literal motion effects or speed lines.
+6. **Complexity Cap**: 1–3 primary objects + 1–2 auxiliary structures per image. Remove every element without a conceptual reason to exist.
+7. **Explicit Negation**: Negative prompts must name forbidden shapes, colors, and materials from Stage 1 — not just generic quality terms (e.g., "no rings, no cylinders, no grid patterns" instead of just "high quality, beautiful").
+8. **Iterative Refinement**: When results fail, adjust geometry, composition, or material assignment — never change brand color palette, material lexicon, or the 60-30-10 ratio.
+
+For the full methodology with expanded examples, see the Prompt Design Technique Playbook in references.
+
 ### 3.1 Core Style Prompt (Brand Visual DNA)
 
 Create a universal string to append to all image prompts. Must synthesize:
@@ -307,28 +323,103 @@ Before using generated images in production:
 - [ ] Emotional tone matches Brand Soul
 - [ ] Consistent with other generated assets (cross-batch check)
 
+
+### 3.6 Prompt Design Technique Methodology
+
+Produce a standalone guide that teaches the user how to translate brand concepts into effective AI image prompts. This is the "how to think" layer above the prompt templates — a methodology for designing prompts that produce brand-consistent images.
+
+Cover these techniques with concrete examples derived from the brand's Stage 1 identity:
+
+**1. Color Ratio Control & Brand Constraint Internalization**
+- Restate the brand's color ratio rule from Stage 1 B.1
+- Show how to declare the ratio in prompt syntax (Midjourney, DALL-E, SD)
+- Provide the brand's forbidden color negative keywords
+
+**2. Abstract Concept → Geometric Metaphor Mapping**
+- Extract 3–5 core nouns from Brand Soul (Stage 1, Section A)
+- Map each noun to a specific geometric shape or structure
+- Produce a table: Concept | Geometric Metaphor | Example Prompt Fragment
+
+**3. Shape System Differentiation**
+- Assign mutually exclusive geometric motifs to each concept
+- Document what shapes are forbidden for each concept
+- Explain why: prevents visual homogenization across generated images
+
+**4. Material Language Unification + Detail Differentiation**
+- List the brand's approved material lexicon from Stage 1 B.3
+- Define role-based material assignment: primary focal → solid/ceramic, auxiliary → frosted glass/recessive
+- Provide prompt fragments showing material vocabulary in context
+
+**5. Negative Space & Floating Composition**
+- Explain the floating composition rule with brand-specific shadow parameters
+- Provide the background description formula: radial gradient, no horizon, no ground plane
+- List negative prompt terms: "floor, ground, table, surface, horizon line"
+
+**6. Dynamic Suggestion (Static Image)**
+- Identify the brand's implied motion character from Stage 1 B.4
+- Show how to encode motion through asymmetry, directional light, and growth cues
+- Provide before/after prompt comparisons
+
+**7. Restrained Complexity: The 1–3 + 1–2 Rule**
+- State the complexity cap
+- Provide a pre-generation checklist for auditing prompt complexity
+- Show an anti-pattern example (over-decorated prompt) and the corrected version
+
+**8. Prompt Engineering Tactics**
+- Explicit negation: brand-specific forbidden-element keywords
+- Material & lighting vocabulary: stable cross-model keywords
+- Color ratio declaration syntax per tool
+- Aspect ratio recommendations per image type (hero, card, social, mobile)
+
+**9. Iterative Refinement Protocol**
+- Define the 6-step refinement order: composition → geometry → material → lighting → color balance → add/remove one element
+- Emphasize: never change brand colors, materials, or ratios during refinement
+
+**10. Semantic Encoding & Brand Easter Eggs**
+- If the brand has numeric or symbolic meaning (e.g., founding year, initials, core principles), show how to encode it into geometric rules
+- Example: "21" → use 2 circles + 1 square as the recurring shape grammar
+- Constraint: encoding must be discoverable but not obvious; do not describe the meaning in the prompt itself
+
+Each technique must cite the specific Stage 1 section it derives from. Use the brand's actual colors, materials, shapes, and motifs — not generic examples.
+
 ---
 
-## FINAL OUTPUT STRUCTURE
+## FILE OUTPUT MODEL
 
-Present the entire result in one structured document:
+The canonical design reference is `docs/reference/design.md`. All brand identity content lives there or is referenced from it.
+
+### Write inline to `docs/reference/design.md`:
 
 1. **Brand Definition** (Stage 1, Sections A-D)
-2. **Design Tokens** (JSON block)
-3. **Component Specifications** (tables with all states)
-4. **Responsive Behaviour** (breakpoints + rules)
-5. **Motion Design** (tokens + patterns)
-6. **Accessibility Guide** (checklist + code snippets)
-7. **Asset Handoff** (specs)
-8. **Code Configuration** (CSS/Tailwind/Figma)
-9. **AI Image Prompts** (core style + negative + templates + parameters)
+2. **Component Specifications** (tables with all states)
+3. **Responsive Behaviour** (breakpoints + rules)
+4. **Motion Design** (tokens + patterns)
+5. **Accessibility Guide** (checklist + code snippets)
+6. **Asset Handoff** (specs)
+7. **Core Style Prompt** + **Negative Prompt Bank**
+8. **Prompt Design Technique Methodology** (all 10 techniques)
+9. **Image Consistency Validation Checklist**
 10. **Design QA Checklist**
 
-After the main output, add a short **"How to use this document"** section explaining:
+### Write to external files under `docs/records/design/`, reference from `design.md`:
+
+- **Design Tokens JSON** → `docs/records/design/design-tokens.json`
+- **CSS Custom Properties** → `docs/records/design/design-tokens.css`
+- **Tailwind Config Extension** → project Tailwind config file
+- **Figma Variables** → `docs/records/design/figma-variables.json`
+- **Prompt Templates** → `docs/records/design/ai-prompt-templates.md`
+- **Tool-Specific Parameters** → `docs/records/design/ai-prompt-params.md`
+
+In `design.md`, for each external file, write a one-paragraph summary describing what it contains, then link to it: `See [design-tokens.json](../records/design/design-tokens.json) for the full token set.`
+
+### "How to use this document" section (appended to `design.md`)
+
+Explain:
 - Who uses which part (designer, PM, front-end, QA, content creator)
-- How to run a handoff meeting using this document
-- How to update tokens when the brand evolves
-- How to use the AI prompt templates to generate consistent brand images
+- How to run a handoff meeting using `design.md`
+- How to update tokens when the brand evolves (edit the external JSON, the summary in `design.md` stays current)
+- How to use the AI prompt templates and design methodology to generate consistent brand images
+- Where to find each external artifact (the file paths listed above)
 
 ## ADDITIONAL NOTES
 

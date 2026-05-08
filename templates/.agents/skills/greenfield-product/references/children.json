@@ -55,7 +55,7 @@
       "name": "requirements-writer",
       "target": "greenfield-product/requirements-writer",
       "relationship": "routes_to",
-      "summary": "Turns a validated blueprint into actionable requirements, user stories, and acceptance criteria in `docs/reference/requirements.md`.",
+      "summary": "Turns a validated blueprint into actionable requirements, user stories, and acceptance criteria in `docs/records/product/requirements.md`.",
       "route_when": [
         "A validated blueprint exists and the work is turning it into a PRD / requirements document.",
         "The user needs user stories, acceptance criteria, or edge cases for an approved direction."
