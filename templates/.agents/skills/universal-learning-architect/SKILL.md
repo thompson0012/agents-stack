@@ -2,7 +2,7 @@
 name: universal-learning-architect
 description: Transform raw domain materials into a reusable skill package with mental models, debate maps, SOPs, stress tests, and execution checklists.
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
   category: ["learning", "knowledge-transfer", "agent-skill", "domain-onboarding"]
   tags:
     - learning
@@ -13,6 +13,9 @@ metadata:
     - top-down-thinking
     - domain-mapping
     - sop-generation
+    - keyword-extraction
+    - cross-source-synthesis
+    - vocabulary-layer
   triggers:
     - learn a new field
     - map an industry
@@ -78,6 +81,33 @@ If the input is fragmented, infer structure carefully but explicitly mark uncert
 
 ## Execution Workflow
 
+
+### Phase 0: Knowledge Surface Mapping
+
+Build the domain's vocabulary layer before extracting concepts. You cannot extract mental models from material whose terminology you don't yet understand.
+
+**Step 1 — Term Harvesting**
+Extract 80-120 key terms from input materials. Do not aim for exhaustiveness — aim for cognitive coverage. A good term set lets you read a new document in this field and understand 80%+ of it without a dictionary.
+
+**Step 2 — Tiered Classification**
+Organize terms into three tiers:
+- **Tier 1 — Foundational Concepts:** Terms that define the field's subject matter. Without these, you cannot have a conversation in the domain. (20-30 terms)
+- **Tier 2 — Industry Shorthand:** Abbreviations, jargon, implicit references that practitioners use as signals of competence. Missing these makes you sound like an outsider even if you know the concepts. (30-50 terms)
+- **Tier 3 — Contested Terms:** Terms where competing schools use different names for the same thing, or the same name for different things. These are flags for the disagreements you will map in Phase 3. (10-20 terms)
+
+**Step 3 — Relationship Skeleton**
+For the full set, identify:
+- **Causal anchors:** Terms that appear in cause-effect chains (X leads to Y)
+- **Pure vocabulary:** Terms that are definitional rather than relational
+- **Bridge terms:** Terms that connect two otherwise separate subdomains
+
+**AI Assistance Pipeline (when input is raw or unstructured):**
+1. **Retrieve** — scan all inputs for recurring noun phrases, defined terms, and capitalized compounds
+2. **Disambiguate** — for each candidate term, resolve context-dependent meanings; flag ambiguous terms as Tier 3 candidates
+3. **Cluster** — group by co-occurrence and semantic similarity to identify subdomains
+4. **Frequency-weight** — terms appearing in 3+ independent sources with different phrasing are likely foundational
+
+**Output:** tiered keyword list with one-line definitions, relationship skeleton marking causal anchors and bridge terms, and an explicit list of terms flagged for Phase 3 debate mapping.
 ### Phase 1: Domain Framing
 First determine:
 - What is this field actually about?
@@ -90,6 +120,13 @@ Output:
 - why this field matters
 - scope boundaries
 - major subdomains
+- domain type: [theory-heavy | practice-heavy | debate-heavy | mixed]
+
+**Domain type affects later phases:**
+- **Theory-heavy** (mathematics, philosophy) → emphasize Phase 2 mental models and Phase 5 stress tests; Phase 4 SOP may be minimal
+- **Practice-heavy** (surgery, engineering) → emphasize Phase 4 SOP and decision rules; Phase 3 debate scope narrows
+- **Debate-heavy** (policy, law) → emphasize Phase 3 debate map; Phase 4 decision rules reflect contested options, not settled practice
+- **Mixed** (software, medicine) → run all phases; indicate which subdomains lean which direction
 
 ### Phase 2: Mental Model Extraction
 Identify the 3-7 core mental models experts in this field share.
@@ -105,6 +142,19 @@ For each mental model provide:
 Important:
 Do not list topics.
 Extract expert ways of seeing.
+
+### Phase 2.5: Cross-Source Pattern Extraction
+
+When you have 3 or more independent sources (books, interviews, reports), the **intersection** is more informative than any single source. Run this step before declaring mental models final.
+
+**Process:**
+1. For each mental model candidate from Phase 2, mark which sources support it (explicitly / implicitly / absent / contradicted)
+2. Models supported by 3+ sources with different framing → likely foundational truths; move to front of Phase 2 output
+3. Models supported by only one source, or sources from the same school → provisional; mark as such
+4. Concepts appearing in every source under different names → surface as Tier 3 keywords
+5. Concepts absent from one or more sources → note as scope boundaries or school-specific blind spots
+
+**Output:** support matrix (model × source), elevated models moved to front, and a gap list of conspicuously missing topics.
 
 ### Phase 3: Consensus and Debate Map
 Map the intellectual landscape.
@@ -151,6 +201,11 @@ For each question provide:
 - what a strong answer includes
 - the hidden misconception it exposes
 
+**Derivation rule:** Every major disagreement from Phase 3 must generate at least one question here. Additionally:
+- "Compare two confusingly similar concepts" → derive from Phase 3 Tier 3 contested terms
+- "Predict what happens if a core assumption changes" → pick the assumption one side of a major debate relies on
+- "Diagnose a flawed decision" → take a case where someone applied the wrong side of a debate to the wrong context
+
 ### Phase 6: Blind Spot Repair
 After the learner answers, do the following:
 1. diagnose conceptual gaps
@@ -193,7 +248,23 @@ Produce:
 - Key constraints:
 - Core objectives:
 
-## 3. Mental Models
+## 3. Knowledge Surface
+
+### Tier 1 — Foundational Concepts
+- [term]: [one-line definition]
+
+### Tier 2 — Industry Shorthand
+- [term / abbreviation]: [one-line definition]
+
+### Tier 3 — Contested Terms
+- [term A / term B]: [why the naming matters and which side uses which]
+
+### Relationship Skeleton
+- **Causal anchors:**
+- **Bridge terms:**
+- **Pure vocabulary:**
+
+## 4. Mental Models
 ### Model 1: [Name]
 - Explanation:
 - Analogy:
@@ -210,7 +281,7 @@ Produce:
 
 (repeat as needed)
 
-## 4. Consensus and Debates
+## 5. Consensus and Debates
 ### Shared expert consensus
 - ...
 
@@ -223,7 +294,7 @@ Produce:
 
 (repeat as needed)
 
-## 5. Standard Operating Procedure
+## 6. Standard Operating Procedure
 1. Step:
    - Goal:
    - Action:
@@ -232,17 +303,17 @@ Produce:
 
 (repeat as needed)
 
-## 6. Decision Rules
+## 7. Decision Rules
 - If X, do Y.
 - If A and B are both true, prioritize C.
 - Avoid Z unless condition Q holds.
 
-## 7. Pitfalls and Corrections
+## 8. Pitfalls and Corrections
 
 | Scenario | ❌ Common novice mistake | ✅ Better expert move | Why |
 |---|---|---|---|
 
-## 8. Feynman Stress Test
+## 9. Feynman Stress Test
 1. Question:
    - Tests:
    - Weak answer signs:
@@ -251,7 +322,7 @@ Produce:
 
 (repeat as needed)
 
-## 9. Execution Checklist
+## 10. Execution Checklist
 - [ ] I can explain the field in plain language.
 - [ ] I know the core mental models.
 - [ ] I know where experts disagree.
@@ -259,7 +330,7 @@ Produce:
 - [ ] I know the common failure modes.
 - [ ] I can distinguish memorization from understanding.
 
-## 10. Reuse Notes
+## 11. Reuse Notes
 - What should be saved into the long-term knowledge base:
 - What should become SOP:
 - What should become onboarding material:
