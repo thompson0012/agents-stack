@@ -16,7 +16,7 @@ cd my-project
 If you want to clone the starter from GitHub instead of copying locally:
 
 ```sh
-npx degit thompson0012/agents-stack/templates new-project && cd new-project && ./docs/scripts/init.sh
+npx degit labs21-dev/agents-stack/templates new-project && cd new-project && ./docs/scripts/init.sh
 ```
 
 After that, the repo is ready for truthful initialization work.
