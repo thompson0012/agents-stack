@@ -98,7 +98,22 @@ Before editing, extract:
 
 If the contract is too vague to produce a safe implementation, do not fill in product decisions yourself. Mark the sprint `awaiting_human` and route back for contract repair.
 
-### 2. Construct the system view from the task decomposition
+### 2. Validate contract structure before implementation
+
+Before touching any code, run the structural contract validator:
+
+```bash
+python .agents/skills/using-agents-stack/scripts/validate_contract.py <workstream-id> --repo-root <repo-root>
+```
+
+This checks that `contract.md` has all required sections and meets the minimum structural bar: acceptance criteria with stable `AC-###` ids, task decomposition with parseable JSON, and required evidence fields.
+
+If `validate_contract.py` returns `deny`:
+- Stop. Do not implement against a structurally invalid contract.
+- Record the denial reason codes in `runtime.md`.
+- Set `phase: "build_failed"` and route back to the orchestrator for contract repair.
+
+### 4. Construct the system view from the task decomposition
 
 Before implementing, derive a system-level view from the contract's `## Task Decomposition` JSON. This view makes upstream/downstream dependencies, data flow, and failure propagation explicit so the executor does not implement each task in isolation.
 
@@ -117,7 +132,7 @@ Write the system view into `runtime.md` under a `## System View` section using t
 
 This view is derived mechanically from the contract's JSON. Do not invent dependencies or symbols that are not declared in the decomposition.
 
-### 3. Discover runtime details from the repo
+### 5. Discover runtime details from the repo
 
 If the contract omits runtime details, derive only what you can prove from the repository, such as:
 - package scripts
@@ -128,7 +143,7 @@ If the contract omits runtime details, derive only what you can prove from the r
 
 Record every discovered runtime fact in `runtime.md` with its source. Do not invent commands, ports, or environment assumptions.
 
-### 4. Implement only within bounds
+### 6. Implement only within bounds
 
 During coding:
 - stay inside the allowed files unless the contract is amended
@@ -138,7 +153,7 @@ During coding:
 
 If you realize the correct fix requires files outside the contract, stop and document why. Do not quietly expand scope.
 
-### 5. Capture verification evidence as you go
+### 7. Capture verification evidence as you go
 
 `runtime.md` is not a diary. It is the reviewer's reproduction kit — and also the primary evidence source for compound-capture to extract cross-sprint learnings.
 
@@ -159,7 +174,7 @@ Before handoff, use the matching `frontend-qa` or `backend-qa` playbook as a che
 This preparation only improves evidence quality. It does not author `qa.md`, does not self-approve the sprint, and does not change the contract or review boundary.
 
 
-### 6. Run build/startup triage before handoff
+### 8. Run build/startup triage before handoff
 
 Before you claim review readiness, run the minimum build and startup checks needed to prove the reviewer can reach the feature.
 
@@ -176,7 +191,7 @@ If build or startup triage fails:
 - if another clean retry remains inside budget, route next to `state-update` so live state can publish the failed attempt and queue a clean retry
 - if the budget is exhausted or recovery is unsafe, set `phase: "escalated_to_human"` instead
 
-### 7. Produce a real handoff
+### 9. Produce a real handoff
 
 When implementation and build/startup triage are done, write `handoff.md` that answers:
 1. What contract objective was implemented?

@@ -4,7 +4,7 @@ This package should be evaluated as a router and durable-state interpreter, not 
 
 ## Included evaluation scaffolding
 
-- `scripts/validate_router.py`: structural validator for the router package and `references/children.json`
+- `validate_router.py`: structural validator for the router package and `references/children.json`
 - `scripts/validate_contract.py`: structural validator for approved sprint contracts, including stable `AC-###` acceptance ids and criterion-level requirement/evidence fields
 - `scripts/validate_review_against_contract.py`: contract-to-review validator that proves every contract acceptance id is covered in `qa.md` and `review.md`
 - `evals/evals.json`: file-grounded router regression cases for route selection, contradiction handling, parked-state behavior, timeout-resume precedence, retry truthfulness, and explicit `No family child fits` outcomes. Each case carries the existing human-readable `expected_output` contract and a structured `expected_dispatch` object that mirrors the route-only dispatcher payload.
@@ -19,7 +19,7 @@ Treat the eval corpus as regression input, not a second contract. `SKILL.md`, `r
 
 ## Advisory synthesis experiment
 
-> `scripts/compile_guard_experiment.py` is an offline, advisory-only experiment.
+> `compile_guard_experiment.py` is an offline, advisory-only experiment.
 
 Use it only through explicit manual invocation. It reads the current hand-authored retry guard sources and prints a report-style comparison/suggestion summary to stdout for human inspection. It does not write files, does not choose children, and loses to `references/children.json`, the existing reference docs, and `scripts/verify_retry_guard.py`.
 

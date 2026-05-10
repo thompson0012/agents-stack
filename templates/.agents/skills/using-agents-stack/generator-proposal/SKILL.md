@@ -76,7 +76,6 @@ Do not propose from backlog text alone. You must inspect the real code so the fi
 ### `.harness/<workstream-id>/sprint_proposal.md`
 A concrete proposal containing at minimum:
 - feature id and title
-- **risk tier** (`T1` / `T2` / `T3`) — determined by the deterministic CLI: `scripts/classify_proposal_tier.py .harness/<workstream-id>/sprint_proposal.md`. T1: cosmetic/docs/config only. T2: standard change. T3: schema, auth, or data integrity change.
 - problem statement in current-repo terms
 - objective for this sprint only
 - explicit in-scope work
@@ -176,17 +175,6 @@ If durable feature-linked discussion residue is too large or nuanced for `docs/l
 - Identify the smallest meaningful increment that can be implemented and reviewed in one sprint without discarding essential parts of the source goal.
 - If choosing that increment would hide core requested work, surface the missing work as later roadmap slices and only proceed if the current slice still stands on its own; do not shrink the goal to fit.
 - Split large or cross-cutting ideas into explicit later roadmap slices or re-authorization boundaries before proposing anything, and preserve the source-goal wording so the initiative itself is not rewritten into a smaller project.
-
-### 3b. Classify the proposal's risk tier
-After defining file boundaries and task decomposition, classify the proposal tier mechanically:
-
-```bash
-python scripts/classify_proposal_tier.py .harness/<workstream-id>/sprint_proposal.md
-```
-
-This returns the deterministic tier and the T3 signals that triggered it. Record the tier in `sprint_proposal.md` under `## Risk Tier`.
-- If the tier is `T3`, the self-attack (step 4) must be especially thorough — this change touches critical infrastructure.
-- If the tier is `T1`, you may note that the evaluator will use a lighter review, but do not skip the self-attack.
 
 ### 4. Attack the proposal before handoff
 Before this proposal can move to review, try to break it yourself.
