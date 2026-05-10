@@ -86,8 +86,9 @@ This lets explicit compounding run before new work and lets the backlog advance 
 | --- | --- | --- | --- | --- |
 | `uninitialized` | `docs/live/tracked-work.json` missing, empty, or unusable | `project-initializer` worker | Repo is not ready for sprint routing yet. | Seed durable live state, including initial focus and roadmap truth. |
 | `needs_brainstorm` | `docs/live/tracked-work.json` tracks a dependency-ready item as `needs_brainstorm`, optionally with supporting notes in `docs/live/ideas.md`, and `.harness/<workstream-id>/status.json` when the item is the currently selected planning lane | `generator-brainstorm` worker | The candidate is real enough to track, but still too vague for honest proposal work. | Refine or promote it to `pending`. |
-| `proposal_needed` | No runnable active sprint and at least one dependency-ready pending feature; a selected proposal lane may already have `.harness/<workstream-id>/status.json` | `generator-proposal` worker | A ready backlog item exists but no local sprint has been proposed yet. | Cut one runnable slice from the roadmap into `.harness/<feature>/sprint_proposal.md`. |
-| `proposal_ready` | `sprint_proposal.md` exists | `evaluator-contract-review` worker | Proposed scope exists and needs adversarial contract review. | Approve into `contract.md` or reject with revisions. |
+| `pending` | No runnable active sprint and at least one dependency-ready pending feature; a selected proposal lane may already have `.harness/<workstream-id>/status.json` | `generator-proposal` worker | A ready backlog item exists but no local sprint has been proposed yet. | Cut one runnable slice into `.harness/<workstream-id>/sprint_proposal.md` to reach `proposed`. |
+| `proposed` | `sprint_proposal.md` exists | `evaluator-contract-review` worker | Proposed scope exists and needs adversarial contract review. | Approve into `contract.md` or reject with revisions. |
+| `proposal_revision_required` | `sprint_proposal.md` and `review_feedback.md` exist | `generator-proposal` worker | The proposal was rejected by contract review and needs revision before re-submission. | Apply revisions, then re-submit to evaluator. |
 | `contracted` | `contract.md` exists and no later artifact exists | `generator-execution` worker | Boundaries and QA criteria are approved; implementation can begin. | Execute or resume work. |
 | `executing` | `status.json` shows active execution, no later artifact exists | `generator-execution` worker | Work is underway. | Finish implementation, or record an execution-time failure honestly. |
 | `build_failed` | `status.json.phase = build_failed` plus execution notes in `runtime.md` or `handoff.md` | `state-update` worker, then `compound-capture`, then orchestrator | Build, startup, or smoke-triage failed during execution, so the sprint must reconcile, compound, and then retry or escalate. | Clean-restore and retry, park for human input, or escalate. |
@@ -104,18 +105,26 @@ This lets explicit compounding run before new work and lets the backlog advance 
 
 ### Initialization, brainstorm, and proposal
 
-- `uninitialized` -> `needs_brainstorm` or `proposal_needed`
+- `uninitialized` -> `needs_brainstorm` or `pending`
   - Trigger: `project-initializer` worker seeds `docs/live/tracked-work.json`, `docs/live/ideas.md`, `docs/live/current-focus.md`, `docs/live/roadmap.md`, `progress.md`, and related live files truthfully.
-- `needs_brainstorm` -> `proposal_needed`
+- `needs_brainstorm` -> `pending`
   - Trigger: `generator-brainstorm` worker clarifies the candidate enough to promote it into `pending` backlog state, writes or refreshes `.harness/<workstream-id>/status.json` when the planning lane is selected, and, when needed, sharpens the roadmap slice it belongs to.
 - `needs_brainstorm` -> `needs_brainstorm`
   - Trigger: the idea is still too vague for honest proposal work, so brainstorming leaves it tracked but non-runnable and preserves the planning checkpoint in `.harness/<workstream-id>/status.json` when one exists.
-- `proposal_needed` -> `proposal_ready`
+- `pending` -> `proposed`
   - Trigger: `generator-proposal` worker advances the selected planning workspace by creating `.harness/<workstream-id>/sprint_proposal.md` and marking the sprint as proposed.
-- `proposal_needed` -> `needs_brainstorm`
+- `pending` -> `needs_brainstorm`
   - Trigger: proposal discovery proves the candidate is still too vague or forked, so it is explicitly returned to brainstorming instead of getting a mushy proposal.
-- `proposal_needed` -> `proposal_needed`
+- `pending` -> `pending`
   - Trigger: the highest-priority pending feature is not dependency-ready, so backlog traversal continues until a ready item is found or the queue is exhausted.
+- `proposed` -> `contracted`
+  - Trigger: `evaluator-contract-review` worker approves the proposal and writes `contract.md`.
+- `proposed` -> `proposal_revision_required`
+  - Trigger: `evaluator-contract-review` worker rejects the proposal, writes `review_feedback.md`, and sets `phase: "proposal_revision_required"`.
+- `proposal_revision_required` -> `proposed`
+  - Trigger: `generator-proposal` worker applies the revision feedback, updates `sprint_proposal.md`, clears or archives `review_feedback.md`, and sets `phase: "proposed"`. Note: `proposal_revision_count` is NOT reset — it is managed by the evaluator and must accumulate across cycles.
+- `proposal_revision_required` -> `escalated_to_human`
+  - Trigger: `proposal_revision_count` reaches `max_proposal_revisions` (default 3) without a successful revision. The sprint is parked for human intervention.
 
 ### Roadmap, focus, and drift control
 
@@ -183,7 +192,7 @@ Automatic retry never resumes directly from raw `build_failed` or `review_failed
   - Trigger: a human changes the named files, updates the pause metadata, or otherwise records that the durable gate is cleared.
 - `escalated_to_human` -> route by explicit human decision
   - Trigger: a human records a reset, cancellation, rescope, or new restore boundary in the files.
-- `compound_pending` -> `needs_brainstorm` or `proposal_needed`
+- `compound_pending` -> `needs_brainstorm` or `pending`
   - Trigger: the queue entry is cleared and no runnable sprint remains, so the orchestrator returns to dependency-ready backlog selection.
 
 ## PASS / BUILD_FAILED / FAIL / BLOCKED routing

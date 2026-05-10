@@ -356,7 +356,8 @@ Every FAIL or BLOCKED outcome must include recovery directives that are specific
 ## `.harness/<sprint-id>/status.json`
 
 At review completion:
-- set `phase: "reviewed_pass"`, `"reviewed_fail"`, or `"reviewed_blocked"`
+- set `phase: "review_recorded"`
+- set `reviewed_verdict: "PASS"`, `"FAIL"`, or `"BLOCKED"` in status.json
 - set `owner_role: "orchestrator"`
 - set `resume_from: "review.md"`
 - update timestamps and any review artifact pointers the harness uses

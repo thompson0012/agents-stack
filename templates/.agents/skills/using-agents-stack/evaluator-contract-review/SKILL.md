@@ -1,8 +1,8 @@
 ---
 name: evaluator-contract-review
-description: Use when `.harness/<workstream-id>/sprint_proposal.md` exists and no trustworthy approved contract is present.
-purpose: Adversarially review a sprint proposal and either approve it as a contract or force a revision with specific, actionable feedback.
-trigger: Use when `.harness/<workstream-id>/sprint_proposal.md` exists and no trustworthy approved contract is present.
+description: Adversarially review a sprint proposal before any code is written.
+purpose: Find gaps that would make the implementation wrong regardless of implementation quality.
+trigger: `.harness/<workstream-id>/sprint_proposal.md` exists and no trustworthy approved contract is present.
 inputs:
   - AGENTS.md
   - docs/live/tracked-work.json
@@ -16,246 +16,161 @@ inputs:
   - affected code areas named by the proposal
 outputs:
   - .harness/<workstream-id>/contract.md on approval
+  - .harness/<workstream-id>/review_feedback.md on rejection
+  - .harness/<workstream-id>/review_trace.md (always — the gap report)
   - updated .harness/<workstream-id>/status.json
-  - specific revision feedback recorded back into `.harness/<workstream-id>/sprint_proposal.md` or adjacent sprint-local notes when rejected
 boundaries:
-  - Do not implement the feature.
-  - Do not soften requirements to make approval easier.
-  - Do not approve unverifiable or overbroad work.
-  - Do not change global backlog priority unless required to reflect an explicit stop condition.
-next_skills:
-  - generator-execution
-  - generator-proposal
+  - Do not implement. Do not soften requirements. Do not approve unverifiable work.
 ---
 
 # Evaluator Contract Review
 
-## Placement
-This is a nested child under `using-agents-stack`; its path is `using-agents-stack/evaluator-contract-review/`, and the router selects it before standalone use.
-
 ## Mission
-Stress-test the sprint proposal as if the implementation will fail in every ambiguous corner.
 
-Your job is to reject weak proposals early. Approval means the scope, boundaries, and verification plan are strong enough that execution can be judged without debate.
+Find **gaps** — things that must be true for the change to work that the proposal has not established.
 
-## Worker Dispatch Contract
+A gap is not a "maybe." A gap is: "the proposal says X but doesn't say what happens when Y, and Y will happen." Your output is a gap report. If the report is empty, the proposal is approved. If it contains any gap, the proposal goes back for revision.
 
-- Run contract review in a fresh worker context. The orchestrator dispatches a reviewer worker; it must not review by wearing this persona inline.
-- Only the orchestrator may spawn workers. This reviewer must not spawn another worker.
-- Tool lane: read/search/inspection only across proposal, status, and cited code areas. This reviewer should not have write tools; it returns approval or rejection artifacts for the orchestrator to persist into sprint-local files.
-- Copy `.harness/<workstream-id>/contract.md` from the canonical template at `references/templates/.harness/contract.md`. Fill placeholders; delete template comment blocks. Do not construct this file from memory.
-- Durable return contract: approved `contract.md` content or precise proposal-revision feedback, plus the corresponding `status.json` update payload. Include reviewer `worker_id` / `orchestrator_run_id` in the returned status metadata when the host provides them.
-- Dispatch framing is non-authoritative. Before deciding, verify that the dispatched feature still matches `docs/live/tracked-work.json`, that the claimed phase still matches the strongest local/live artifact on disk, and that stronger evidence in the `AGENTS.md` precedence chain beats any dispatch summary, stale resume hint, or copied orchestrator context.
-- If those checks disagree with the dispatch frame, stop before writing review artifacts, preserve the existing truthful files, and hand control back to the orchestrator for correct-lane dispatch.
+**You have one job: answer 10 questions. No severity labels. No classification tiers. No "caveats." Just gaps.**
 
-## Required Reads
-Read all of the following before deciding:
+---
 
-1. `AGENTS.md`
-2. `docs/live/tracked-work.json`
-3. `docs/live/current-focus.md` and `docs/live/roadmap.md`
-4. `docs/live/progress.md` and `docs/live/memory.md`
-5. Relevant `docs/reference/*`
-6. `.harness/<workstream-id>/sprint_proposal.md`
-7. `.harness/<workstream-id>/status.json`
-8. The real code and tests in the areas the proposal claims it will touch
+## The 10 Questions
 
-Do not review only the prose. Verify that the claimed file boundaries and acceptance steps match the actual repo.
+For each question, read the proposal. If you find a gap, describe it concretely. If you find none, write "no gap." Do not speculate. Do not invent gaps to prove you're thorough. A gap exists or it doesn't.
 
-## Expected Outputs
-If the host keeps reviewer workers read-only, return exact file payloads for these artifacts and let the orchestrator persist them without altering their substance.
+### Q1: What assumptions does this proposal make that aren't stated?
 
-### Approval path: `.harness/<workstream-id>/contract.md`
-Write an approved contract only when the proposal is execution-ready.
-The contract must include:
-- sprint id and objective
-- exact allowed files or narrowly bounded allowed directories
-- explicit forbidden files or forbidden subsystems
-- a `## Acceptance Criteria` section whose entries use stable `AC-###` ids and the canonical shape below
-```md
-- `AC-001` | stateful=no | reversible=no
-  - Requirement: ...
-  - Evidence: ...
-- `AC-002` | stateful=yes | reversible=yes
-  - Requirement: ...
-  - Evidence: ...
-  - Before state: ...
-  - Action: ...
-  - After state: ...
-  - Reverse check: ...
+Scan for things the proposal takes for granted: "the database has seed data," "the service is configured," "the caller is authenticated," "the file already exists."
+
+For each unstated assumption: what breaks if it's wrong?
+
+A proposal with zero unstated assumptions is rare. That's fine — what matters is that the critical ones are surfaced. An assumption about the Go runtime existing is trivial. An assumption about a specific env var being set in production is not.
+
+### Q2: What operations have no described failure handling?
+
+For every operation the proposal describes (function calls, API requests, database queries, file I/O, network calls): does the proposal say what happens when it fails?
+
+List every operation. For each: is the failure behavior described? If not, what's the most likely failure mode?
+
+A proposal that says "errors are handled appropriately" has not described failure handling. "Handled" is not a specification.
+
+### Q3: What external dependencies are called without describing the failure case?
+
+Special case of Q2, isolated because external failures are the most destructive and most often missed. External = databases, APIs, message queues, object storage, auth services, payment gateways — anything outside the changed component.
+
+For each external call: what happens when it's unreachable? When it times out? When it returns unexpected data? When it returns data in an unexpected format?
+
+### Q4: What data access paths are described without specifying authorization?
+
+For any path that reads or writes data that is not public: who is authorized? How is identity verified? What happens when identity is missing, expired, or unauthorized?
+
+A proposal that says "auth middleware handles it" without specifying which middleware, which scopes, and which error responses has a gap.
+
+### Q5: Are there any cross-module exchanges where the two sides disagree on format, semantics, or protocol?
+
+For every boundary crossing between modules, services, or languages: does the producer's output format match the consumer's expected input format? If one side encrypts, does the other side use the same algorithm? If one side serializes, does the other side use the same schema?
+
+This is the AES/XOR problem: each side is internally correct, they are mutually wrong.
+
+### Q6: Do any two statements in the proposal contradict each other?
+
+Scan for pairs of claims that cannot simultaneously be true. "Always returns a User struct" + "Returns null when user not found" (if User is not nullable). "Idempotent" + "Increments a counter." "No migration needed" + "Adds a NOT NULL column."
+
+### Q7: Can each acceptance criterion be verified from outside the author's head?
+
+For each AC: is there a concrete command, page, endpoint, selector, or data shape to inspect? Can a reviewer determine — without asking the author — whether the criterion is met?
+
+"Better UX" is not verifiable. "After deployment, `GET /users/123` returns 200 with `last_active` present and non-null" is verifiable.
+
+### Q8: What existing defense layers does this change pass through or bypass?
+
+Beyond authorization (Q4): rate limiting, audit logging, input sanitization, PII scanning, circuit breakers, timeouts, retry budgets. Does the change pass through these layers? Does it create a path that bypasses them? Does it assume they exist without verifying?
+
+A proposal that adds a new data access path without mentioning any defense layer has a gap — even if authorization is specified.
+
+### Q9: If multiple operations compose into one action, what happens when some succeed and some fail?
+
+When the proposal describes "do A, then B, then C" — are A, B, C atomic? If A succeeds and B fails, is the system in a consistent state? What cleans up A's effects?
+
+A proposal that describes a multi-step action without addressing partial failure has a gap.
+
+### Q10: Does the proposal align with the active roadmap and current focus?
+
+Does the proposal target the correct backlog item? Does it match the authorized initiative slice in `docs/live/roadmap.md`? Is there only one runnable sprint active?
+
+A proposal that solves a different problem than what the roadmap authorizes has a gap — regardless of how well-designed it is internally.
+
+---
+
+## Gap Report (review_trace.md)
+
+Output a gap report with this structure:
+
+```markdown
+## Review Trace — <sprint-id>
+Date: <date>
+
+### Q1 — Unstated Assumptions
+- **GAP**: The proposal assumes the `organizations` table already has a row for every user's `org_id`. What breaks: if an org is missing, the FK constraint rejects the insert. The proposal should either (a) add a NOT NULL check with a clear error, or (b) explicitly state this assumption and its risk.
+- **GAP**: The proposal assumes the `AUTH_SERVICE_URL` env var is configured. What breaks: the service won't start or will crash on first request.
+
+### Q2 — Missing Failure Handling
+- no gap
+
+### Q3 — External Dependency Failures
+- **GAP**: Calls `POST /payment/charge`. No failure handling described. Most likely failures: timeout (payment provider down), insufficient funds, invalid card. The proposal should specify what the caller receives in each case.
+
+...
 ```
-- concrete verification script or commands
-- open assumptions, ambiguous states, and reward-hack surfaces execution may rely on
-- clear non-goals and deferred work
-- enough structural fidelity that `templates/.agents/skills/using-agents-stack/scripts/validate_contract.py <workstream-id> --repo-root <repo-root>` would return `allow` before approval
-- a `## Task Decomposition` section whose structured JSON matches the canonical schema below (carried forward from the proposal, refined if needed during contract review):
-```json
-{
-  "tasks": [
-    {
-      "id": "<kebab-case-id>",
-      "symbols": [
-        {"name": "<SymbolName>", "kind": "function|method|type|interface",
-         "signature": "<full signature>", "file_hint": "<subdirectory>/"}
-      ],
-      "depends_on": ["<other-task-id>"],
-      "acceptance": ["<verifiable condition>"]
-    }
-  ]
-}
-```
-- verification that the task decomposition is parseable JSON, contains at least one task, has no circular dependencies, and every `depends_on` reference resolves to a declared task id
-- the contract must include this decomposition so `scripts/check_contract_symbols.py` can mechanically verify symbol existence after execution
-- for stateful or reversible behavior, the contract must require before/action/after evidence and reversal proof instead of static end-state prose
 
-Also update `status.json` so the sprint resumes from `contract.md` and the next owner is the orchestrator, which can dispatch a fresh `generator-execution` worker.
+Every gap entry must include: (1) what the gap is, (2) what breaks if unaddressed.
 
-### Rejection path: revision feedback
-If the proposal is not execution-ready, do not write `contract.md`.
-Instead record precise revision feedback in sprint-local state, preferably by replacing or appending a clearly labeled review section in `sprint_proposal.md`, and update `status.json` to show revision is required.
+If a question has no gaps, write "no gap." Do not leave it blank — blank is ambiguous.
 
-Feedback must be actionable, for example:
-- acceptance criterion `AC-003` is not observable because no selector or command is specified
-- proposal claims `src/app/**` is allowed, which is too broad for a one-sprint change
-- architecture introduces a new persistence layer but the scope hides migration work
-- the task decomposition contains a circular dependency (task B depends on task C, which depends on task B) or references unknown task ids
-- the task decomposition has symbol signatures that do not match the target language
-- the toggle requirement can be reward-hacked by rendering a hardcoded final state because the proposal never requires a before/action/after check
-- the proposal assumes seeded data already exists but never names that dependency or how review will detect the wrong starting state
-- the proposed contract shape would fail `validate_contract.py` because it omits stable acceptance IDs or criterion evidence fields
+---
 
-## Review Workflow
+## Verdict
 
-### 1. Verify the active sprint truth
-- Confirm there is only one runnable sprint.
-- Confirm the proposal matches the selected backlog item.
-- Confirm the proposal reflects the current repo, not an imagined future structure.
-- Confirm the proposal aligns with the durable source-goal and authorized initiative slice in `docs/live/roadmap.md` and `docs/live/current-focus.md`.
-- If the roadmap files and proposal disagree about what this sprint is for, reject and send the work back for proposal repair before any contract is approved.
+| Condition | Verdict |
+|-----------|---------|
+| Gap report is empty (all 10 questions → "no gap") | **APPROVE** → write `contract.md` |
+| Gap report has any gap | **REQUEST REVISION** → write `review_feedback.md` with the gap report, update `status.json` to `phase: "proposal_revision_required"` |
 
-### 2. Attack assumptions and reward-hack surfaces
-Reject if the proposal:
-- relies on hidden environment, data, caller, or repo-state assumptions that are not written down
-- leaves wording loose enough that contradictory states could both appear to satisfy the contract
-- never asks how the implementation could fake a pass or shortcut the required transition
-- skips plausible alternative directions when that choice changes the contract shape or the honest file boundary
+That's it. Two verdicts. No caveats, no partial approvals, no severity tiers. A proposal with gaps goes back. A proposal without gaps goes forward.
 
+---
 
-### 2b. Force global thinking check
+## Rules
 
-Before approving, the reviewer must answer the following system-level questions for the contract's task decomposition and record the answers in the contract's `## Assumptions` section:
+### All Gaps in One Pass
+List every gap you find. Do not hold gaps back for a second round. The revision loop exists for the proposer to fix gaps, not for you to discover them incrementally.
 
-- **Upstream failure**: For each task with upstream dependencies, what happens if upstream module X returns nil, an error, or unexpected input? The answer must name the specific fallback behavior (graceful degradation, explicit error propagation, default value with documented rationale), not "handle it" or "fail gracefully".
-- **Downstream consumption**: For each task, which downstream modules consume its outputs? Name the specific task ids and the symbol names they depend on.
-- **Failure blast radius**: If this module fails, which downstream modules are affected? Name the specific task ids that cannot proceed and describe the observable impact.
-- **Upstream assumptions**: What assumptions is each task making about upstream behavior — types, invariants, error modes, ordering? What breaks if those assumptions change?
+### Gap, Not Opinion
+A gap is "the proposal doesn't say what happens when X fails." An opinion is "I would design this differently." Do not report opinions as gaps. If the proposal specifies a design you disagree with but the design is complete (all 10 questions answered), there is no gap.
 
-If the proposal or contract cannot answer these questions, it is not execution-ready. Reject and require the proposer to add a `## Assumptions` section with explicit answers before re-submission.
+### Unknown Is a Gap
+If the proposal is too vague to determine whether a gap exists — that IS a gap. "The proposal doesn't describe the error path clearly enough to assess" is a valid gap entry for Q2.
 
-These answers become part of the contract's `## Assumptions` section so that `generator-execution` can reference them during implementation.
+### One Pass, Not Two
+You have one pass. Answer all 10 questions. Your output is the gap report. Do not iterate on your own review. If the proposal is revised and re-submitted, a fresh evaluator worker will review it.
 
-### 3. Attack the scope
-Reject if any of these are true:
-- more than one meaningful product increment is bundled together
-- the proposal quietly narrows the user's stated initiative into a different smaller project
-- the change spans unrelated subsystems without justification
-- the proposal's deferred-work section hides core parts of the same initiative instead of naming later roadmap slices
-- the proposal leaves follow-on sprints implicit instead of making them explicit in the roadmap
-- the proposal requires follow-on work before its own acceptance can be tested
-- "nice to have" items are mixed into required scope
+### Existing Code Is Evidence
+When answering Q3, Q4, Q5, Q8 — read the actual code the proposal claims to touch. Do not trust the proposal's description of existing behavior. Verify against the repo.
 
+---
 
-### 3b. Attack the task decomposition
-Reject if the task decomposition:
-- is missing entirely from the proposal
-- is not parseable JSON (malformed, truncated, or embedded in prose without a fenced block)
-- contains zero tasks
-- contains tasks without any declared symbols (every task must produce at least one observable symbol)
-- has circular dependencies (A depends on B, B depends on A)
-- references task ids in `depends_on` that do not exist in the decomposition
-- has symbols without signatures, or signatures that do not match the target language (e.g., Python `def` syntax in a Go project)
-- has tasks whose symbols span unrelated subsystems without justification
-- cannot be verified because `file_hint` paths do not exist in the repo
+## Quick Reference
 
-A valid task decomposition is the prerequisite for mechanical symbol verification. If it fails these structural checks, the contract cannot be approved.
-
-### 4. Attack the observability
-
-Reject if acceptance cannot be verified from outside the author's head.
-
-Common failures:
-- vague UX language with no interaction or visual checks
-- internal implementation claims substituted for user-visible outcomes
-- no stable `AC-###` id per acceptance criterion
-- no concrete command, page, selector, endpoint, fixture, viewport, or data shape to inspect
-- missing negative cases where failure modes matter
-- interactive or other stateful behavior defined only as a final static state instead of a before/action/after transition
-- a criterion that could pass via hardcoded mocks, static DOM, canned output, pre-seeded data, or a screenshot without exercising the real path
-- a criterion whose `stateful` / `reversible` flags contradict the evidence the reviewer would need
-
-For browser-visible work, require acceptance criteria that name:
-- the starting state the reviewer must see before acting
-- the route, page, or component
-- the action the reviewer performs
-- the expected after-state
-- the viewport or input mode when layout or accessibility matters
-- the selector or visible text that proves the state changed
-
-Consult the narrowest matching contract recipe before approval:
-- `references/frontend-ui-contract-recipe.md` for browser-visible UI work
-- `references/backend-api-contract-recipe.md` for API routes, auth boundaries, and backend-visible behavior
-- `references/integration-contract-recipe.md` for third-party APIs, callbacks, and other cross-system boundaries
-- `references/async-worker-contract-recipe.md` for jobs, queues, schedulers, and other background execution
-- `references/migration-contract-recipe.md` for schema or data transitions that must be proved across time
-
-If those details are missing, reject or send the proposal back for revision; do not infer them yourself.
-
-
-### 5. Attack the boundary honesty
-Reject if the proposal:
-- omits allowed-file boundaries
-- omits forbidden-file boundaries
-- hides architecture, dependency, schema, routing, or new roadmap-authorization work inside general wording
-- relies on touching generated, vendor, or unrelated files without justification
-- discovers late scope that belongs to a different roadmap slice but still tries to keep the current sprint runnable instead of pausing for re-authorization
-
-### 6. Attack resumability and retry honesty
-Reject if a future agent would be unable to continue from sprint-local files alone.
-The contract or revision feedback must make the next action obvious without chat history.
-
-If the proposal discusses retries, ensure it names a clean restore boundary such as a disposable worktree, VCS snapshot, or equivalent restore reference. Do not require unconditional destructive reset as the default recovery path.
-
-### 7. Write the outcome decisively
-- If approved, write `contract.md` as the canonical sprint boundary and update `status.json` to `phase: "contracted"` with `resume_from: "contract.md"`.
-- If rejected, leave no ambiguous maybe-state. Record the exact revision required and update `status.json` to a revision-needed phase that routes back to proposal work.
-
-## File Write Expectations
-- Approval writes `contract.md` and updates `status.json`.
-- Rejection updates existing sprint-local planning state; it does not create a fake approval artifact.
-- Do not write `handoff.md`, `review.md`, or archive artifacts in this phase.
-- Do not edit implementation files.
-
-## Mandatory Rejection Conditions
-You must reject the proposal when any of the following is true:
-- acceptance criteria are unverifiable
-- acceptance criteria can be reward-hacked by hardcoded static outcomes rather than real state transitions
-- hidden assumptions, contradictory states, or reward-hack surfaces remain implicit
-- file boundaries are missing, too broad, or dishonest
-- the sprint hides architecture changes, migrations, or dependency churn
-- scope exceeds one bounded sprint for the current contract
-- the task decomposition is missing, unparseable, has circular dependencies, or contains symbols without signatures
-- the proposal hides multi-sprint initiative scope or a required roadmap re-authorization boundary
-- required repo context is missing and the proposal papers over the gap
-- the proposal conflicts with `AGENTS.md`, `docs/live/current-focus.md`, `docs/live/roadmap.md`, global state, or reference docs
-
-## Quality Bar
-A good contract review:
-- is adversarial, not collaborative wishful thinking
-- attacks assumptions, ambiguity, and reward-hack paths before code exists
-- makes approval meaningful and rejection specific
-- protects the repo from scope creep before code exists
-- preserves a clean state transition: proposed -> contracted or proposed -> revision required
-- leaves the next responsible role obvious from files alone
-
-## Done Definition
-This skill is done when execution can begin against a real approved contract, or the proposal has been sent back with precise revision demands and no false appearance of approval.
+| Q | Question | What It Catches |
+|---|----------|----------------|
+| 1 | Unstated assumptions? | Implicit prerequisites that break if wrong |
+| 2 | Missing failure handling? | Happy-path-only proposals |
+| 3 | External dependency failures? | "Calls X" without "what if X is down" |
+| 4 | Authorization gaps? | New data paths with no access control |
+| 5 | Cross-module inconsistency? | AES/XOR, format mismatches |
+| 6 | Internal contradictions? | Claims that cancel each other |
+| 7 | Unverifiable ACs? | "Better UX" — no measurable outcome |
+| 8 | Defense layer gaps? | Missing rate limiting, audit, sanitization |
+| 9 | Partial failure? | Multi-step actions without atomicity |
+| 10 | Scope alignment? | Wrong backlog item, wrong initiative slice |

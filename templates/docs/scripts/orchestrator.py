@@ -20,7 +20,7 @@ DEFAULT_TIMEOUT_SECONDS = 15 * 60
 TERMINAL_PHASES = {"archived", "completed", "cancelled"}
 PARKED_PHASES = {"awaiting_human", "escalated_to_human"}
 PLANNING_PHASES = {"needs_brainstorm", "pending"}
-STALE_PHASES = {"in_progress", "in_review"}
+STALE_PHASES = {"in_progress", "in_review"}  # legacy: old status.json files only; current equivalents are "executing" and "review_recorded"
 RETRYABLE_PHASES = {"review_failed", "build_failed"}
 DEPENDENCY_SATISFIED_STATUSES = {"archived", "completed", "done", "passed"}
 ARTIFACT_FILES = (
@@ -177,7 +177,7 @@ def infer_timeout_resume_target(
     contract_path = sprint_dir / "contract.md"
     proposal_path = sprint_dir / "sprint_proposal.md"
 
-    if previous_phase == "in_review":
+    if previous_phase == "review_recorded":
         resume_from = "handoff.md" if handoff_path.exists() else "contract.md"
         return (
             resume_from,

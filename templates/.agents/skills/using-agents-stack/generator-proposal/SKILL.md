@@ -67,7 +67,7 @@ Read these before drafting:
 6. Relevant `docs/reference/*`
 7. Any linked `docs/records/*` for the selected feature when they contain durable rationale or prior decision residue
 8. The current code in every area you expect to touch
-9. Existing `.harness/<workstream-id>/` files if this is a revision
+9. Existing `.harness/<workstream-id>/` files if this is a revision, including `review_feedback.md` when resuming from `proposal_revision_required`
 
 Do not propose from backlog text alone. You must inspect the real code so the file boundaries and acceptance checks are believable.
 
@@ -76,6 +76,7 @@ Do not propose from backlog text alone. You must inspect the real code so the fi
 ### `.harness/<workstream-id>/sprint_proposal.md`
 A concrete proposal containing at minimum:
 - feature id and title
+- **risk tier** (`T1` / `T2` / `T3`) — determined by the deterministic CLI: `scripts/classify_proposal_tier.py .harness/<workstream-id>/sprint_proposal.md`. T1: cosmetic/docs/config only. T2: standard change. T3: schema, auth, or data integrity change.
 - problem statement in current-repo terms
 - objective for this sprint only
 - explicit in-scope work
@@ -147,7 +148,7 @@ If the sprint already has retry metadata such as `attempt_count`, `max_attempts`
 
 ### Optional live-state and record updates
 If the selected work came from a broad user goal, first make the source-goal lineage explicit in `docs/live/roadmap.md` and `docs/live/current-focus.md`.
-Reserve the feature in `docs/live/tracked-work.json` only after that lineage is durable and only if no other runnable item is already `in_progress`. Keep the feature's canonical `evidence_path` pointed at `.harness/<workstream-id>/` while proposal work is still local.
+Reserve the feature in `docs/live/tracked-work.json` only after that lineage is durable and only if no other runnable item is already active (check `docs/live/tracked-work.json` for `runnable_active_sprint_id`). Keep the feature's canonical `evidence_path` pointed at `.harness/<workstream-id>/` while proposal work is still local.
 Prefer the narrow control-plane helpers when the initializer has already seeded the live files and you know the required values: update `docs/live/roadmap.md` through `templates/docs/scripts/roadmap_ops.py`, refresh `docs/live/current-focus.md` through `templates/docs/scripts/render_current_focus.py`, then run `templates/docs/scripts/validate_live_control.py --repo-root <repo-root>` before reserving the sprint.
 If those files do not exist yet because the repo is still in minimal bootstrap, stop and route through `project-initializer` instead of inventing a second control-plane shape from proposal work.
 If the control files appear to drift from the committed bootstrap seeds rather than from current sprint truth, run `templates/docs/scripts/validate_bootstrap_alignment.py --repo-root <repo-root>` and hand control back to `project-initializer` instead of patching around the drift here.
@@ -175,6 +176,17 @@ If durable feature-linked discussion residue is too large or nuanced for `docs/l
 - Identify the smallest meaningful increment that can be implemented and reviewed in one sprint without discarding essential parts of the source goal.
 - If choosing that increment would hide core requested work, surface the missing work as later roadmap slices and only proceed if the current slice still stands on its own; do not shrink the goal to fit.
 - Split large or cross-cutting ideas into explicit later roadmap slices or re-authorization boundaries before proposing anything, and preserve the source-goal wording so the initiative itself is not rewritten into a smaller project.
+
+### 3b. Classify the proposal's risk tier
+After defining file boundaries and task decomposition, classify the proposal tier mechanically:
+
+```bash
+python scripts/classify_proposal_tier.py .harness/<workstream-id>/sprint_proposal.md
+```
+
+This returns the deterministic tier and the T3 signals that triggered it. Record the tier in `sprint_proposal.md` under `## Risk Tier`.
+- If the tier is `T3`, the self-attack (step 4) must be especially thorough — this change touches critical infrastructure.
+- If the tier is `T1`, you may note that the evaluator will use a lighter review, but do not skip the self-attack.
 
 ### 4. Attack the proposal before handoff
 Before this proposal can move to review, try to break it yourself.
@@ -287,6 +299,14 @@ The proposal must let an evaluator answer:
 - For interactive or other stateful behavior, what before/action/after checks prevent a hardcoded fake pass?
 - What must be deferred to later sprints?
 - Does the proposal stay inside the currently authorized roadmap slice, or does it require re-authorization first?
+
+### 8b. Handle revision feedback when resuming from rejection
+When `.harness/<workstream-id>/review_feedback.md` exists (phase is `proposal_revision_required`):
+- Read `review_feedback.md` and address every piece of feedback explicitly.
+- Update `sprint_proposal.md` to fix the issues raised — tighten scope, add missing AC details, clarify assumptions, fix the task decomposition, etc.
+- After all feedback is addressed, remove `review_feedback.md` (or rename it to `review_feedback.resolved.md` for audit trail).
+- Update `status.json`: set phase back to `"proposed"`. Do NOT reset `proposal_revision_count` — it is managed by the evaluator and must accumulate across revision cycles for escalation to work.
+- Do not skip feedback items or silently narrow the scope to avoid attack vectors — the reviewer will catch that on re-submission.
 
 ### 9. Set durable state for resume
 - Write or update `status.json` so the next agent can resume from `sprint_proposal.md`.

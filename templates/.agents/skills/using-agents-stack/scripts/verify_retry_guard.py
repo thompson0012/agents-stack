@@ -7,13 +7,11 @@ from pathlib import Path
 from typing import Any
 
 FAILED_PHASES = {"build_failed", "review_failed"}
-RUNNABLE_BACKLOG_STATUSES = {
-    "in_progress",
+RUNNABLE_PHASES: set[str] = {
     "proposed",
     "contracted",
     "executing",
     "awaiting_review",
-    "in_review",
     "build_failed",
     "review_failed",
 }
@@ -161,7 +159,7 @@ def main() -> int:
                 if (
                     isinstance(item_id, str)
                     and isinstance(status_value, str)
-                    and status_value in RUNNABLE_BACKLOG_STATUSES
+                    and status_value in RUNNABLE_PHASES
                 ):
                     runnable_backlog_ids.append(item_id)
             if backlog_entry is None:

@@ -38,12 +38,15 @@ CURRENT_FOCUS_CONTRACT_TRUTH = (
 )
 
 RUNNABLE_STATUSES = {
+    # Mirrors dispatch_phase.py RUNNABLE_PHASES — keep in sync.
     "build_failed",
     "contracted",
     "executing",
-    "in_progress",
-    "in_review",
+    "proposed",
+    "proposal_revision_required",
+    "review_recorded",
     "paused_by_timeout",
+    "awaiting_review",
     "review_failed",
 }
 PARKED_STATUSES = {"awaiting_human", "escalated_to_human"}

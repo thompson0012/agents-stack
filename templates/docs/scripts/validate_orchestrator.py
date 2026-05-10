@@ -53,12 +53,12 @@ def main() -> int:
 
     run_case(
         orchestrator,
-        previous_phase="in_review",
+        previous_phase="review_recorded",
         status={},
         files=["handoff.md"],
         expected_artifact="handoff.md",
         expected_phase="adversarial-live-review",
-        name="in_review",
+        name="review_recorded",
     )
     run_case(
         orchestrator,

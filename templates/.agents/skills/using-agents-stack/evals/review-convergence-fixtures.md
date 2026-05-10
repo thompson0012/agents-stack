@@ -77,7 +77,7 @@ fixtures:
       - .harness/WORKSTREAM-008/status.json
     required_fields:
       tracked-work.json.runnable_active_sprint_id: WORKSTREAM-008
-      tracked-work.json.backlog[FEATURE-008].status: in_review
+      tracked-work.json.backlog[FEATURE-008].status: awaiting_review
       status.json.phase: review_recorded
       review.md.status: PASS
       review.md.coverage_metadata.criteria_total: 5
@@ -124,7 +124,7 @@ fixtures:
       - .harness/WORKSTREAM-009/status.json
     required_fields:
       tracked-work.json.runnable_active_sprint_id: WORKSTREAM-009
-      tracked-work.json.backlog[FEATURE-009].status: in_review
+      tracked-work.json.backlog[FEATURE-009].status: awaiting_review
       status.json.phase: review_recorded
       review.md.status: PASS
       review.md.coverage_metadata.criteria_total: 3
@@ -167,7 +167,7 @@ fixtures:
       - .harness/WORKSTREAM-010/status.json
     required_fields:
       tracked-work.json.runnable_active_sprint_id: WORKSTREAM-010
-      tracked-work.json.backlog[FEATURE-010].status: in_review
+      tracked-work.json.backlog[FEATURE-010].status: awaiting_review
       status.json.phase: review_recorded
       review.md.status: PASS
     invariants:

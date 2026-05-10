@@ -13,17 +13,18 @@ TERMINAL_PHASES = {"archived", "completed", "cancelled"}
 PARKED_PHASES = {"awaiting_human", "escalated_to_human"}
 PLANNING_LOCAL_PHASES = {"needs_brainstorm", "pending"}
 FAILED_PHASES = {"build_failed", "review_failed"}
-RUNNABLE_BACKLOG_STATUSES = {
-    "in_progress",
+RUNNABLE_PHASES: set[str] = {
     "proposed",
+    "proposal_revision_required",
     "contracted",
     "executing",
     "awaiting_review",
-    "in_review",
+    "review_recorded",
     "build_failed",
     "review_failed",
     "paused_by_timeout",
 }
+
 DEPENDENCY_SATISFIED_STATUSES = {"archived", "completed", "done", "passed"}
 ARTIFACT_PRECEDENCE = (
     "review.md",
@@ -243,7 +244,8 @@ def select_next_feature(
 
 
 def is_runnable_phase(phase: str) -> bool:
-    return bool(phase) and phase not in TERMINAL_PHASES and phase not in PARKED_PHASES and phase not in PLANNING_LOCAL_PHASES
+    """Return True when the phase corresponds to an active sprint that a worker can own."""
+    return phase in RUNNABLE_PHASES
 
 
 def strongest_artifact(sprint_dir: Path) -> str | None:
@@ -346,7 +348,7 @@ def runnable_backlog_ids(backlog: list[dict[str, Any]]) -> tuple[list[str], list
             errors.append(f"missing_backlog_id_{ordinal}")
             continue
         status = item.get("status")
-        if isinstance(status, str) and status.strip() in RUNNABLE_BACKLOG_STATUSES:
+        if isinstance(status, str) and status.strip() in RUNNABLE_PHASES:
             ids.append(item_id.strip())
     return ids, errors
 
@@ -627,6 +629,30 @@ def dispatch_active_sprint(
         )
 
     if artifact == "sprint_proposal.md":
+        # If the proposal was rejected and needs revision, route to generator-proposal first.
+        # The evaluator sets phase=proposal_revision_required on rejection; the proposal worker
+        # must apply the revision feedback before re-submission to contract review.
+        if phase == "proposal_revision_required":
+            status = entry["status"]
+            proposal_revision_count = status.get("proposal_revision_count", 0)
+            max_proposal_revisions = status.get("max_proposal_revisions", 3)
+            if proposal_revision_count >= max_proposal_revisions:
+                return route(
+                    "state-update",
+                    reason_codes=["proposal_revision_attempts_exhausted"],
+                    feature_id=feature_id,
+                    workstream_id=sprint_id,
+                    resume_from="sprint_proposal.md",
+                    evidence_path=evidence_path,
+                )
+            return route(
+                "generator-proposal",
+                reason_codes=["proposal_needs_revision"],
+                feature_id=feature_id,
+                workstream_id=sprint_id,
+                resume_from="sprint_proposal.md",
+                evidence_path=evidence_path,
+            )
         return route(
             "evaluator-contract-review",
             reason_codes=["strongest_artifact_proposal"],

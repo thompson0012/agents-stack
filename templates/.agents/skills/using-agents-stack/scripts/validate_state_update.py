@@ -19,7 +19,7 @@ from validation_common import (
     split_sections,
 )
 
-REVIEW_PHASES = {"reviewed_pass", "reviewed_fail", "reviewed_blocked", "review_failed"}
+REVIEW_PHASES = {"review_recorded", "review_failed"}
 
 
 

@@ -21,7 +21,7 @@ outputs:
 boundaries:
   - Do not invent completed work, fake backlog history, archived sprints, or synthetic record pages.
   - Do not start implementation or open an active sprint folder.
-  - Do not mark any feature `in_progress` unless the human explicitly selected it.
+  - Do not set `runnable_active_sprint_id` unless the human explicitly selected it. Reserve a feature as the active sprint only when the human has chosen it and the repo is fully initialized.
 next_skills:
   - generator-proposal
 ---

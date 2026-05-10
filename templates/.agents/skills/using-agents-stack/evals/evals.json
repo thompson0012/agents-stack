@@ -158,7 +158,7 @@
         "evidence_path": ".harness/WORKSTREAM-010/handoff.md"
       },
       "files": [
-        "docs/live/tracked-work.json: runnable_active_sprint_id = WORKSTREAM-010; single_runnable_active_sprint = true; backlog entry FEATURE-010 has sprint_id WORKSTREAM-010 and status in_review.",
+        "docs/live/tracked-work.json: runnable_active_sprint_id = WORKSTREAM-010; single_runnable_active_sprint = true; backlog entry FEATURE-010 has sprint_id WORKSTREAM-010 and status awaiting_review.",
         ".harness/WORKSTREAM-010/contract.md: present.",
         ".harness/WORKSTREAM-010/runtime.md: present and build/startup checkpoint recorded.",
         ".harness/WORKSTREAM-010/handoff.md: present.",
@@ -351,10 +351,10 @@
         "evidence_path": ".harness/WORKSTREAM-018/review.md"
       },
       "files": [
-        "docs/live/tracked-work.json: runnable_active_sprint_id = WORKSTREAM-018; single_runnable_active_sprint = true; backlog entry FEATURE-018 has sprint_id WORKSTREAM-018 and status in_review.",
+        "docs/live/tracked-work.json: runnable_active_sprint_id = WORKSTREAM-018; single_runnable_active_sprint = true; backlog entry FEATURE-018 has sprint_id WORKSTREAM-018 and status awaiting_review.",
         ".harness/WORKSTREAM-018/handoff.md: present with truthful execution evidence.",
         ".harness/WORKSTREAM-018/review.md: PASS verdict recorded with coverage metadata and convergence notes.",
-        ".harness/WORKSTREAM-018/status.json: phase = in_review."
+        ".harness/WORKSTREAM-018/status.json: phase = awaiting_review."
       ]
     }
   ]

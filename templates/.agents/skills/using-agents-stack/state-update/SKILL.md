@@ -92,6 +92,16 @@ If `status.json` says `build_failed`, `awaiting_human`, or `escalated_to_human`,
 
 If the required evidence for the claimed phase is missing, stop. Do not mark the sprint complete, do not archive it, and do not advance the backlog. Missing evidence is a data-integrity problem.
 
+### Proposal-triage outcomes
+If `status.json` says `proposal_revision_required` and the reason code is `proposal_revision_attempts_exhausted`, or if the evaluator already escalated to `escalated_to_human` at the proposal level, confirm:
+1. `.harness/<sprint-id>/sprint_proposal.md` exists.
+2. `.harness/<sprint-id>/review_feedback.md` exists (rejection feedback that could not be resolved).
+3. `status.json` includes `proposal_revision_count` and `max_proposal_revisions`.
+4. The escalation reason is explicit — what prevented successful revision.
+5. The sprint matches the backlog item recorded in `docs/live/tracked-work.json`.
+
+If confirmed, park the sprint as `escalated_to_human`. Do NOT require `runtime.md` or `handoff.md` — those artifacts only exist after execution, not at the proposal stage.
+
 ## Sources of truth by decision type
 
 - `review.md` decides PASS vs FAIL vs BLOCKED.

@@ -105,12 +105,13 @@ Identify whether the decisive evidence lives in `.harness/<workstream-id>/` or `
 
 Use the strongest available artifacts in this order:
 1. `review.md` (especially the `Recurring Pattern Analysis` section when present)
-2. `runtime.md` (especially the `Recurring Mistakes / Retry Patterns` section when present)
-3. `handoff.md`
-4. `status.json`
-5. `contract.md`
-6. `sprint_proposal.md`
-7. the already-published outcome in `docs/live/progress.md`
+2. `review_feedback.md` (when proposal-level rejections carry cross-sprint scoping lessons)
+3. `runtime.md` (especially the `Recurring Mistakes / Retry Patterns` section when present)
+4. `handoff.md`
+5. `status.json`
+6. `contract.md`
+7. `sprint_proposal.md`
+8. the already-published outcome in `docs/live/progress.md`
 
 A pattern documented across multiple attempts in `runtime.md` and confirmed in `review.md` is the strongest signal for durable cross-sprint learning — it is supported by artifact evidence at both the execution and review layers.
 
