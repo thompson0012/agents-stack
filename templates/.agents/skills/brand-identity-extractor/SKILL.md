@@ -30,7 +30,7 @@ Scan existing project documents for brand inputs before asking the user anything
 
 Check in order:
 1. `docs/reference/design.md`     → product intent, behavior, brand direction
-2. `docs/live/memory.md`          → durable decisions, brand notes
+2. `docs/insights/session-log.md`          → durable decisions, brand notes
 3. `docs/` or product/ folders    → roadmap docs, vision docs, brand briefs
 4. `README.md`                    → project purpose, audience
 

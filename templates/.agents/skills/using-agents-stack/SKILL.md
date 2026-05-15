@@ -41,11 +41,16 @@ Read durable state, decide the next phase, dispatch a fresh worker. Workers run 
 
 ### Post-audit routing
 
-- PASS + no deeper insight → archive (update tracked-work.json + plan.md directly)
+- PASS + no deeper insight → route `extract`
 - PASS + deeper insight → spiral turn: `depth++`, reset layer/phase to thesis
 - FAIL + `attempt < max_attempts` + clean restore → route `build` (retry)
 - FAIL + `attempt >= max_attempts` → `escalated_to_human`
 - BLOCKED → `awaiting_human`
+
+### Post-extract routing
+
+After extract completes:
+- `extract.md` exists → archive (update tracked-work.json + plan.md directly)
 
 ### Budget exhaustion
 
@@ -65,6 +70,7 @@ Provide worker with: child SKILL.md path, workstream ID, artifact paths to read/
 - `Route to contract.`
 - `Route to build.`
 - `Route to audit.`
+- `Route to extract.`
 - `No family child fits; answer directly.`
 - `Awaiting human input.`
 - `Escalated to human.`

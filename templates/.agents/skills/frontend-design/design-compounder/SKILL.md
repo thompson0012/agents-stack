@@ -16,8 +16,8 @@ Compounding is explicit and non-runnable. It does not reopen any phase. It does 
 
 - Run in a fresh worker context after `state-update`. Do not fold compounding into state reconciliation.
 - Only the orchestrator may spawn workers. This worker must not spawn another worker.
-- Tool lane: read sprint evidence, write `docs/live/memory.md` only when durable residue survives with provenance, optionally patch `docs/reference/design.md` and scoped `docs/records/*`, and clear the queue entry in `docs/live/tracked-work.json`. No product-code edits, no `.harness/*/status.json` rewrites, no archive moves.
-- Not parallel-safe against another worker touching `docs/live/memory.md` or `docs/reference/design.md`. Process one queued feature at a time.
+- Tool lane: read sprint evidence, write `docs/insights/session-log.md` only when durable residue survives with provenance, optionally patch `docs/reference/design.md` and scoped `docs/records/*`, and clear the queue entry in `docs/live/tracked-work.json`. No product-code edits, no `.harness/*/status.json` rewrites, no archive moves.
+- Not parallel-safe against another worker touching `docs/insights/session-log.md` or `docs/reference/design.md`. Process one queued feature at a time.
 - Dispatch framing is non-authoritative. Verify the queued feature against `docs/live/tracked-work.json` before writing.
 
 ## Required Reads
@@ -25,7 +25,7 @@ Compounding is explicit and non-runnable. It does not reopen any phase. It does 
 Before writing anything:
 1. `AGENTS.md`
 2. `docs/live/tracked-work.json` — confirm the feature is in `compound_pending_feature_ids`
-3. `docs/live/memory.md` — current durable learning baseline
+3. `docs/insights/session-log.md` — current durable learning baseline
 4. `docs/reference/design.md` — current stable reference
 5. Sprint decisive evidence: `review.md`, `handoff.md`, `context.md`, `contract.md`
 
@@ -60,17 +60,17 @@ Extract only lessons that meet all three criteria:
 
 ## Decision: Extract or Skip
 
-Before writing `memory.md`, decide explicitly:
+Before writing `docs/insights/session-log.md`, decide explicitly:
 
 **Extract** when: at least one lesson qualifies under all three criteria above.
 
-**Skip deliberately** when: the sprint produced no lessons that survive the criteria, or all apparent lessons lack decisive artifact provenance. Record the skip decision in `memory.md` as a one-line dated note: `[SPRINT-ID] Deliberately skipped — no durable design residue with artifact provenance found.`
+**Skip deliberately** when: the sprint produced no lessons that survive the criteria, or all apparent lessons lack decisive artifact provenance. Record the skip decision in `docs/insights/session-log.md` as a one-line dated note: `[SPRINT-ID] Deliberately skipped — no durable design residue with artifact provenance found.`
 
 Skipping is not a failure. Silently inventing lessons is.
 
-## memory.md Entry Format
+## docs/insights/session-log.md Entry Format
 
-Append to `docs/live/memory.md`. Do not overwrite existing entries.
+Append to `docs/insights/session-log.md`. Do not overwrite existing entries.
 
 ```md
 ## [SPRINT-ID] <short lesson title> — <ISO date>
@@ -102,11 +102,11 @@ When updating `docs/reference/design.md`, make a precise addition or edit — do
 ## docs/records/* Scoped Page
 
 Create a scoped record page only when:
-- Durable discussion residue is too detailed for a `memory.md` entry
+- Durable discussion residue is too detailed for a `docs/insights/session-log.md` entry
 - The content is not stable enough for `docs/reference/design.md`
 - The feature already exists in `docs/live/tracked-work.json` with a `record_paths` field
 
-Register the path in the feature's `record_paths` in `tracked-work.json`. Do not create a record as a substitute for `memory.md` or as a second archive.
+Register the path in the feature's `record_paths` in `tracked-work.json`. Do not create a record as a substitute for `docs/insights/session-log.md` or as a second archive.
 
 ## Queue Clearance
 
@@ -116,6 +116,6 @@ After writing (or deliberately skipping), remove the feature id from `compound_p
 
 This phase is complete when:
 - The queue entry is cleared from `compound_pending_feature_ids`
-- `docs/live/memory.md` either has new entries with artifact-linked provenance, or records a dated deliberate-skip note
+- `docs/insights/session-log.md` either has new entries with artifact-linked provenance, or records a dated deliberate-skip note
 - Any `docs/reference/design.md` update is a precise, stable-truth addition
 - No phase is reopened, no runnable sprint slot is claimed

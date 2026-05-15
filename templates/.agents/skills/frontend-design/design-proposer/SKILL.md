@@ -26,7 +26,7 @@ Before writing anything:
 2. `.harness/<sprint-id>/context.md` — the full design vocabulary inventory
 3. `docs/live/tracked-work.json` — confirm this sprint is the single proposed feature
 4. `docs/live/ideas.md` — carry forward only signals that narrow scope
-5. `docs/live/memory.md` — prior design decisions that apply
+5. `docs/insights/session-log.md` — prior design decisions that apply
 
 ## Proposal Inputs to Collect
 

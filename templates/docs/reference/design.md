@@ -2,7 +2,7 @@
 
 Current stable truth for product intent, visual system, interaction model, and design constraints.
 
-Updated only when a lesson becomes broadly current truth. For sprint-level observations, use `docs/live/memory.md` or `docs/records/*` instead.
+Updated only when a lesson becomes broadly current truth. For sprint-level observations, use `docs/insights/session-log.md` or `docs/records/*` instead.
 
 ---
 

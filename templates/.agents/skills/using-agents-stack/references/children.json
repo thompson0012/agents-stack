@@ -49,6 +49,13 @@
       "summary": "Independently reproduce and verify the build against the contract. Generator ≠ Auditor.",
       "route_when": ["Handoff.md exists without audit.md"],
       "avoid_when": ["Audit already exists and needs outcome evaluation"]
+    },
+    {
+      "name": "extract",
+      "target": "using-agents-stack/extract",
+      "summary": "Read completed workstream artifacts, propose session-retro to capture conversation-level lessons, then archive. Does not write directly to session-log.md.",
+      "route_when": ["Audit PASS with no deeper insight"],
+      "avoid_when": ["Extract already exists and needs archive", "Audit didn't pass"]
     }
   ]
 }

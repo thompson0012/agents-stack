@@ -37,7 +37,7 @@ Scout in this order. Stop and record what was found at each level before continu
 Check in order:
 0. docs/reference/design.md           → brand identity + visual universe + design tokens + component specs + prompt methodology (BIE canonical output)
 1. docs/reference/architecture.md     → tech stack, rendering targets, constraints
-2. docs/live/memory.md                → prior design decisions with provenance
+2. docs/insights/session-log.md                → prior design decisions with provenance
 3. docs/live/ideas.md                 → any design-related brainstorm notes
 4. README.md                          → project purpose, audience, screenshot links
 ```

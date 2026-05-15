@@ -1,50 +1,56 @@
 ---
 name: session-retro
-description: Use when a session is ending — audits the session against agentic-engineering principles, extracts patterns and insights with causal power over future decisions, writes them to the persistent insights log. Trigger via /retro or auto-propose on closure signals.
-version: 0.1.0
+description: Use when a session is ending — audits the orchestrator-human conversation against agentic-engineering principles, extracts patterns and insights with causal power over future decisions. Trigger via /retro, extract proposal, or orchestrator closure signals.
+version: 0.2.0
 ---
 
 # Session Retro
 
-Closing ritual. Run near session end. Delegates audit work to @oracle.
+Closing ritual. Focuses on what the orchestrator-human collaboration taught us. Has write capability — Tier 2 promotes accumulated insights to `docs/reference/` and `docs/records/`.
+
+**Data source**: the conversation itself (decisions, delegation patterns, tool usage).
+**Contrast with extract**: extract reads `.harness/<ID>/` workstream artifacts. session-retro reads the conversation. They share the same session-log.md but capture complementary perspectives.
 
 ## Goals
 
 Two-tier design:
 
-| Tier | Level | Trigger | Purpose |
-|------|-------|---------|---------|
-| 1 | Per-session | `/retro` or end-of-session signals | Extract what from this session would change future behavior |
-| 2 | Cross-session | Every 5 entries in session-log (or manual request) | Find patterns across sessions — recurring pitfalls, stable decisions, emergent principles |
+| Tier | Level | Trigger | Data source | Purpose |
+|------|-------|---------|-------------|---------|
+| 1 | Per-session | `/retro`, orchestrator closure signals, or extract proposal | Conversation context | What did this collaboration session teach us? |
+| 2 | Cross-session | Human types `/retro --consolidate` | Accumulated session-log entries | Scan and promote stable patterns to reference/records |
 
-Tier 1 answers: **what did this session teach us?**
-Tier 2 answers: **what have the last N sessions been teaching us repeatedly that we still haven't absorbed?**
+Tier 1 answers: **what did we learn about how we work together?**
+Tier 2 answers: **what patterns are stable enough to become project truth?**
 
 ## Trigger Rules
 
 ### Manual
+User types `/retro` → run Tier 1.
+User types `/retro --consolidate` → run Tier 2.
 
-User types `/retro` at any time. Run immediately.
+### From extract
+After extract Tier 1 completes, orchestrator asks: "Workstream extracted. Run session retro to capture conversation-level lessons?" If user says yes → run session-retro Tier 1 with extract's workstream context.
 
-### Auto-propose
-
-Orchestrator proposes a retro when **two or more** of these signals are present:
-
-- Last 2+ turns were verification / validation / "done" style exchanges
-- User said "好了" / "就這樣" / "沒了" / "ok" / "done" or equivalent closure phrase
-- Multiple files were changed and no new work is queued
+### From orchestrator (auto-propose)
+Two or more signals present:
+- Last 2+ turns were verification / "done" style exchanges
+- User said "好了" / "就這樣" / "沒了" / "ok" / "done"
+- Multiple files changed and no new work queued
 - A `verification-before-completion` pass just completed
 
-When auto-proposing: ask "Run session retro?" — one line, no preamble. If user says yes, execute. If no, drop it.
+Ask "Run session retro?" — one line. If yes → run Tier 1. If no → drop.
 
-## Output Format
+## Output Format — Tier 1
 
-Write to `.agents/insights/session-log.md`. Cumulative file — append a dated entry, do not create new files.
-
-Each entry:
+Write to `docs/insights/session-log.md`. Each entry:
 
 ```markdown
-## YYYY-MM-DD · session summary (≤8 words)
+---
+origin: <session-id-or-auto>
+date: <ISO-date>
+source: session-retro
+---
 
 ### Decisions (why, not what)
 - Reason we chose A over B. Tradeoffs considered.
@@ -65,7 +71,7 @@ Each entry:
 - Semantic changes to public API. What was added, deprecated, removed.
 ```
 
-Omit any section with nothing to record. Never pad.
+Omit empty sections. Never pad.
 
 ## Execution Flow
 
@@ -77,33 +83,32 @@ Omit any section with nothing to record. Never pad.
    - Files changed (paths only, not content)
    - Notable discussion themes
    - Any known regrets or second-guesses
-3. **Orchestrator** delegates to @oracle with:
-    - The context packet above
-    - Instruction: audit against the 16 principles in `.agents/skills/agentic-engineering-principles/references/principle-details.md` and the anti-patterns in `.agents/skills/agentic-engineering-principles/references/anti-patterns.md`
-    - Instruction: apply the filtering rule — only record what would change future behavior
-   - Instruction: return the six-section output, omitting empty sections
-4. **@oracle** audits, returns the structured verdict.
-5. **Orchestrator** appends the verdict to `.agents/insights/session-log.md`.
-6. **Orchestrator** reports one-line summary to user: "Retro done. N items recorded."
-7. **Orchestrator** checks entry count: if count % 5 == 0, ask user: "5 sessions recorded. Run cross-session retro to find patterns?"
+   - If triggered by extract: include workstream ID and key findings from extract Tier 1
+3. **Orchestrator** delegates to @oracle with the context packet + filtering rule.
+4. **@oracle** audits, returns structured verdict.
+5. **Orchestrator** appends to `docs/insights/session-log.md`.
+6. **Orchestrator** reports: "Retro done. N items recorded."
+7. **Orchestrator** checks entry count: if count % 5 == 0, suggest: "N sessions recorded. Run `/retro --consolidate` to promote patterns?"
 
-### Tier 2 — Cross-session synthesis
+### Tier 2 — Cross-session consolidation
 
-Triggered manually (`/retro --cross`) or automatically every 5 entries.
+Human-triggered only (`/retro --consolidate`). Not auto-proposed without human confirmation.
 
-1. **Orchestrator** reads all entries from `.agents/insights/session-log.md`.
-2. **Orchestrator** delegates to @oracle with:
-   - All session entries (minus any empty sections)
-   - Instruction: find patterns across sessions — what decisions keep being made the same way? what pitfalls keep appearing? what principles are chronically violated?
-   - Instruction: return a cross-session synthesis with:
-     - **Emerging patterns** — heuristics that surfaced repeatedly across sessions
-     - **Chronic violations** — principles that keep being broken and why
-     - **Stable decisions** — decisions made consistently across sessions (these can now become convention)
-     - **Recommended updates** — what should change in the constitution, skills, or orchestrator prompt based on accumulated evidence
-3. **@oracle** returns the synthesis.
-4. **Orchestrator** appends the synthesis to `.agents/insights/session-log.md` as a special `## Cross-session` entry.
-5. **Orchestrator** reports to user: "Cross-session retro done. X patterns found, Y chronic violations."
-6. If the synthesis identifies skill or constitution gaps, **orchestrator** suggests concrete follow-up work.
+1. **Orchestrator** reads all entries from `docs/insights/session-log.md`.
+2. **Orchestrator** delegates to @oracle with all entries.
+3. **@oracle** returns a consolidation plan:
+   - **Emerging patterns** — heuristics surfaced repeatedly across sessions
+   - **Chronic violations** — principles that keep being broken
+   - **Stable decisions** — decisions made consistently (candidates for reference/records)
+   - **Recommended promotions** — which patterns are stable enough for `docs/reference/` or `docs/records/`, with target path and rationale
+4. **Orchestrator** presents the plan to the user:
+   - For each promotion candidate: explain why it's stable, where it would go, and what it would change
+   - Let user decide which promotions to execute
+5. **User reviews and approves/rejects** each promotion.
+6. For approved promotions:
+   - Write to `docs/reference/` or `docs/records/`
+   - Append a consolidation summary entry to `docs/insights/session-log.md` listing what was promoted and where
+7. **Orchestrator** reports: "Consolidation done. X items promoted."
 
 ## Filtering Rule
 
@@ -119,18 +124,15 @@ Before writing any item, ask: **"Would a future session make a different decisio
 
 ## Constitution Reference
 
-This skill audits against:
-
+Audits against:
 - **16 principles**: `.agents/skills/agentic-engineering-principles/references/principle-details.md`
 - **Anti-patterns**: `.agents/skills/agentic-engineering-principles/references/anti-patterns.md`
-
-Refer to those files directly; do not duplicate them here.
 
 ## Failure Modes
 
 - **Recording everything.** If every session gets an entry, the log becomes noise. Skip sessions where nothing meets the filter.
 - **Vague patterns.** "Test more" is useless. "When mock returns dict not model, mypy won't catch it — validate with isinstance at boundary" is useful.
-- **Oracle without context.** If the context packet is too thin, oracle invents violations. Give it the minimum it needs to audit honestly.
-- **Forgetting to propose.** Orchestrator must check trigger signals before its final "done" message. The last chance is the verification phase.
-- **Cross-session too early.** Running Tier 2 with only 1-2 entries has nothing to synthesize. The 5-entry threshold is a minimum; if entries are sparse, the orchestrator should skip the auto-proposal.
-- **Cross-session too late.** Beyond 10 entries without a synthesis, earlier lessons are forgotten and trends ossify. The orchestrator should become more assertive about proposing after 8+ entries.
+- **Oracle without context.** If the context packet is too thin, oracle invents violations.
+- **Forgetting to propose.** Orchestrator must check trigger signals before final "done" message.
+- **Cross-session too early.** Running Tier 2 with 1-2 entries has nothing to synthesize. Minimum 5 entries.
+- **Tier 2 without human.** Tier 2 promotes to reference/records — only the human can judge what's stable enough. Never auto-execute promotions.
