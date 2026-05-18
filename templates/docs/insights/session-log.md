@@ -1,3 +1,3 @@
 # Session Insights Log
 
-Cumulative log of per-session retros and cross-session pattern findings.
+Per-session retro entries. Written by session-retro Tier 1 and extract.
