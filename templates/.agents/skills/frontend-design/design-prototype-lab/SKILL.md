@@ -31,22 +31,52 @@ Before writing any test fixtures:
 
 If any check fails, stop with the reason recorded in a new finding and set `phase: "awaiting_human"`. Do not skip levels.
 
-## Progressive Validation Pipeline
+## Skeleton-Based Token Injection
+
+All three validation levels use pre-built skeleton HTML templates located in `references/`. The AI does **not** build HTML from scratch — it loads the skeleton and injects design tokens from `context.md`.
+
+### Token Injection Workflow
+
+```
+1. Read references/<skeleton>.html
+2. Read context.md → Token Inventory section
+3. For each /*TOKEN:xxx*/ placeholder in the skeleton:
+   → Find the matching token in context.md (by semantic name, not literal string)
+   → Replace placeholder with the actual CSS value (hex, px, font name, etc.)
+4. If a token is not found in context.md:
+   → Leave /*TOKEN:xxx — NOT FOUND*/ as a visible marker for manual review
+5. Save the filled HTML to .harness/<sprint-id>/artifact/<filename>.html
+6. Add @font-face or <link> for web fonts if context.md specifies external font sources
+```
+
+### Skeleton Templates
+
+| Skeleton | Source | Output |
+|---|---|---|
+| Token Lab | `references/token-lab-skeleton.html` | `artifact/token-lab.html` |
+| Component Theater | `references/component-theater-skeleton.html` | `artifact/component-theater.html` |
+| Page Slice | `references/page-slice-skeleton.html` | `artifact/page-slice.html` |
+
+Skeletons contain only structural HTML + the `:root` CSS block with `/*TOKEN:xxx*/` placeholders. They have **no decorative styling** — all visual identity comes from injected tokens.
+
+### Progressive Validation Pipeline
 
 ### Level 1: Token Lab
 
 **Purpose**: Validate that the color palette, type scale, spacing, and shadows from `context.md` render correctly in a real browser.
 
 **Procedure**:
-1. Create a simple HTML file at `.harness/<sprint-id>/artifact/token-lab.html`.
-2. The HTML must display:
-   - Full color palette side-by-side (light mode + dark mode toggle)
+1. Load `references/token-lab-skeleton.html`.
+2. Inject tokens from `context.md` into all `/*TOKEN:xxx*/` placeholders in the `:root` block.
+3. Save the filled file to `.harness/<sprint-id>/artifact/token-lab.html`.
+4. The skeleton pre-builds these displays (all driven by injected tokens):
+   - Full color palette side-by-side (primary, neutral, semantic — light mode + dark mode toggle)
    - Type scale specimen (all headings + body + caption, in both English and, if applicable, Chinese)
-   - Spacing rhythm display (8px-based grid overlay)
+   - Spacing rhythm display (visual bars at each spacing scale step)
    - Shadow/elevation showcase (all shadow levels applied to sample cards)
    - Border radius showcase (all radius values applied to sample boxes)
-3. Test on at least 2 real devices or browsers.
-4. Record findings in `token-validation.md`:
+5. Test on at least 2 real devices or browsers.
+6. Record findings in `token-validation.md`:
    - Any color that renders differently than expected
    - Any font that fails to load or renders poorly
    - Any spacing that feels off
@@ -59,11 +89,12 @@ If any check fails, stop with the reason recorded in a new finding and set `phas
 **Purpose**: Verify that key components render correctly with all five interaction states.
 
 **Procedure**:
-1. Create `.harness/<sprint-id>/artifact/component-theater.html`.
-2. For each component in the contract's state matrix:
-   - Render Default, Hover, Active/Pressed, Focus (keyboard), and Disabled states
-   - Add toggle buttons to activate each state for visual review
-3. Record findings in `component-tests.md`:
+1. Load `references/component-theater-skeleton.html`.
+2. Inject tokens from `context.md` into all `/*TOKEN:xxx*/` placeholders.
+3. The skeleton comes pre-built with 4 preset components (Button, Input Field, Card, Modal/Dialog) with state toggle UI. For each additional component in the contract's state matrix, copy the section pattern and add component markup.
+4. For each component, the skeleton provides radio-button toggles for: Default, Hover, Active/Pressed, Focus (keyboard), and Disabled states.
+5. Save the filled file to `.harness/<sprint-id>/artifact/component-theater.html`.
+6. Record findings in `component-tests.md`:
    - Per-component pass/fail with evidence
    - Any missing state
    - Any visual inconsistency between components
@@ -74,15 +105,18 @@ If any check fails, stop with the reason recorded in a new finding and set `phas
 **Purpose**: Test one representative section/page with real-world content stress.
 
 **Procedure**:
-1. Create `.harness/<sprint-id>/artifact/page-slice.html`.
-2. Implement one representative screen or section from the contract using actual tokens and components.
-3. Test with stress content:
-   - Extra-long user names (`"Mohammed bin Salman Al Saud"`)
+1. Load `references/page-slice-skeleton.html`.
+2. Inject tokens from `context.md` into all `/*TOKEN:xxx*/` placeholders.
+3. The skeleton provides a neutral page structure (header/nav, hero, card grid, content, footer). Apply the contract's layout pattern if the contract specifies one.
+4. Save the filled file to `.harness/<sprint-id>/artifact/page-slice.html`.
+5. The skeleton has a built-in stress test toggle. When ON, content swaps to extreme variants:
+   - 50-character strings without spaces (overflow test)
+   - Long names (`"Mohammed bin Salman Al Saud"`)
    - Emoji-rich content (🚀💎🌙)
    - Missing images (broken `src`)
    - Extreme numbers (`¥9,999,999.99`)
-   - Minimum viewport (320px width)
-4. Record findings in `page-slice.md`:
+6. The skeleton displays current viewport width and is responsive by default (card grid collapses below 768px).
+7. Record findings in `page-slice.md`:
    - Layout behavior under stress
    - Text truncation/overflow
    - Image fallback behavior
@@ -278,6 +312,12 @@ For `validating_failed`, add:
 - Record evidence, not opinions — screenshot, measure, or copy-paste actual rendered values. Do not describe from memory.
 - Every finding must cite a specific observed value or behavior, not a vague impression.
 
+## References
+
+- [Token Lab Skeleton](references/token-lab-skeleton.html) — Color palette, typography, spacing, shadow, border-radius preview template
+- [Component Theater Skeleton](references/component-theater-skeleton.html) — 5-state component preview template (Button, Input, Card, Modal preset)
+- [Page Slice Skeleton](references/page-slice-skeleton.html) — Representative page layout with stress test toggle
+
 ## Stop Conditions
 
 Do not proceed beyond the current level and set `phase: "validating_failed"` when:
@@ -290,12 +330,12 @@ Do not proceed beyond the current level and set `phase: "validating_failed"` whe
 ## Final Checklist
 
 - [ ] Entry checks passed: `contract.md` has `prototyping_required: true`, `context.md` has token inventory, `phase: "contracted"`
-- [ ] `token-lab.html` created and opens with zero console errors
+- [ ] `token-lab.html` generated from `references/token-lab-skeleton.html`, all `/*TOKEN:xxx*/` placeholders injected from `context.md`, opens with zero console errors
 - [ ] Dark mode toggle functional in `token-lab.html`
 - [ ] `token-validation.md` written with per-token pass/fail evidence and overall verdict
-- [ ] `component-theater.html` created with all five states for every contracted component
+- [ ] `component-theater.html` generated from `references/component-theater-skeleton.html`, all tokens injected, all five states functional for every contracted component
 - [ ] `component-tests.md` written with per-component pass/fail evidence and overall verdict
-- [ ] `page-slice.html` created with stress content covering long names, emoji, broken images, extreme numbers, and 320px viewport
+- [ ] `page-slice.html` generated from `references/page-slice-skeleton.html`, all tokens injected, stress content covering long names, emoji, broken images, extreme numbers, and 320px viewport
 - [ ] `page-slice.md` written with per-stress-case pass/fail evidence and overall verdict
 - [ ] Decision executed: all three verdicts are `*_VALID` → `phase: "validated"`; any critical failure → `phase: "validating_failed"` with escalation reason
 - [ ] `status.json` updated with correct phase and `last_updated_at` timestamp
