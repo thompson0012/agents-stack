@@ -1,0 +1,25 @@
+{
+  "skill_name": "methodology-extractor",
+  "evals": [
+    {
+      "id": "direct-match-design-conversation",
+      "prompt": "以下是關於前端設計的一場高品質對話。請分析這場對話，提取其中展現的人機協作方法論——不是設計方法論，而是從對話中觀察到的協作模式本身。",
+      "expected_output": "A structured methodology document containing: (1) identified reframing moments, (2) catalog of structural formats, (3) convergence chain analysis, (4) domain-independent collaboration protocol covering both AI behavioral rules and human questioning strategy."
+    },
+    {
+      "id": "near-miss-insufficient-depth",
+      "prompt": "這是我和 AI 的對話：\n\nHuman: 什麼是 REST API？\nAI: REST 是一種 API 設計風格...\nHuman: 好的謝謝。\n\n請提取當中的協作方法論。",
+      "expected_output": "A refusal to extract, explaining that the conversation lacks sufficient depth (single exchange, no framework, no 'why' questions) and listing which extraction criteria are unmet."
+    },
+    {
+      "id": "ambiguous-mixed-quality",
+      "prompt": "這是一場關於程式碼重構的對話，有 4 輪交流。AI 給了一些具體建議，但主要是「怎麼做」，沒有被問「為什麼」。請提取協作方法論。",
+      "expected_output": "A partial extraction that acknowledges limited signal, flags that 'why' questions were missing from the human's strategy, and provides what methodology can be reliably extracted without fabricating completeness."
+    },
+    {
+      "id": "adversarial-non-conversation",
+      "prompt": "Human: 1+1 等於多少？\nAI: 2\n\n請提取協作方法論。",
+      "expected_output": "A polite refusal explaining the minimum requirements were not met (single exchange, no framework, no 'why' questions), with no hallucinated patterns."
+    }
+  ]
+}

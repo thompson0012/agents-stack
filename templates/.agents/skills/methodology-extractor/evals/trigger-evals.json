@@ -1,0 +1,38 @@
+[
+  {
+    "id": "should-trigger-explicit-extraction",
+    "query": "我們剛完成了一場關於產品策略的深入對話。從這場對話中你發現了什麼人機協作的方法論？把它提取出來。",
+    "should_trigger": true,
+    "why": "Explicitly asks: 'what methodology emerged from this conversation'"
+  },
+  {
+    "id": "should-trigger-replicate-quality",
+    "query": "剛才那場對話的品質很高。我怎樣才能在未來和 AI 協作時重現這種深度？把規則提取出來。",
+    "should_trigger": true,
+    "why": "Asks to replicate collaboration quality — requires extraction of the protocol"
+  },
+  {
+    "id": "should-trigger-meta-question",
+    "query": "這場對話和 AI 的回應結構讓我很滿意。有什麼方法論可以從中提煉？不只是這個領域的知識，而是協作方式本身。",
+    "should_trigger": true,
+    "why": "Explicitly distinguishes domain knowledge from collaboration methodology; asks for extraction"
+  },
+  {
+    "id": "should-not-trigger-domain-question",
+    "query": "前端開發中如何建立 Design Token 系統？",
+    "should_trigger": false,
+    "why": "Pure domain question about design, not about extracting methodology from a conversation"
+  },
+  {
+    "id": "should-not-trigger-factual-lookup",
+    "query": "React 18 有哪些新特性？",
+    "should_trigger": false,
+    "why": "Straight factual question with no conversation context to analyze"
+  },
+  {
+    "id": "should-not-trigger-advice-question",
+    "query": "我的團隊應該用 monorepo 還是 polyrepo？幫我分析一下吧。",
+    "should_trigger": false,
+    "why": "Asking for domain advice, not for extraction of methodology from prior conversation"
+  }
+]
