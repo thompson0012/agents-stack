@@ -20,9 +20,12 @@ Before touching code:
 4. Generator ≠ Auditor: if you previously executed `audit` for this workstream, STOP. The orchestrator must dispatch build and audit as separate workers.
 5. If any check fails: stop, record in `status.json`, hand back to orchestrator
 
-## Required Reads
+## Input
 
-- `AGENTS.md`
+The orchestrator provides inline context digest covering: plan objective, contract scope and ACs, harness rules. Read from disk only if the inline digest is insufficient. Actual code must be read from disk — inline context cannot replace inspecting real source.
+
+### Required Reads (fallback)
+
 - `docs/live/plan.md`
 - `.harness/<id>/contract.md`
 - `docs/reference/*` for project context

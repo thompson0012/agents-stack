@@ -11,9 +11,12 @@ boundaries: Claim formation only. No implementation. No self-approval.
 
 Form a clear, falsifiable claim about the problem. A thesis is not "what should we build?" — it is "what do we believe is true about this space?"
 
-## Required Reads
+## Input
 
-- `AGENTS.md`
+The orchestrator provides inline context digest covering: plan objective, prior synthesis/audit findings (spiral turn evidence), harness rules. Read from disk only if the inline digest is insufficient.
+
+### Required Reads (fallback)
+
 - `docs/live/plan.md` and `docs/live/tracked-work.json`
 - Any prior `synthesis.md` or `audit.md` (spiral turn evidence)
 - Relevant `docs/reference/*`

@@ -11,12 +11,15 @@ boundaries: Scope definition only. No code implementation. Must inspect real cod
 
 Turn the synthesis framework into a buildable contract. Define: what files change, what does not change, how we verify success.
 
-## Required Reads
+## Input
 
-- `AGENTS.md`
+The orchestrator provides inline context digest covering: plan objective, synthesis framework, harness rules. Read from disk only if the inline digest is insufficient.
+
+### Required Reads (fallback)
+
 - `docs/live/plan.md`
 - `.harness/<id>/synthesis.md`
-- **Actual code** in areas to be touched — must inspect real files, not guess paths
+- **Actual code** in areas to be touched — must inspect real files for file boundaries, not guess paths
 
 ## Output: contract.md
 

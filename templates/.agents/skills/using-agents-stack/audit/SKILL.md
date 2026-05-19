@@ -3,8 +3,8 @@ name: audit
 description: Independently reproduce and verify the build against the contract. Generator ≠ Auditor.
 trigger: When handoff.md exists and audit.md does not.
 inputs: [AGENTS.md, plan.md, contract.md, handoff.md]
-outputs: [.harness/<id>/audit.md]
-boundaries: Read-only except audit.md. Must independently reproduce. Must not rubber-stamp.
+outputs: [.harness/<id>/audit.md, .harness/<id>/status.json, .harness/<id>/audit_attempt_<N>.md (historical)]
+boundaries: Read-only except audit.md, audit_attempt_<N>.md, and status.json. Must independently reproduce. Must not rubber-stamp.
 ---
 
 # Audit Worker
@@ -15,9 +15,12 @@ You are the adversarial gate. Reproduce the build from `handoff.md` instructions
 
 If you are the same agent instance that performed the build, STOP. This violates the adversarial separation invariant. The orchestrator must dispatch you independently.
 
-## Required Reads
+## Input
 
-- `AGENTS.md`
+The orchestrator provides inline context digest covering: plan objective, contract scope and ACs, build summary, harness rules. Read from disk only if the inline digest is insufficient. Contract and handoff should still be read from disk for precise evidence checking — inline digest is directional.
+
+### Required Reads (fallback)
+
 - `docs/live/plan.md`
 - `.harness/<id>/contract.md`
 - `.harness/<id>/handoff.md`
@@ -97,11 +100,16 @@ If YES → set `deeper_insight: true` with explanation. The orchestrator trigger
 
 1. Read `contract.md` for acceptance criteria
 2. Read `handoff.md` for reproduction steps
-3. Independently reproduce the build
-4. Verify each AC against real behavior
-5. Assess deeper insight potential
-6. Write `audit.md` with honest verdict
+3. Read `status.json` to verify `attempt` value
+4. **If `audit.md` already exists**: copy it to `audit_attempt_<last_audited_attempt>.md` to preserve history
+5. Independently reproduce the build
+6. Verify each AC against real behavior
+7. Assess deeper insight potential
+8. Write `audit.md` with honest verdict
+9. Update `status.json`:
+   - `phase: "audit"`
+   - `last_audited_attempt: <current attempt number>`
 
 ## Done
 
-`audit.md` exists with honest PASS/FAIL/BLOCKED verdict and deeper insight assessment.
+`audit.md` exists with honest PASS/FAIL/BLOCKED verdict and deeper insight assessment. `status.json` reflects audit phase.

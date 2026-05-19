@@ -11,9 +11,12 @@ boundaries: Read-only except challenge.md. MUST delegate architectural judgment 
 
 Attack the thesis. The question is not "is this right?" — it is "under what conditions does this hold, and under what conditions does it fail?"
 
-## Required Reads
+## Input
 
-- `AGENTS.md`
+The orchestrator provides inline context digest covering: plan objective, thesis claim, harness rules. Read from disk only if the inline digest is insufficient.
+
+### Required Reads (fallback)
+
 - `docs/live/plan.md`
 - `.harness/<id>/thesis.md`
 - Any prior evidence from spiral turns

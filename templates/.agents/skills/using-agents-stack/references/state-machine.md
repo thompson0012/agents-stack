@@ -83,6 +83,8 @@ Layers proceed sequentially. The Action layer can trigger a spiral turn back to 
   - audit worker independently reproduces and judges
   - verdict: PASS, FAIL, or BLOCKED
   - assess: does this reveal a deeper thesis flaw? (spiral turn trigger)
+- handoff exists, audit exists but `last_audited_attempt < attempt` → route `audit` (stale audit)
+- audit exists with `last_audited_attempt == attempt` → evaluate outcome
 
 ### Post-Audit
 

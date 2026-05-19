@@ -27,6 +27,10 @@ Your framework is `references/complexity-signals.md` — 11 universal over-engin
 
 ---
 
+## Input
+
+The orchestrator provides inline context digest covering audit scope, active sprint summary, key concerns. Codebase scanning must still read real files — inline context is directional. Use `references/complexity-signals.md` and `references/scale-appropriateness-guide.md` as your framework (loaded inline by the orchestrator).
+
 ## The 6 Prune Questions
 
 Answer all six. Each finding must name: the thing, which complexity signal it triggers, the concrete problem it claims to solve, the evidence for that problem, and the recommendation.

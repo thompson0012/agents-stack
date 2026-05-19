@@ -15,9 +15,12 @@ Extract common patterns from dispersed tactical solutions and form them into a u
 
 `response.md` MUST exist and be complete before synthesis begins. This order is enforced by the orchestrator. If `response.md` is missing, stop and report the violation.
 
-## Required Reads
+## Input
 
-- `AGENTS.md`
+The orchestrator provides inline context digest covering: plan objective, thesis claim, challenge gaps, all response designs, harness rules. Read from disk only if the inline digest is insufficient.
+
+### Required Reads (fallback)
+
 - `docs/live/plan.md`
 - `.harness/<id>/thesis.md`, `challenge.md`, `response.md`
 

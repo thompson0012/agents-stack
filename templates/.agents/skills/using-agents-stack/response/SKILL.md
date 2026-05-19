@@ -11,9 +11,12 @@ boundaries: Design only. No code implementation. One concrete solution per gap.
 
 For every gap the challenge verdict identified, produce a concrete design response. No hand-waving. Each response must have schema-level specificity.
 
-## Required Reads
+## Input
 
-- `AGENTS.md`
+The orchestrator provides inline context digest covering: plan objective, thesis claim, challenge gaps, harness rules. Read from disk only if the inline digest is insufficient.
+
+### Required Reads (fallback)
+
 - `docs/live/plan.md`
 - `.harness/<id>/thesis.md` and `.harness/<id>/challenge.md`
 
