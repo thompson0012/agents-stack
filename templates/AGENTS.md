@@ -19,7 +19,6 @@ This repository uses the agents-stack harness — a stateful, resumable, adversa
 │           ├── build/                       # implement contract
 │           ├── audit/                       # independent verification
 │           └── references/
-│               ├── state-machine.md
 │               ├── children.json
 │               └── templates/.harness/
 ├── .harness/<WORKSTREAM-ID>/
