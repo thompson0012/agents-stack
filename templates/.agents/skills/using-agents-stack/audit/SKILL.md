@@ -3,8 +3,8 @@ name: audit
 description: Independently reproduce and verify the build against the contract. Generator ≠ Auditor.
 trigger: When handoff.md exists and audit.md does not.
 inputs: [AGENTS.md, plan.md, contract.md, handoff.md]
-outputs: [.harness/<id>/audit.md]
-boundaries: Read-only except audit.md. Must independently reproduce. Must not rubber-stamp.
+outputs: [.harness/<id>/audit.md, .harness/<id>/status.json]
+boundaries: Read-only except audit.md and status.json. Must independently reproduce. Must not rubber-stamp.
 ---
 
 # Audit Worker
@@ -101,7 +101,8 @@ If YES → set `deeper_insight: true` with explanation. The orchestrator trigger
 4. Verify each AC against real behavior
 5. Assess deeper insight potential
 6. Write `audit.md` with honest verdict
+7. Update `status.json`: `phase: "audit"`
 
 ## Done
 
-`audit.md` exists with honest PASS/FAIL/BLOCKED verdict and deeper insight assessment.
+`audit.md` exists with honest PASS/FAIL/BLOCKED verdict and deeper insight assessment. `status.json` reflects audit phase.
