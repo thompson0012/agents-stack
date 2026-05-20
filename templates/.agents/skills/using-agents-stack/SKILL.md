@@ -14,53 +14,33 @@ Read durable state, decide the next phase, dispatch a fresh worker. Workers run 
 - Only this orchestrator may delegate workers. Workers must not spawn nested workers.
 - Tool walls are hard: audit is read-only except `audit.md`; build writes only contract-defined files.
 
-## Decision Order
+## Decision Order (details in references/state-machine.md)
 
-1. Read `docs/live/plan.md` and `docs/live/tracked-work.json`
-2. If no active workstream exists: prompt human to create one (thesis is the entry point for new work)
-3. If active workstream exists, read `.harness/<ID>/status.json` and strongest artifact
-
-### Layer-internal routing
-
-**Direction Layer:**
-- No `thesis.md` → route `thesis`
-- `thesis.md` exists, no `challenge.md` → route `challenge`
-- `challenge.md` exists, translation needed → route translation (append to challenge.md)
-- `challenge.md` exists, no translation needed → enter Method Layer
-
-**Method Layer:**
-- No `response.md` → route `response`
-- `response.md` exists, no `synthesis.md` → route `synthesis`
-- `synthesis.md` exists → enter Action Layer
-
-**Action Layer:**
-- No `contract.md` → route `contract`
-- `contract.md` exists, no `handoff.md` → route `build`
-- `handoff.md` exists, no `audit.md` → route `audit`
-- `handoff.md` exists, `audit.md` exists, `last_audited_attempt < attempt` → route `audit` (stale audit)
-- `audit.md` exists, `last_audited_attempt == attempt` → evaluate outcome
-
-### Post-audit routing
-
-- PASS + no deeper insight → route `extract`
-- PASS + deeper insight → spiral turn: `depth++`, reset layer/phase to thesis
-- FAIL + `attempt < max_attempts` + clean restore → route `build` (retry)
-- FAIL + `attempt >= max_attempts` → `escalated_to_human`
-- BLOCKED → `awaiting_human`
-
-### Post-extract routing
-
-After extract completes:
-- `extract.md` exists → archive (update tracked-work.json + plan.md directly)
-
-### Budget exhaustion
-
-- `depth >= max_depth` → `escalated_to_human`
-- `attempt >= max_attempts` → `escalated_to_human`
+1. Read `docs/live/plan.md`, `docs/live/tracked-work.json`, `.harness/<ID>/status.json`, and strongest artifact
+2. If no active workstream: prompt human to create one (thesis entry point)
+3. Route by artifact existence:
+   - Missing `thesis.md` → `thesis` | Missing `challenge.md` → `challenge`
+   - Missing `response.md` → `response` | Missing `synthesis.md` → `synthesis`
+   - Missing `contract.md` → `contract` | Missing `handoff.md` → `build`
+   - Missing `audit.md` → `audit` | Stale audit → `audit`
+4. Post-audit: PASS + no insight → `extract` | PASS + insight → spiral turn (depth++, reset to thesis)
+   - FAIL + retries remain → `build` (retry) | FAIL + exhausted → `escalated_to_human`
+   - BLOCKED → `awaiting_human`
+5. Budget exhaustion: `depth >= max_depth` or `attempt >= max_attempts` → `escalated_to_human`
 
 ## Dispatch Mechanics
 
-Provide worker with: child SKILL.md path, workstream ID, artifact paths to read/write. Fresh worker, clean context.
+Provide worker with: child SKILL.md path, workstream ID, artifact paths to read/write.
+
+### Context Continuation
+
+Reuse worker context within workstream boundaries:
+
+- **Generator phases** (thesis → challenge → response → synthesis → contract → build): reuse one worker session. The prompt prefix stays cached across phases.
+- **Auditor**: always a separate worker session (enforces Generator ≠ Auditor).
+- **Fresh worker** only when crossing the Generator/Auditor boundary.
+
+This reduces prompt cache misses across sequential phases.
 
 ### Generator ≠ Auditor — pre-dispatch check
 
