@@ -37,7 +37,8 @@ Read durable state, decide the next phase, dispatch a fresh worker. Workers run 
 - No `contract.md` → route `contract`
 - `contract.md` exists, no `handoff.md` → route `build`
 - `handoff.md` exists, no `audit.md` → route `audit`
-- `audit.md` exists → evaluate outcome
+- `handoff.md` exists, `audit.md` exists, `last_audited_attempt < attempt` → route `audit` (stale audit)
+- `audit.md` exists, `last_audited_attempt == attempt` → evaluate outcome
 
 ### Post-audit routing
 

@@ -3,8 +3,8 @@ name: audit
 description: Independently reproduce and verify the build against the contract. Generator ≠ Auditor.
 trigger: When handoff.md exists and audit.md does not.
 inputs: [AGENTS.md, plan.md, contract.md, handoff.md]
-outputs: [.harness/<id>/audit.md, .harness/<id>/status.json]
-boundaries: Read-only except audit.md and status.json. Must independently reproduce. Must not rubber-stamp.
+outputs: [.harness/<id>/audit.md, .harness/<id>/status.json, .harness/<id>/audit_attempt_<N>.md (historical)]
+boundaries: Read-only except audit.md, audit_attempt_<N>.md, and status.json. Must independently reproduce. Must not rubber-stamp.
 ---
 
 # Audit Worker
@@ -97,11 +97,15 @@ If YES → set `deeper_insight: true` with explanation. The orchestrator trigger
 
 1. Read `contract.md` for acceptance criteria
 2. Read `handoff.md` for reproduction steps
-3. Independently reproduce the build
-4. Verify each AC against real behavior
-5. Assess deeper insight potential
-6. Write `audit.md` with honest verdict
-7. Update `status.json`: `phase: "audit"`
+3. Read `status.json` to verify `attempt` value
+4. **If `audit.md` already exists**: copy it to `audit_attempt_<last_audited_attempt>.md` to preserve history
+5. Independently reproduce the build
+6. Verify each AC against real behavior
+7. Assess deeper insight potential
+8. Write `audit.md` with honest verdict
+9. Update `status.json`:
+   - `phase: "audit"`
+   - `last_audited_attempt: <current attempt number>`
 
 ## Done
 
