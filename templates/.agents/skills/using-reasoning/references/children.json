@@ -1,63 +1,34 @@
 {
   "router_name": "using-reasoning",
-  "purpose": "Route structured reasoning requests to the narrowest reasoning child across state calibration, problem framing, scenario planning, hidden-rule survivability checks, advisory analysis, and multi-lens problem solving.",
+  "purpose": "Route structured reasoning requests to the narrowest reasoning child: integrated reasoning, scenario planning, or hidden-rule survivability checks.",
   "selection_order": [
-    "Distorted reasoning state beats every later reasoning step.",
-    "A vague problem beats analytical depth because solving the wrong problem well is still failure.",
-    "Concrete external-signal scenario work beats hidden-rule survivability checks and generic advisory work.",
-    "Hidden-rule survivability checks beat generic advisory work when the user mainly needs to see what real-world incentives, gatekeepers, or ceilings they are missing.",
-    "Structured advisory deliverables beat generic multi-lens analysis when the artifact is an expert recommendation or memo.",
-    "Default to dynamic problem solving only when the problem is already clear and the user wants rigorous analysis."
+    "Integrated reasoning (calibrate/frame/analyze/recommend/verify) beats specialized children when the need spans multiple phases.",
+    "Concrete external-signal scenario work beats hidden-rule survivability checks.",
+    "Hidden-rule survivability checks are the last resort when the user mainly needs to see what real-world incentives, gatekeepers, or ceilings they are missing."
   ],
   "children": [
     {
-      "name": "thinking-ground",
-      "target": "using-reasoning/thinking-ground",
+      "name": "reasoning",
+      "target": "using-reasoning/reasoning",
       "relationship": "routes_to",
-      "summary": "Calibrates the reasoning state before heavier analysis when attachment, urgency, looping, or performative analysis is distorting judgment.",
+      "summary": "Integrated 5-phase reasoning workflow: calibrate state (0), frame problem (1), analyze with lenses (2), recommend with evidence (3), verify before acting (4). Run only the needed phases.",
       "route_when": [
-        "The user or model appears attached to a preferred answer, emotionally urgent beyond the evidence, looping, or performing analysis without real update.",
-        "The main need is to improve reasoning state before choosing the next analytical step."
+        "The situation needs any combination of state calibration, problem framing, multi-lens analysis, structured advisory, or verification.",
+        "Multiple needs are present — state check, then problem definition, then analysis, then recommendation, then verification."
       ],
       "avoid_when": [
-        "The user already has a clear, grounded problem statement and wants direct analytical work.",
-        "The request is merely factual or operational with no reasoning distortion signal."
-      ],
-      "requires": [],
-      "recommends": [
-        "using-reasoning/problem-definition",
-        "using-reasoning/dynamic-problem-solving",
-        "using-reasoning/reality-check"
-      ],
-      "fallbacks_to": [],
-      "install_if_missing": {
-        "package": "using-reasoning/thinking-ground",
-        "notes": "Install this nested child path before routing when the runtime cannot discover reasoning children automatically."
-      }
-    },
-    {
-      "name": "problem-definition",
-      "target": "using-reasoning/problem-definition",
-      "relationship": "routes_to",
-      "summary": "Turns a messy situation into one precise, solution-neutral problem statement and handoff note.",
-      "route_when": [
-        "The user senses a problem but cannot define it cleanly, keeps mixing solutions into the problem statement, or is stuck in symptoms.",
-        "The main output should be one clearly defined problem statement rather than the solution."
-      ],
-      "avoid_when": [
-        "The problem is already stated clearly and solution-neutrally in one or two sentences.",
-        "A concrete external signal is the main object of analysis rather than the problem statement itself."
+        "The user only needs a concrete external-signal scenario analysis — use strategic-foresight.",
+        "The user only needs a hidden-rule survivability check — use reality-check.",
+        "The request is purely factual or operational with no analytical dimension."
       ],
       "requires": [],
       "recommends": [
         "using-reasoning/reality-check",
-        "using-reasoning/dynamic-problem-solving",
-        "using-reasoning/domain-expert-consultation",
         "using-reasoning/strategic-foresight"
       ],
       "fallbacks_to": [],
       "install_if_missing": {
-        "package": "using-reasoning/problem-definition",
+        "package": "using-reasoning/reasoning",
         "notes": "Install this nested child path before routing when the runtime cannot discover reasoning children automatically."
       }
     },
@@ -76,7 +47,7 @@
       ],
       "requires": [],
       "recommends": [
-        "self-cognitive"
+        "using-reasoning/reasoning"
       ],
       "fallbacks_to": [],
       "install_if_missing": {
@@ -95,67 +66,17 @@
       ],
       "avoid_when": [
         "The real task is startup viability, GTM, CAC, churn, runway, pricing, or unit-economics pressure testing that belongs in greenfield-product/startup-pressure-test.",
-        "The problem is still vague, emotionally defended, or solution-contaminated enough that problem-definition or thinking-ground should go first.",
+        "The problem is still vague, emotionally defended, or solution-contaminated — route to reasoning Phase 0 or 1 first.",
         "The user mainly needs sourced evidence, market mapping, or external fact gathering rather than a hidden-rule assessment.",
-        "The request is a clear operational diagnosis or structured advisory memo on a problem that is already framed."
+        "The request is a clear operational diagnosis or structured advisory memo on a problem that is already framed — route to reasoning Phase 2 or 3."
       ],
       "requires": [],
       "recommends": [
-        "using-reasoning/domain-expert-consultation",
-        "using-reasoning/dynamic-problem-solving",
-        "self-cognitive"
+        "using-reasoning/reasoning"
       ],
       "fallbacks_to": [],
       "install_if_missing": {
         "package": "using-reasoning/reality-check",
-        "notes": "Install this nested child path before routing when the runtime cannot discover reasoning children automatically."
-      }
-    },
-    {
-      "name": "domain-expert-consultation",
-      "target": "using-reasoning/domain-expert-consultation",
-      "relationship": "routes_to",
-      "summary": "Produces a structured expert consultation, strategic recommendation, tradeoff evaluation, or decision memo once the problem is clear enough to advise on honestly.",
-      "route_when": [
-        "The user wants expert consultation, strategic analysis, tradeoff evaluation, a decision memo, or another structured advisory deliverable.",
-        "The problem is already clear enough that recommendation work would be honest rather than premature."
-      ],
-      "avoid_when": [
-        "The real issue is still that the problem is vague or solution-contaminated.",
-        "The request is primarily about external-signal scenarios rather than advisory judgment.",
-        "The request mainly asks what hidden rules or survivability traps the user is missing rather than for a memo or recommendation."
-      ],
-      "requires": [],
-      "recommends": [
-        "self-cognitive"
-      ],
-      "fallbacks_to": [],
-      "install_if_missing": {
-        "package": "using-reasoning/domain-expert-consultation",
-        "notes": "Install this nested child path before routing when the runtime cannot discover reasoning children automatically."
-      }
-    },
-    {
-      "name": "dynamic-problem-solving",
-      "target": "using-reasoning/dynamic-problem-solving",
-      "relationship": "routes_to",
-      "summary": "Analyzes a clearly defined complicated problem through a minimum set of deliberately chosen lenses and ends in a concrete recommendation or test.",
-      "route_when": [
-        "The user has already stated a specific problem, decision, diagnosis, or question clearly and wants rigorous multi-lens analysis.",
-        "The main output should be analytical collision, tradeoff assessment, and a concrete next action rather than mere framing."
-      ],
-      "avoid_when": [
-        "The problem is still vague, emotionally defended, or solution-contaminated.",
-        "The situation is better treated as a simple best-practice task, chaotic emergency, or complex experiment-driven situation.",
-        "The main value lies in surfacing hidden rules or survivability constraints rather than in lens analysis of an already-framed problem."
-      ],
-      "requires": [],
-      "recommends": [
-        "self-cognitive"
-      ],
-      "fallbacks_to": [],
-      "install_if_missing": {
-        "package": "using-reasoning/dynamic-problem-solving",
         "notes": "Install this nested child path before routing when the runtime cannot discover reasoning children automatically."
       }
     }

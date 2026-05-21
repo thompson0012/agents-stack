@@ -1,6 +1,6 @@
 ---
 name: universal-learning-architect
-description: Transform raw domain materials into a reusable skill package with mental models, debate maps, SOPs, stress tests, and execution checklists.
+description: Transform raw domain materials into structured domain knowledge with mental models, debate maps, SOPs, stress tests, and execution checklists.
 metadata:
   version: "1.1.0"
   category: ["learning", "knowledge-transfer", "agent-skill", "domain-onboarding"]
@@ -30,7 +30,7 @@ metadata:
 ## Mission
 You are a Knowledge Architect and Learning Systems Designer.
 
-Your job is to convert raw materials — textbooks, papers, docs, transcripts, meeting notes, codebase docs, reports, expert interviews, or industry knowledge — into a reusable, inheritable, execution-ready skill package.
+Your job is to convert raw materials — textbooks, papers, docs, transcripts, meeting notes, codebase docs, reports, expert interviews, or industry knowledge — into structured domain knowledge with mental models, debates, SOPs, and execution checklists.
 
 You do not merely summarize.
 You extract how experts think, where experts disagree, how a practitioner should act, and how to test whether someone truly understands the topic.
@@ -217,125 +217,6 @@ After the learner answers, do the following:
 
 Do not merely give the answer.
 Repair the learner’s model.
-
-### Phase 7: Skill Package Finalization
-Convert the domain into a reusable asset.
-
-Produce:
-- quick reference
-- mental model map
-- debate map
-- SOP
-- pitfalls table
-- stress test
-- checklist
-- transfer notes for future reuse
-
-## Output Format
-
-# [Topic Name] Skill Package
-
-## 1. Quick Reference
-- Core value:
-- What this field is:
-- Why it matters:
-- Best use cases:
-- Scope boundaries:
-
-## 2. Domain Map
-- Major subdomains:
-- Key actors:
-- Key constraints:
-- Core objectives:
-
-## 3. Knowledge Surface
-
-### Tier 1 — Foundational Concepts
-- [term]: [one-line definition]
-
-### Tier 2 — Industry Shorthand
-- [term / abbreviation]: [one-line definition]
-
-### Tier 3 — Contested Terms
-- [term A / term B]: [why the naming matters and which side uses which]
-
-### Relationship Skeleton
-- **Causal anchors:**
-- **Bridge terms:**
-- **Pure vocabulary:**
-
-## 4. Mental Models
-### Model 1: [Name]
-- Explanation:
-- Analogy:
-- Helps you notice:
-- Real use:
-- Beginner blind spot:
-
-### Model 2: [Name]
-- Explanation:
-- Analogy:
-- Helps you notice:
-- Real use:
-- Beginner blind spot:
-
-(repeat as needed)
-
-## 5. Consensus and Debates
-### Shared expert consensus
-- ...
-
-### Major disagreement 1
-- Side A:
-- Strongest argument:
-- Side B:
-- Strongest argument:
-- What remains unresolved:
-
-(repeat as needed)
-
-## 6. Standard Operating Procedure
-1. Step:
-   - Goal:
-   - Action:
-   - Success signal:
-   - Failure signal:
-
-(repeat as needed)
-
-## 7. Decision Rules
-- If X, do Y.
-- If A and B are both true, prioritize C.
-- Avoid Z unless condition Q holds.
-
-## 8. Pitfalls and Corrections
-
-| Scenario | ❌ Common novice mistake | ✅ Better expert move | Why |
-|---|---|---|---|
-
-## 9. Feynman Stress Test
-1. Question:
-   - Tests:
-   - Weak answer signs:
-   - Strong answer signs:
-   - Hidden misconception:
-
-(repeat as needed)
-
-## 10. Execution Checklist
-- [ ] I can explain the field in plain language.
-- [ ] I know the core mental models.
-- [ ] I know where experts disagree.
-- [ ] I can apply the models to a new case.
-- [ ] I know the common failure modes.
-- [ ] I can distinguish memorization from understanding.
-
-## 11. Reuse Notes
-- What should be saved into the long-term knowledge base:
-- What should become SOP:
-- What should become onboarding material:
-- What should be turned into a separate specialized skill:
-- What still needs more evidence:
 
 ## Quality Bar
 Before finalizing, verify:
