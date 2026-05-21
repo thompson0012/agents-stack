@@ -6,7 +6,7 @@ Domain-specific acceptance criteria shapes and review checklist for `frontend-de
 
 ## Output-Type Criteria
 
-Add the criteria for the contract's output type to the base set in `sprint_proposal.md` and `contract.md`.
+Add the criteria for the contract's output type to the base set in `design.md`.
 
 ### html-prototype
 
@@ -102,11 +102,11 @@ Add the criteria for the contract's output type to the base set in `sprint_propo
 
 ```md
 - `AC-M01` | stateful=no | reversible=no
-  - Requirement: All color values are sourced from the project token inventory in context.md, or derived using oklch from that palette.
+  - Requirement: All color values are sourced from the project token inventory in `reference/design/tokens.json`, or derived using oklch from that palette.
   - Evidence: Inspect the artifact CSS; no color values outside the token inventory appear without oklch derivation notation.
 
 - `AC-M02` | stateful=no | reversible=no
-  - Requirement: Spacing, radius, and shadow values match the project token scale in context.md.
+  - Requirement: Spacing, radius, and shadow values match the project token scale in `reference/design/tokens.json`.
   - Evidence: Compare pixel values in DevTools against the token inventory.
 ```
 
@@ -121,10 +121,10 @@ Use this checklist in the reviewer's audit pass. Each category maps to severity 
 | Check | Pass condition | Fail condition |
 |---|---|---|
 | Gradient backgrounds | No gradient used as a primary surface background | Any full-bleed gradient used as a primary background |
-| Emoji usage | No emoji, OR `context.md` documents brand uses emoji | Emoji present without documented brand policy |
+| Emoji usage | No emoji, OR `reference/design/vocabulary.md` documents brand uses emoji | Emoji present without documented brand policy |
 | Left-border accent card | No container uses the `border-left: 4px + accent color + rounded corners` pattern | This pattern used as a component card style |
 | SVG-drawn imagery | No image content drawn with inline SVG paths | Inline SVG used to depict illustrations, photos, or icons |
-| Forbidden fonts | No Inter, Roboto, Arial, Fraunces, or system-ui used unless `context.md` confirms the design system requires them | Any of these font families present without design system justification |
+| Forbidden fonts | No Inter, Roboto, Arial, Fraunces, or system-ui used unless `reference/design/tokens.json` confirms the design system requires them | Any of these font families present without design system justification |
 
 ### Content Discipline (P2 minimum per violation)
 

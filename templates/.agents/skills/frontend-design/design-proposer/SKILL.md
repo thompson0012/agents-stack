@@ -1,6 +1,6 @@
 ---
 name: design-proposer
-description: Use when context.md exists and the design sprint needs a bounded scope, output contract, and human approval gate before building begins.
+description: Use when design.md exists with phase design_spec and the design sprint needs a bounded scope, output contract, and human approval gate before building begins.
 ---
 
 # Design Proposer
@@ -8,7 +8,7 @@ description: Use when context.md exists and the design sprint needs a bounded sc
 ## Placement
 This is a nested child under `frontend-design`; its path is `frontend-design/design-proposer/`, and the router selects it before standalone use.
 
-You are the scoping phase of the design harness. Your job is to convert user intent and design context into a precise, bounded sprint proposal and contract candidate, then park for human approval before any building starts.
+You are the scoping phase of the design harness. Your job is to convert user intent and design context into a precise, bounded sprint contract within `design.md`, then park for human approval before any building starts.
 
 A proposal that is vague about output format, variation count, viewport, or acceptance criteria will produce a bad artifact and a bad review. Be precise or do not proceed.
 
@@ -16,21 +16,21 @@ A proposal that is vague about output format, variation count, viewport, or acce
 
 - Run proposal drafting in a fresh worker context. Do not inline this phase in the orchestrator.
 - Only the orchestrator may spawn workers. This worker must not spawn another worker.
-- Tool lane: read-only on repo and context files, plus write access to `.agents-stack/<sprint-id>/sprint_proposal.md`, `.agents-stack/<sprint-id>/contract.md`, and `.agents-stack/<sprint-id>/status.json`.
-- Dispatch framing is non-authoritative. Verify against `.agents-stack/tracked-work.json` and `context.md` before writing.
+- Tool lane: read-only on repo and design spec files, plus write access to `.agents-stack/<sprint-id>/design.md` and `.agents-stack/<sprint-id>/status.json`.
+- Dispatch framing is non-authoritative. Verify against `.agents-stack/tracked-work.json` and `design.md` before writing.
 
 ## Required Reads
 
 Before writing anything:
 1. `AGENTS.md`
-2. `.agents-stack/<sprint-id>/context.md` — the full design vocabulary inventory
+2. `.agents-stack/<sprint-id>/design.md` — the full design spec and vocabulary reference
 3. `.agents-stack/tracked-work.json` — confirm this sprint is the single proposed feature
 4. `.agents-stack/ideas.md` — carry forward only signals that narrow scope
 5. `.agents-stack/insights/session-log.md` — prior design decisions that apply
 
 ## Proposal Inputs to Collect
 
-If the human brief does not answer these, record them as `[human must clarify]` in the proposal and set the awaiting_human gate with specific questions. Do not invent answers.
+If the human brief does not answer these, record them as `[human must clarify]` in `design.md` and set the `awaiting_human` gate with specific questions. Do not invent answers.
 
 | Input | Why it matters |
 |---|---|
@@ -67,7 +67,7 @@ Variation axes to explore (propose the most relevant combination):
 - **Visual personality** — minimal/restrained vs. bold/character-forward
 - **Component style** — follows existing system vs. new direction
 
-Record which axes are in scope in the proposal. The builder must expose them as design Tweaks or explicitly labeled variants.
+Record which axes are in scope in `design.md`. The builder must expose them as design Tweaks or explicitly labeled variants.
 
 ## Acceptance Criteria Shape
 
@@ -88,7 +88,7 @@ Every criterion must use a stable `AC-###` id and must be independently verifiab
 
 - `AC-003` | stateful=no | reversible=no
   - Requirement: All text on colored backgrounds meets WCAG AA contrast (≥4.5:1 body, ≥3:1 large text).
-  - Evidence: Inspector color contrast check or documented values from context.md.
+  - Evidence: Inspector color contrast check or documented values from design.md.
 ```
 
 Required base acceptance criteria for every sprint (add domain-specific on top):
@@ -139,10 +139,16 @@ All animations must support `prefers-reduced-motion: reduce` with a static fallb
 
 ## Required Output
 
-### `.agents-stack/<sprint-id>/sprint_proposal.md`
+### `.agents-stack/<sprint-id>/design.md`
+
+This file is **updated in-place** — the existing design spec from `design-context-scout` is extended with the proposal and contract sections below. Do not overwrite the scout's Project Summary, Design System Found, or Design Constraints sections; add new sections underneath them.
+
+When all proposal inputs are answered and the proposal survives self-challenge, write all sections below. If questions remain, write only the proposal sections (Feature through Questions) and park at `awaiting_human` — omit the finalized Acceptance Criteria and Verification Plan until the human clears questions.
 
 ```md
-# Design Sprint Proposal: <SPRINT-ID>
+# Design Spec: <SPRINT-ID>
+
+[Existing scout sections from design-context-scout remain above]
 
 ## Feature
 - id:
@@ -169,7 +175,7 @@ All animations must support `prefers-reduced-motion: reduce` with a static fallb
 - Primary font: ...
 - Primary color: ...
 - Component library: ...
-- Visual vocabulary: [one sentence from context.md]
+- Visual vocabulary: [one sentence from reference/design/vocabulary.md]
 
 ## Variation Axes
 1. ...
@@ -206,16 +212,7 @@ All animations must support `prefers-reduced-motion: reduce` with a static fallb
 - [list any unanswered proposal inputs]
 ```
 
-### `.agents-stack/<sprint-id>/contract.md`
-
-Only write this file when all proposal inputs are answered and the proposal survives self-challenge. If questions remain, write only `sprint_proposal.md` and park at `awaiting_human`.
-
-`contract.md` is identical in structure to `sprint_proposal.md` but:
-- All `[human must clarify]` fields are filled in
-- Acceptance criteria are finalized with stable `AC-###` ids
-- `prototyping_required` field is finalized (true or false)
-- No open questions remain
-- The human's edits to `sprint_proposal.md` (if any) are incorporated
+When the proposal is in draft (questions remain), only the sections up through "Questions" are populated and ACs are flagged. When the human approves and all questions are answered, the Acceptance Criteria, Verification Plan, and Risks sections are finalized with stable `AC-###` ids, no open questions remain, and `prototyping_required` is finalized (true or false).
 
 ### `.agents-stack/<sprint-id>/status.json`
 
@@ -224,17 +221,29 @@ Only write this file when all proposal inputs are answered and the proposal surv
   "sprint_id": "<sprint-id>",
   "phase": "awaiting_human",
   "owner_role": "human",
-  "resume_from": "sprint_proposal.md",
+  "resume_from": "design.md",
   "pause_reason": "Design sprint proposal ready for human review and approval.",
-  "human_action_required": "Review sprint_proposal.md. Edit or approve the scope, output type, variation axes, and acceptance criteria. When satisfied, set phase to 'approved' in status.json — the router will re-dispatch design-proposer to formalize contract.md. Do not write contract.md manually.",
+  "human_action_required": "Review design.md. Edit or approve the scope, output type, variation axes, and acceptance criteria. When satisfied, set phase to 'approved' in status.json — the router will re-dispatch design-proposer to finalize the contract sections in design.md.",
   "last_verified_step": "design-proposer completed",
+  "last_updated_at": "<ISO timestamp>"
+}
+```
+
+When the contract is finalized (all questions answered, ACs locked):
+```json
+{
+  "sprint_id": "<sprint-id>",
+  "phase": "design_contracted",
+  "owner_role": "orchestrator",
+  "resume_from": "design.md",
+  "last_verified_step": "design-proposer contract finalized",
   "last_updated_at": "<ISO timestamp>"
 }
 ```
 
 ## Self-Challenge Before Handoff
 
-Before setting `awaiting_human`, attack the proposal:
+Before setting `awaiting_human` or `design_contracted`, attack the proposal:
 
 - Can every acceptance criterion be independently checked by opening the HTML file?
 - Could any AC be satisfied by hardcoded static content without actual interactivity?
@@ -250,7 +259,7 @@ If the proposal does not survive this challenge, revise it before parking for hu
 
 Do not proceed and set `awaiting_human` immediately when:
 - The user brief is too ambiguous to write any acceptance criteria
-- Design context is absent or untrusted (`no_design_system_found: true` in `context.md`)
+- Design context is absent or untrusted (`no_design_system_found: true` in `design.md`)
 - The requested artifact type is not in the output type table above
 - Another runnable sprint is already active
 
@@ -259,8 +268,9 @@ Do not proceed and set `awaiting_human` immediately when:
 - [ ] All proposal inputs are answered or explicitly flagged `[human must clarify]`
 - [ ] Output type selected and matches the human brief
 - [ ] At least 3 variation axes defined with a non-palette-swap rationale
-- [ ] `AC-001` through `AC-008` present in contract.md
+- [ ] `AC-001` through `AC-008` present in design.md (when contract finalized)
 - [ ] Output-type criteria from `references/design-quality-contract-recipe.md` added
-- [ ] No `[human must clarify]` fields remain in `contract.md` (if writing contract.md)
+- [ ] No `[human must clarify]` fields remain when design.md is in `design_contracted` phase
 - [ ] `status.json` set to `awaiting_human` with `human_action_required` populated
-- [ ] Self-challenge passed — proposal survives all five adversarial questions
+- [ ] Self-challenge passed — proposal survives all seven adversarial questions
+- [ ] When contract finalized: `status.json` set to `design_contracted`

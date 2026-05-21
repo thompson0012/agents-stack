@@ -5,7 +5,7 @@ Use this when you need the shortest faithful version of the workflow.
 ## Entry check
 
 1. Can the problem be stated in 1-2 sentences?
-   - If no -> use `using-reasoning/problem-definition`.
+   - If no -> use `using-reasoning/reasoning Phase 1`.
 2. Is this a complicated problem rather than simple, complex, or chaotic?
    - If no -> do not force this skill.
 

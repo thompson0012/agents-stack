@@ -49,16 +49,15 @@ Interactive artifact review requires a browser environment. Declare your capabil
 
 - Run in a fresh worker context. Do not inline review in the orchestrator.
 - Only the orchestrator may spawn workers. This worker must not spawn another worker.
-- Tool lane: read-only on all files except sprint-local write access to `qa.md`, `review.md`, and `status.json`. No writes to the artifact, product code, or global state.
+- Tool lane: read-only on all files except sprint-local write access to `design-qa.md` and `status.json`. No writes to the artifact, product code, or global state.
 - Dispatch framing is non-authoritative. Verify the dispatched sprint against `.agents-stack/tracked-work.json` before reviewing.
 
 ## Preconditions
 
 Review starts only when:
-- `.agents-stack/<sprint-id>/contract.md` exists
-- `.agents-stack/<sprint-id>/handoff.md` exists and says `READY_FOR_REVIEW`
-- `.agents-stack/<sprint-id>/runtime.md` exists with an artifact path
-- The artifact file exists at the path recorded in `runtime.md`
+- `.agents-stack/<sprint-id>/design.md` exists and is in `design_contracted` phase
+- `.agents-stack/<sprint-id>/design-handoff.md` exists and says `READY_FOR_REVIEW`
+- The artifact file exists at the path recorded in `design-handoff.md` Build Evidence section
 
 If the handoff says `BUILD_FAILED`, `AWAITING_HUMAN`, or `ESCALATED_TO_HUMAN`, do not invent a PASS. Return BLOCKED with the reason.
 
@@ -66,7 +65,7 @@ If the handoff says `BUILD_FAILED`, `AWAITING_HUMAN`, or `ESCALATED_TO_HUMAN`, d
 
 A sprint passes design review only when all of the following are true:
 
-1. Every `AC-###` from `contract.md` is independently checked and passed.
+1. Every `AC-###` from `design.md` is independently checked and passed.
 2. The artifact opens in a browser with zero console errors.
 3. All forbidden design patterns are absent.
 4. Typography follows the quality rules.
@@ -79,7 +78,7 @@ A sprint passes design review only when all of the following are true:
 11. `prefers-reduced-motion` is present and functional.
 12. Content stress testing passes — extreme content does not break layout.
 13. Content contains no filler, no invented data, no AI slop copy.
-14. `qa.md` records before/action/after evidence for all interactive criteria.
+14. `design-qa.md` records before/action/after evidence for all interactive criteria.
 15. Coverage metadata is present and truthful.
 16. Convergence metadata shows zero open blocking findings.
 
@@ -96,12 +95,12 @@ Extract into your working notes:
 - forbidden areas
 - acceptance criteria for content and quality
 
-Do not let the builder redefine success in `handoff.md`. The contract is the source of truth.
+Do not let the builder redefine success in `design-handoff.md`. The contract in `design.md` is the source of truth.
 
 ### 2. Read the execution evidence critically
 
-From `handoff.md` and `runtime.md` answer:
-- What is the artifact path?
+From `design-handoff.md` answer:
+- What is the artifact path? (in Build Evidence section)
 - How do I access each variation?
 - What was already verified by the builder?
 - What could not be verified?
@@ -150,7 +149,7 @@ Use `references/design-quality-contract-recipe.md` as the audit checklist. Recor
 
 **Anti-pattern check** (any finding = P2 minimum)
 - [ ] No aggressive gradient backgrounds as primary surfaces
-- [ ] No emoji unless `context.md` documents brand usage
+- [ ] No emoji unless `reference/design/vocabulary.md` documents brand usage
 - [ ] No left-border accent container pattern
 - [ ] No SVG-drawn imagery (placeholder boxes are acceptable)
 - [ ] No forbidden font families (Inter, Roboto, Arial, Fraunces) unless design system requires them
@@ -162,11 +161,11 @@ Use `references/design-quality-contract-recipe.md` as the audit checklist. Recor
 - [ ] Token naming convention is consistent across the artifact
 
 **Pixel precision** (visual defects = P2)
-- [ ] Color values match `context.md` token inventory when sampled with DevTools eyedropper
+- [ ] Color values match `reference/design/tokens.json` when sampled with DevTools eyedropper
 - [ ] Spacing values match the token inventory scale (±1px tolerance)
 - [ ] Border radius values are from the token inventory (not ad-hoc)
 - [ ] Shadow values use the token inventory's shadow scale
-- [ ] Type scale values match `context.md` ±0px (size) and ±0.05 (line-height)
+- [ ] Type scale values match the token inventory ±0px (size) and ±0.05 (line-height)
 
 **Content discipline** (any filler = P2)
 - [ ] No placeholder text shipped as real content
@@ -210,7 +209,7 @@ Use `references/design-quality-contract-recipe.md` as the audit checklist. Recor
 - [ ] All five component states (default/hover/active/focus/disabled) exist for interactive elements
 
 **Brand temperament** (ADVISORY — record as qualitative observation, does not block PASS)
-- [ ] Overall visual impression matches the brand personality keywords from `context.md`
+- [ ] Overall visual impression matches the brand personality keywords from `reference/design/vocabulary.md`
 - [ ] The artifact speaks the documented industry dialect (or documents why it deviated)
 
 **Responsive / viewport** (if contract specifies)
@@ -219,18 +218,21 @@ Use `references/design-quality-contract-recipe.md` as the audit checklist. Recor
 ### 6. Check for reward hacking and scope violations
 
 FAIL when:
-- Artifact touches files outside `contract.md` allowed files
+- Artifact touches files outside `design.md` allowed files
 - A criterion passes only because of a hardcoded final state, pre-seeded placeholder, or canned output
 - The reviewer cannot reproduce the environment from the handoff notes alone
 - A Tweak or toggle reaches the alternate state but cannot reverse
 - Content looks rich but is entirely invented filler
 
-## Required Outputs
+## Required Output
 
-### `.agents-stack/<sprint-id>/qa.md`
+### `.agents-stack/<sprint-id>/design-qa.md`
 
 ```md
-# QA Evidence: <SPRINT-ID>
+# Design QA: <SPRINT-ID>
+
+## Status
+PASS | FAIL | BLOCKED
 
 ## Reviewer Trace
 - worker_id:
@@ -249,6 +251,9 @@ FAIL when:
   - accessibility
   - variations
   - content discipline
+  - animation quality
+  - brand temperament (advisory)
+  - content stress resistance
 - areas_not_reviewed:
 - coverage_status: complete | incomplete
 - criteria_total:
@@ -270,6 +275,12 @@ FAIL when:
 ### Anti-patterns
 - [check name]: PASS | FAIL — [note]
 
+### Token adherence
+- [check name]: PASS | FAIL — [note]
+
+### Pixel precision
+- [check name]: PASS | FAIL — [note]
+
 ### Content Discipline
 - [check name]: PASS | FAIL — [note]
 
@@ -285,45 +296,23 @@ FAIL when:
 ### Interaction Quality
 - [check name]: PASS | FAIL — [note]
 
+### Content Stress Resistance
+- [check name]: PASS | FAIL — [note]
+
+### Animation Quality
+- [check name]: PASS | FAIL — [note]
+
+### Brand Temperament (ADVISORY)
+- [observation]
+
+### Responsive / Viewport
+- [check name]: PASS | FAIL — [note]
+
 ## Findings Ledger
-- `RV-001` | severity=P1 | status=OPEN | duplicate_of=none
+- `DQ-001` | severity=P1 | status=OPEN | duplicate_of=none
   - Summary:
-- `RV-002` | severity=ADVISORY | status=OPEN | duplicate_of=none
+- `DQ-002` | severity=ADVISORY | status=OPEN | duplicate_of=none
   - Summary:
-
-## Convergence Summary
-- convergence_status: open | closed
-- open_blocking_findings_count:
-
-## Reproducibility Gaps
-- ...
-```
-
-### `.agents-stack/<sprint-id>/review.md`
-
-```md
-# Design Review: <SPRINT-ID>
-
-## Status
-PASS | FAIL | BLOCKED
-
-## Reviewer Trace
-- worker_id:
-- orchestrator_run_id:
-
-## Coverage Metadata
-- areas_reviewed: [list]
-- areas_not_reviewed: [list or none]
-- coverage_status: complete | incomplete
-- criteria_total:
-- criteria_checked:
-- all_acceptance_criteria_accounted_for: true | false
-
-## Findings
-- `RV-001` | severity=P1 | status=OPEN | duplicate_of=none
-  - Summary:
-- `RV-002` | severity=P2 | status=OPEN | duplicate_of=RV-001
-  - Summary: same root cause as RV-001
 
 ## Convergence Summary
 - convergence_status: open | closed
@@ -334,15 +323,15 @@ PASS | FAIL | BLOCKED
 [Why this verdict was reached]
 
 ## Contract Check Results
-- AC-001 | status=PASS | evidence=qa.md#AC-001
-- AC-002 | status=FAIL | evidence=qa.md#AC-002
-
-## Design Quality Findings
-[Summary of any anti-patterns, accessibility, content, or typography failures]
+- AC-001 | status=PASS | evidence=see Acceptance Checks#AC-001
+- AC-002 | status=FAIL | evidence=see Acceptance Checks#AC-002
 
 ## Corrective Directives
 1. [Most critical fix first]
 2. ...
+
+## Reproducibility Gaps
+- ...
 ```
 
 ### `.agents-stack/<sprint-id>/status.json`
@@ -350,9 +339,9 @@ PASS | FAIL | BLOCKED
 ```json
 {
   "sprint_id": "<sprint-id>",
-  "phase": "reviewed_pass | reviewed_fail | reviewed_blocked",
+  "phase": "qa_pass | qa_fail | qa_blocked",
   "owner_role": "orchestrator",
-  "resume_from": "review.md",
+  "resume_from": "design-qa.md",
   "last_updated_at": "<ISO timestamp>"
 }
 ```
@@ -374,19 +363,19 @@ Never erase evidence to make the next pass look cleaner.
 ## Final Checklist
 
 - [ ] Capability declared (browser tool available or static-analysis fallback mode)
-- [ ] Preconditions verified before starting: `contract.md`, `handoff.md: READY_FOR_REVIEW`, `runtime.md`, artifact file present
-- [ ] All `AC-###` from `contract.md` checked and recorded with before/action/after evidence
+- [ ] Preconditions verified before starting: `design.md` (design_contracted), `design-handoff.md: READY_FOR_REVIEW`, artifact file present
+- [ ] All `AC-###` from `design.md` checked and recorded with before/action/after evidence
 - [ ] Full design quality audit run against `references/design-quality-contract-recipe.md`
 - [ ] ADVISORY findings recorded but not counted toward `open_blocking_findings_count`
 - [ ] `convergence_status: closed` only when `open_blocking_findings_count: 0`
 - [ ] `coverage_status: complete` only when all areas reviewed
 - [ ] Exactly one verdict issued: PASS, FAIL, or BLOCKED
-- [ ] `qa.md` and `review.md` written before `status.json` is updated
-- [ ] `status.json` set to `reviewed_pass`, `reviewed_fail`, or `reviewed_blocked`
+- [ ] `design-qa.md` written before `status.json` is updated
+- [ ] `status.json` set to `qa_pass`, `qa_fail`, or `qa_blocked`
 - [ ] Token adherence scan completed (no hardcoded hex/rgb/hsl values)
 - [ ] Five-state completeness verified for all interactive elements
 - [ ] Animation easing family is singular and consistent
 - [ ] `prefers-reduced-motion` verified present and functional
 - [ ] Content stress testing completed (long text, emoji, broken images, extreme numbers)
 - [ ] Pixel precision check completed (eyedropper color sampling, spacing measurement)
-- [ ] Brand temperament observation recorded in review.md (advisory — does not block PASS)
+- [ ] Brand temperament observation recorded in design-qa.md (advisory — does not block PASS)

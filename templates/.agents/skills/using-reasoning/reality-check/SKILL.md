@@ -46,11 +46,11 @@ Use this skill when the real question is about:
 Do **not** use this skill for:
 
 - startup GTM, CAC, churn, runway, pricing, or unit-economics teardowns — use `greenfield-product/startup-pressure-test`
-- vague situations where the main job is to define the actual problem — use `using-reasoning/problem-definition`
-- distorted reasoning states driven by attachment, urgency, or defended identity — use `using-reasoning/thinking-ground`
+- vague situations where the main job is to define the actual problem — use `using-reasoning/reasoning (Phase 1 — Problem Definition)`
+- distorted reasoning states driven by attachment, urgency, or defended identity — use `using-reasoning/reasoning (Phase 0 — Calibrate)`
 - source-heavy fact gathering, market sizing, or evidence synthesis requests — use the appropriate research skill
-- general advisory memos once the problem is already clear and the user wants a structured recommendation — use `using-reasoning/domain-expert-consultation`
-- clear operational diagnosis where the job is to analyze a defined problem through lenses and choose the next move — use `using-reasoning/dynamic-problem-solving`
+- general advisory memos once the problem is already clear and the user wants a structured recommendation — use `using-reasoning/reasoning (Phase 3 — Structured Recommendation)`
+- clear operational diagnosis where the job is to analyze a defined problem through lenses and choose the next move — use `using-reasoning/reasoning (Phase 2 — Multi-Lens Analysis)`
 
 ## Analysis Workflow
 
@@ -65,7 +65,7 @@ Say plainly what the user is betting:
 - relationship or social capital
 - platform dependence
 
-If the bet cannot be stated in one or two sentences, stop and route to `using-reasoning/problem-definition`.
+If the bet cannot be stated in one or two sentences, stop and route to `using-reasoning/reasoning (Phase 1 — Problem Definition)`.
 
 ### 2. Surface the Hidden Rule Set
 
@@ -117,7 +117,7 @@ Ask:
 - Which hidden rules can be worked with, and which ones make this a bad bet for this user?
 - What would have to change for the answer to improve materially?
 
-If the main need becomes a structured recommendation, route next to `using-reasoning/domain-expert-consultation`. If the hidden-rule check succeeds and the remaining problem is a clear operational decision, route next to `using-reasoning/dynamic-problem-solving`.
+If the main need becomes a structured recommendation, route next to `using-reasoning/reasoning (Phase 3 — Structured Recommendation)`. If the hidden-rule check succeeds and the remaining problem is a clear operational decision, route next to `using-reasoning/reasoning (Phase 2 — Multi-Lens Analysis)`.
 
 ## Output Format
 

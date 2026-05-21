@@ -17,7 +17,7 @@ This skill sits between plain explanation and general strategic advice.
 
 - Use it after a **concrete signal** appears and the user wants implications under uncertainty.
 - Use it before roadmap, investment, product, policy, or competitive decisions that depend on how the change unfolds.
-- If the user wants a broad advisory memo, tradeoff analysis, or recommendation **without** a triggering external change, use `using-reasoning/domain-expert-consultation` instead.
+- If the user wants a broad advisory memo, tradeoff analysis, or recommendation **without** a triggering external change, use `using-reasoning/reasoning (Phase 3 — Structured Recommendation)` instead.
 - If the user only wants a summary or explanation of an announcement, answer normally instead of invoking this skill.
 
 ## Trigger Rule

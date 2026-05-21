@@ -7,7 +7,7 @@ description: Use when validating frontend behavior in a real browser, including 
 
 ## Overview
 
-Frontend QA validates what users actually experience in the browser across seven independent layers. This is a self-contained skill — it does not depend on `qa-core.md`.
+Frontend QA validates what users actually experience in the browser across seven independent layers. This is a self-contained skill — its framework is defined inline, not inherited from a shared QA core.
 
 Signoff lens: **Utility × Usability × Craft** — does the feature solve the right job, stay understandable under real interaction, and feel intentional rather than merely unbroken?
 

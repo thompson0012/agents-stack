@@ -1,6 +1,6 @@
 ---
 name: design-context-scout
-description: Use when a design sprint is starting and no trusted design context document exists yet for this feature.
+description: Use when a design sprint is starting and no trusted design spec exists yet for this feature.
 ---
 
 # Design Context Scout
@@ -16,17 +16,17 @@ Starting design work without understanding the existing system always produces g
 
 - Run scouting in a fresh worker context. The orchestrator dispatches; it does not inline scouting.
 - Only the orchestrator may spawn workers. This worker must not spawn another worker.
-- Tool lane: read-only access to all repo files, plus write access to `.agents-stack/<sprint-id>/context.md` and `.agents-stack/<sprint-id>/status.json`.
+- Tool lane: read-only access to all repo files, plus write access to `.agents-stack/reference/design/`, `.agents-stack/<sprint-id>/design.md`, and `.agents-stack/<sprint-id>/status.json`.
 - Parallel-safe for read-only discovery across disjoint file areas. One worker owns the context write.
 - Dispatch framing is non-authoritative. Verify the dispatched sprint against `.agents-stack/tracked-work.json` and the strongest local artifact before writing.
 
 ## Re-Entry Check
 
-Before beginning discovery, check whether `context.md` already exists from a prior scouting run:
+Before beginning discovery, check whether `design.md` already exists from a prior scouting run:
 
-- If `context.md` exists and `status.json` shows `phase: "context_ready"` or later → the context was accepted; do not re-scout unless explicitly instructed.
-- If `context.md` exists but `status.json` shows `phase: "context_needed"` or `"building"` → the prior run was interrupted; overwrite `context.md` entirely from scratch.
-- If `context.md` does not exist → begin discovery normally.
+- If `design.md` exists and `status.json` shows `phase: "design_spec"` or later → the spec was accepted; do not re-scout unless explicitly instructed.
+- If `design.md` exists but `status.json` shows `phase: "design_needed"` or `"building"` → the prior run was interrupted; overwrite `design.md` and reference files entirely from scratch.
+- If `design.md` does not exist → begin discovery normally.
 
 ## Discovery Order
 
@@ -44,7 +44,7 @@ Check for brand personality signals in:
 └── Ask: if this brand were a person, what 3-5 emotional keywords describe them? (e.g. "calm, precise, warm" vs "rebellious, fast, neon")
 ```
 
-Record in context.md:
+Record in `.agents-stack/reference/design/vocabulary.md`:
 - **Brand Personality Keywords**: 3-5 emotional descriptors
 - **Visual Identity Anchors**: What image or element would a user instantly associate with this brand?
 - **Competitive Differentiation**: How does this brand visually differ from competitors in its space?
@@ -123,16 +123,89 @@ If the human attached screenshots, Figma links, or a URL:
 
 ### 5. No Context Found
 If steps 1–4 produce no usable design context:
-- Record `no_design_system_found: true` in `context.md`
+- Record `no_design_system_found: true` in `design.md`
 - Set `status.json` to `phase: "awaiting_human"` with `human_action_required` explaining that a design system, codebase reference, or visual direction must be provided before the sprint can proceed
 - Do not proceed to proposal; surface the gate clearly
 
 ## Required Output
 
-### `.agents-stack/<sprint-id>/context.md`
+### `.agents-stack/reference/design/tokens.json`
+
+```json
+{
+  "colors": {
+    "primary": { "name": "...", "value": "#RRGGBB", "context": "light" },
+    "secondary": { "name": "...", "value": "#RRGGBB", "context": "light" },
+    "accent": { "name": "...", "value": "#RRGGBB", "context": "light" },
+    "background": { "name": "...", "value": "#RRGGBB" },
+    "surface": { "name": "...", "value": "#RRGGBB" },
+    "text": { "default": "#RRGGBB", "muted": "#RRGGBB", "inverse": "#RRGGBB" },
+    "border": { "default": "#RRGGBB", "divider": "#RRGGBB" }
+  },
+  "color_scale_depth": "<number of steps>",
+  "perceptual_uniformity": "OKLCH | LCH | HSL | unknown",
+  "dark_mode_strategy": "token_mapping | separate_palette | none",
+  "typography": {
+    "body": { "family": "...", "weight": 400, "size_hint": "16px" },
+    "heading": { "family": "...", "weight": 700, "size_hint": "32px" },
+    "scale_ratio": "1.25 | 1.414 | custom | unknown",
+    "font_stack_strategy": "system_font_priority | web_font_primary | mixed"
+  },
+  "spacing": {
+    "base_unit": "0.25rem",
+    "scale": ["0.25rem", "0.5rem", "1rem", "1.5rem", "2rem", "3rem", "4rem"]
+  },
+  "radius": {
+    "scale": { "sm": "0.25rem", "md": "0.5rem", "lg": "1rem", "full": "9999px" }
+  },
+  "shadow": {
+    "levels": [
+      { "name": "sm", "value": "0 1px 2px rgba(0,0,0,0.05)" }
+    ]
+  },
+  "motion": {
+    "transition_duration_default": "200ms",
+    "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+    "preferred_easing_family": "standard | spring | custom"
+  },
+  "source_files": ["path/to/token/file", "path/to/config/file"],
+  "animation_preference": "spring_physics | standard_easing | none_specified"
+}
+```
+
+### `.agents-stack/reference/design/vocabulary.md`
 
 ```md
-# Design Context: <SPRINT-ID>
+# Design Vocabulary
+
+## Brand Personality
+- **Keywords**: [3-5 emotional descriptors]
+- **Visual anchors**: [what users instantly associate with this brand]
+- **Differentiation**: [how this brand differs from industry norms]
+
+## Industry Dialect
+[tech/saas | web3/crypto | finance/banking | luxury/fashion | gaming/esports | content/editorial | custom]
+
+## Visual Vocabulary (observed)
+Describe the overall mood, density, corner style, icon style, copy tone in 3–5 sentences. This is the vocabulary the builder must speak.
+```
+
+### `.agents-stack/reference/design/components.md`
+
+```md
+# Component Inventory
+
+| Component | Purpose | Notable variants |
+|---|---|---|
+| ... | ... | ... |
+
+Source files: [list of file paths]
+```
+
+### `.agents-stack/<sprint-id>/design.md`
+
+```md
+# Design Spec: <SPRINT-ID>
 
 ## Project Summary
 - Name:
@@ -140,56 +213,10 @@ If steps 1–4 produce no usable design context:
 - Target audience:
 - Primary rendering target: (web / mobile / presentation / print)
 
-## Brand Personality
-- Keywords: [3-5 emotional descriptors]
-- Visual anchors: [what users associate with this brand]
-- Differentiation: [how it differs from industry norms]
-- Industry dialect: [tech/saas | web3/crypto | finance/banking | luxury/fashion | gaming/esports | content/editorial | custom]
-
 ## Design System Found
 - yes | partial | no
 - Source files:
   - path → what was extracted
-
-## Token Inventory
-
-### Colors
-| Role | Token name | Value | Context |
-|---|---|---|---|
-| Primary | ... | #RRGGBB | light |
-| ... | | | |
-
-- Color scale depth: [number of steps in primary color scale]
-- Perceptual uniformity: [OKLCH | LCH | HSL | unknown] — how the color scale was generated
-- Dark mode strategy: [token mapping | separate palette | none]
-
-### Typography
-| Role | Family | Weight | Size hint |
-|---|---|---|---|
-| Body | ... | ... | ... |
-| Heading | ... | ... | ... |
-
-- Type scale ratio: [modular scale used: 1.25 / 1.414 / custom / unknown]
-- Font stack strategy: [system font priority | web font primary | mixed]
-
-### Spacing & Radius
-- Base spacing unit:
-- Border radius scale: (sm / md / lg / full values)
-
-### Shadow / Elevation
-- ...
-
-### Motion
-- Transition duration default:
-- Easing:
-
-## Component Inventory
-| Component | Purpose | Notable variants |
-|---|---|---|
-| ... | ... | ... |
-
-## Visual Vocabulary (observed)
-Describe the overall mood, density, corner style, icon style, copy tone in 3–5 sentences. This is the vocabulary the builder must speak.
 
 ## Design Constraints
 - Fonts in use: (list actual families; flag if any are overused: Inter, Roboto, Arial, Fraunces)
@@ -210,14 +237,19 @@ Describe the overall mood, density, corner style, icon style, copy tone in 3–5
 - gaps or inferences:
 ```
 
+If no design context was found, add at top:
+```md
+> no_design_system_found: true
+```
+
 ### `.agents-stack/<sprint-id>/status.json`
 
 ```json
 {
   "sprint_id": "<sprint-id>",
-  "phase": "context_ready",
+  "phase": "design_spec",
   "owner_role": "orchestrator",
-  "resume_from": "context.md",
+  "resume_from": "design.md",
   "last_verified_step": "design-context-scout completed",
   "last_updated_at": "<ISO timestamp>"
 }
@@ -233,23 +265,26 @@ If no design context was found, set `phase: "awaiting_human"` and add:
 
 ## Quality Bar
 
-A good context document:
+A good design spec:
 - cites actual file paths, not assumptions
 - records exact token values, not paraphrased descriptions
 - distinguishes confirmed tokens from inferences
-- names open gaps explicitly rather than silently skipping them
+- splits stable reference data into `reference/design/` files and sprint-specific data into `design.md`
 - leaves the proposer and builder with enough vocabulary to stay on-brand without re-reading the entire codebase
 - records whether dark mode tokens exist and how they map (remapping vs inversion)
 - identifies the industry visual dialect when possible
 - notes the color scale generation method (OKLCH vs HSL) if discoverable
 
-A context document that invents tokens, fabricates vocabulary, or papers over a missing design system is worse than a document that honestly records "no system found."
+A spec that invents tokens, fabricates vocabulary, or papers over a missing design system is worse than a document that honestly records "no system found."
 
 ## Final Checklist
 
-- [ ] Prior `context.md` checked — if interrupted, overwrite from scratch; if complete and accepted, skip re-scouting
+- [ ] Prior `design.md` checked — if interrupted, overwrite from scratch; if complete and accepted, skip re-scouting
 - [ ] All token values cite actual file paths, not assumptions
 - [ ] Confirmed tokens distinguished from inferences
+- [ ] Stable tokens written to `.agents-stack/reference/design/tokens.json`
+- [ ] Brand personality and dialect written to `.agents-stack/reference/design/vocabulary.md`
+- [ ] Component inventory written to `.agents-stack/reference/design/components.md`
 - [ ] Open gaps named explicitly (no silent skips)
-- [ ] If no design system found: `no_design_system_found: true` in `context.md`, `phase: "awaiting_human"` in `status.json`, `human_action_required` populated
-- [ ] If context is complete: `phase: "context_ready"` in `status.json`
+- [ ] If no design system found: `no_design_system_found: true` in `design.md`, `phase: "awaiting_human"` in `status.json`, `human_action_required` populated
+- [ ] If context is complete: `phase: "design_spec"` in `status.json`

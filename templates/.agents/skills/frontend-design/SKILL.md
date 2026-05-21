@@ -15,8 +15,8 @@ Each child lives under `frontend-design/<child-name>/`, and child SKILL.md files
 - Route to exactly one child, or say no family child fits.
 - Files beat chat memory. If the sprint workspace and the conversation disagree, the workspace wins.
 - One runnable design sprint at a time. Do not open a second sprint while one is active.
-- Design context must exist before any artifact is built. If `context.md` is absent or untrusted, route to `design-context-scout` first.
-- Human approval gates proposals before execution. `sprint_proposal.md` with `phase: "awaiting_human"` means the builder must not start until the human clears it.
+- Design spec must exist before any artifact is built. If `design.md` is absent or its phase is `design_needed`, route to `design-context-scout` first.
+- Human approval gates proposals before execution. `design.md` with `phase: "awaiting_human"` means the builder must not start until the human clears it.
 - The builder does not self-approve. Only `design-reviewer` may issue a verdict.
 - The reviewer is adversarial. A beautiful artifact is not evidence of a correct one.
 - Retry after FAIL requires a named `clean_restore_ref` in `status.json`.
@@ -30,24 +30,23 @@ Each child lives under `frontend-design/<child-name>/`, and child SKILL.md files
 3. If `compound_pending_feature_ids` is non-empty, route `design-compounder` before opening or resuming any sprint.
 4. If a runnable active sprint exists, route from the strongest local artifact in `.agents-stack/<sprint-id>/`.
 5. Phase routing from strongest local artifact — in order:
-   - `review.md` exists and is unreconciled → route to `orchestrator` (harness) before next step
-   - `handoff.md` with `READY_FOR_REVIEW` and no `review.md` → `design-reviewer`
-   - `contract.md` approved and `phase: "validated"` → `design-builder`
-   - `contract.md` approved, `phase: "contracted"` AND `prototyping_required: true` in contract.md → `design-prototype-lab`
-   - `contract.md` approved, `phase: "contracted"` AND `prototyping_required: false` or absent → `design-builder`
-   - `sprint_proposal.md` exists and `phase: "approved"` (human-approved, no `contract.md` yet) → `design-proposer` to formalize the contract
-   - `sprint_proposal.md` exists and `phase: "awaiting_human"` → surface to human; do not auto-dispatch
-   - `context.md` exists with `no_design_system_found: true` and `phase: "awaiting_human"` → surface to human; do not advance to proposer until human provides design reference
-   - `context.md` exists but no `sprint_proposal.md` → `design-proposer`
-   - `.agents-stack/<sprint-id>/` folder exists with only `status.json` and no `context.md` → `design-context-scout`
+   - `design-qa.md` exists and is unreconciled → route to `orchestrator` (harness) before next step
+   - `design-handoff.md` with `READY_FOR_REVIEW` and no `design-qa.md` → `design-reviewer`
+   - `design.md` with `phase: "design_contracted"` AND `prototyping_required: true` → `design-prototype-lab`
+   - `design.md` with `phase: "design_contracted"` AND `prototyping_required: false` or absent → `design-builder`
+   - `design.md` exists and `phase: "approved"` (human-approved, contract not yet finalized) → `design-proposer` to formalize the contract
+   - `design.md` exists and `phase: "awaiting_human"` → surface to human; do not auto-dispatch
+   - `design.md` exists with `no_design_system_found: true` and `phase: "awaiting_human"` → surface to human; do not advance to proposer until human provides design reference
+   - `design.md` exists with `phase: "design_spec"` (scout completed, no proposal yet) → `design-proposer`
+   - `.agents-stack/<sprint-id>/` folder exists with only `status.json` and no `design.md` → `design-context-scout`
 6. If no runnable sprint and no active harness folder exists:
    - First read `.agents-stack/tracked-work.json` for a pending design feature; if found, route `design-context-scout` to begin scouting for it.
    - If no tracked feature exists yet, a `project-initializer` pass may be needed first.
-7. `review_failed` with valid `clean_restore_ref` and remaining budget → `design-builder` retry.
-8. `reviewed_blocked` → route to `orchestrator` (harness) to record the blocker, then surface to human. Do not auto-retry a BLOCKED verdict.
- 9. `build_failed` or `review_failed` without `clean_restore_ref`, or budget exhausted → `orchestrator` → `escalated_to_human`.
+7. `qa_fail` with valid `clean_restore_ref` and remaining budget → `design-builder` retry.
+8. `qa_blocked` → route to `orchestrator` (harness) to record the blocker, then surface to human. Do not auto-retry a BLOCKED verdict.
+9. `build_error` or `qa_fail` without `clean_restore_ref`, or budget exhausted → `orchestrator` → `escalated_to_human`.
 10. `validating_failed` → route to `orchestrator` → `escalated_to_human`.
-11. `review.md` PASS → route to `orchestrator` (harness) to reconcile verdict and queue compound.
+11. `design-qa.md` PASS → route to `orchestrator` (harness) to reconcile verdict and queue compound.
 12. After `orchestrator` confirms `compound_pending_feature_ids` is non-empty → route to `design-compounder`.
 13. After `design-compounder` clears the queue → sprint is complete; open next sprint if pending.
 
@@ -55,17 +54,17 @@ Each child lives under `frontend-design/<child-name>/`, and child SKILL.md files
 
 | Phase | Artifact | Owner |
 |---|---|---|
-| `context_needed` | nothing yet | `design-context-scout` |
-| `context_ready` | `context.md` | `design-proposer` |
-| `awaiting_human` | `sprint_proposal.md` | human |
-| `contracted` | `contract.md` | `design-builder` |
+| `design_needed` | nothing yet | `design-context-scout` |
+| `design_spec` | `design.md` | `design-proposer` |
+| `awaiting_human` | `design.md` | human |
+| `design_contracted` | `design.md` | `design-builder` |
 | `validating` | `token-validation.md`, `component-tests.md`, `page-slice.md` | `design-prototype-lab` |
-| `building` | in-progress HTML, `runtime.md` | `design-builder` |
-| `awaiting_review` | `handoff.md` | `design-reviewer` |
-| `reviewed_pass` | `review.md` PASS | `orchestrator` → `design-compounder` |
-| `reviewed_fail` | `review.md` FAIL | `design-builder` retry |
-| `reviewed_blocked` | `review.md` BLOCKED | `orchestrator` → human |
-| `build_failed` | `runtime.md` with failure | `orchestrator` |
+| `building` | in-progress HTML, `design-handoff.md` | `design-builder` |
+| `awaiting_review` | `design-handoff.md` | `design-reviewer` |
+| `qa_pass` | `design-qa.md` PASS | `orchestrator` → `design-compounder` |
+| `qa_fail` | `design-qa.md` FAIL | `design-builder` retry |
+| `qa_blocked` | `design-qa.md` BLOCKED | `orchestrator` → human |
+| `build_error` | `design-handoff.md` with failure | `orchestrator` |
 | `validating_failed` | `token-validation.md` with failures | `orchestrator` |
 | `escalated_to_human` | `status.json` | human |
 
@@ -79,7 +78,7 @@ This router owns:
 - design learning compound capture
 - progressive design validation (token labs, component theater, page slices)
 
-This router does not own general harness lifecycle management. After `review.md` is written, route through `orchestrator` (from `using-agents-stack`) for archive, live-state reconciliation, and progress ledger updates. This family's state machine is a domain layer on top of the harness, not a replacement for it.
+This router does not own general harness lifecycle management. After `design-qa.md` is written, route through `orchestrator` (from `using-agents-stack`) for archive, live-state reconciliation, and progress ledger updates. This family's state machine is a domain layer on top of the harness, not a replacement for it.
 
 ## Router Output
 
@@ -87,7 +86,7 @@ Return one of these forms, then dispatch the selected child as a fresh worker:
 
 - `Route to frontend-design/design-context-scout.`
 - `Route to frontend-design/design-proposer.`
-- `Parked at awaiting_human. Surface sprint_proposal.md to human for approval.`
+- `Parked at awaiting_human. Surface design.md to human for approval.`
 - `Route to frontend-design/design-builder.`
 - `Route to frontend-design/design-prototype-lab.`
 - `Route to frontend-design/design-reviewer.`
@@ -104,9 +103,9 @@ Return one of these forms, then dispatch the selected child as a fresh worker:
 
 - [ ] Only one routing target selected per session
 - [ ] `compound_pending_feature_ids` checked before opening a new sprint
-- [ ] `context.md` verified present before routing to `design-proposer`
+- [ ] `design.md` verified present before routing to `design-proposer`
 - [ ] `awaiting_human` phase not auto-dispatched — surfaced to human
 - [ ] `orchestrator` invoked after every review verdict (PASS, FAIL, or BLOCKED)
-- [ ] `reviewed_blocked` routes to `orchestrator` + human, not to builder retry
-- [ ] `reviewed_pass` sequence: `orchestrator` → confirm compound queued → `design-compounder`
+- [ ] `qa_blocked` routes to `orchestrator` + human, not to builder retry
+- [ ] `qa_pass` sequence: `orchestrator` → confirm compound queued → `design-compounder`
 - [ ] Children inventory in `references/children.json` is current

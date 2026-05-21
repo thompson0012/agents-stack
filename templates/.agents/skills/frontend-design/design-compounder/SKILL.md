@@ -27,13 +27,13 @@ Before writing anything:
 2. `.agents-stack/tracked-work.json` — confirm the feature is in `compound_pending_feature_ids`
 3. `.agents-stack/insights/session-log.md` — current durable learning baseline
 4. `.agents-stack/reference/design.md` — current stable reference
-5. Sprint decisive evidence: `review.md`, `handoff.md`, `context.md`, `contract.md`
+5. Sprint decisive evidence: `design-qa.md`, `design-handoff.md`, `design.md`
 
 ## What Qualifies as Durable Learning
 
 Extract only lessons that meet all three criteria:
 
-1. **Decisive** — drawn from `review.md` verdict, accepted `contract.md` criteria, or confirmed `handoff.md` evidence, not from the conversation or from plausible inferences.
+1. **Decisive** — drawn from `design-qa.md` verdict, accepted `design.md` criteria, or confirmed `design-handoff.md` evidence, not from the conversation or from plausible inferences.
 2. **Artifact-linked** — can cite the exact sprint file and path that proves the lesson.
 3. **Cross-sprint valuable** — benefits a future sprint, not just a record of what this sprint did.
 
@@ -55,7 +55,7 @@ Extract only lessons that meet all three criteria:
 - "The artifact looked good." — no provenance, no future value
 - "We used Tailwind." — architecture fact, not a lesson
 - Routine implementation steps that apply to every sprint
-- Observations that contradict `review.md` evidence
+- Observations that contradict `design-qa.md` evidence
 - Chat-only conclusions with no artifact path
 
 ## Decision: Extract or Skip
@@ -76,9 +76,9 @@ Append to `.agents-stack/insights/session-log.md`. Do not overwrite existing ent
 ## [SPRINT-ID] <short lesson title> — <ISO date>
 - **Category**: token | typography | component | scaffold | anti-pattern | accessibility | variation-strategy | process
 - **Lesson**: [one clear sentence stating the durable learning]
-- **Evidence**: `.agents-stack/<sprint-id>/review.md` — [exact finding id or section name]
+- **Evidence**: `.agents-stack/<sprint-id>/design-qa.md` — [exact finding id or section name]
 - **Applies to**: all future sprints | sprints using [specific output type] | projects using [specific design system]
-- **Provenance**: [link to decisive artifact: review.md#RV-001, contract.md#AC-002, etc.]
+- **Provenance**: [link to decisive artifact: design-qa.md#DQ-001, design.md#AC-002, etc.]
 ```
 
 Multiple distinct lessons from one sprint each get their own entry.

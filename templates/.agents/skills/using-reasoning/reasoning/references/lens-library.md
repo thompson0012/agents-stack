@@ -1,6 +1,6 @@
 # Lens Library
 
-Use this file only after `dynamic-problem-solving` has triggered and you know which lenses you need.
+Use this file only after `reasoning Phase 2/3` has triggered and you know which lenses you need.
 
 Each lens gives you:
 

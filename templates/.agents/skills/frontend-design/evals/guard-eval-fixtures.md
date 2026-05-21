@@ -4,8 +4,8 @@ fixtures:
     before_state:
       required_artifacts: []
       invariants:
-        - .agents-stack/<sprint-id>/contract.md does not exist
-        - status.json shows phase: contracted
+        - .agents-stack/<sprint-id>/design.md does not exist
+        - status.json shows phase: design_contracted
     guard_action: design-builder decides whether to begin implementation
     expected_after_state:
       outcome: deny
@@ -13,13 +13,13 @@ fixtures:
       phase: awaiting_human
     fail_closed_expectation:
       missing_or_invalid_state: builder must not create any artifact files
-      evidence_to_record: "runtime.md: contract.md missing — cannot begin build"
+      evidence_to_record: "design-handoff.md: design.md missing — cannot begin build"
 
   - id: builder-blocks-without-phase-contracted
     phase_or_artifact_gate: design-builder entry check
     before_state:
       required_artifacts:
-        - .agents-stack/<sprint-id>/contract.md
+        - .agents-stack/<sprint-id>/design.md
       invariants:
         - status.json shows phase: awaiting_human (proposal not yet approved)
     guard_action: design-builder decides whether to begin implementation
@@ -28,24 +28,24 @@ fixtures:
       next_owner: human
       phase: awaiting_human
     fail_closed_expectation:
-      missing_or_invalid_state: builder must not begin; phase must be contracted or a valid retry phase
-      evidence_to_record: "runtime.md: phase is not contracted — awaiting human approval"
+      missing_or_invalid_state: builder must not begin; phase must be design_contracted or a valid retry phase
+      evidence_to_record: "design-handoff.md: phase is not design_contracted — awaiting human approval"
 
   - id: awaiting-human-prevents-auto-dispatch
     phase_or_artifact_gate: router dispatch at awaiting_human
     before_state:
       required_artifacts:
-        - .agents-stack/<sprint-id>/sprint_proposal.md
+        - .agents-stack/<sprint-id>/design.md
       invariants:
         - status.json shows phase: awaiting_human
-        - contract.md does not exist
+        - design.md does not exist
     guard_action: router decides which child to dispatch
     expected_after_state:
       outcome: deny (surface to human, no child dispatch)
       next_owner: human
     fail_closed_expectation:
       missing_or_invalid_state: router must not auto-dispatch design-builder or any other worker
-      evidence_to_record: "Router output: Parked at awaiting_human. Surface sprint_proposal.md to human for approval."
+      evidence_to_record: "Router output: Parked at awaiting_human. Surface design.md to human for approval."
 
   - id: retry-allows-with-valid-restore-ref
     phase_or_artifact_gate: router retry routing
@@ -54,7 +54,7 @@ fixtures:
         - .agents-stack/<sprint-id>/review.md (FAIL verdict)
         - .agents-stack/<sprint-id>/status.json
       invariants:
-        - status.json shows phase: reviewed_fail
+        - status.json shows phase: qa_fail
         - clean_restore_ref is present and non-empty
         - attempt_count < max_attempts
     guard_action: router decides whether to dispatch design-builder for retry
@@ -73,7 +73,7 @@ fixtures:
         - .agents-stack/<sprint-id>/review.md (FAIL verdict)
         - .agents-stack/<sprint-id>/status.json
       invariants:
-        - status.json shows phase: reviewed_fail
+        - status.json shows phase: qa_fail
         - clean_restore_ref is absent or empty string
     guard_action: router decides whether to dispatch design-builder for retry
     expected_after_state:
@@ -87,7 +87,7 @@ fixtures:
     phase_or_artifact_gate: builder retry entry check
     before_state:
       required_artifacts:
-        - .agents-stack/<sprint-id>/contract.md
+        - .agents-stack/<sprint-id>/design.md
         - .agents-stack/<sprint-id>/status.json
       invariants:
         - status.json shows attempt_count >= max_attempts

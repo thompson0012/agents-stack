@@ -11,12 +11,12 @@ Backend QA validates what downstream consumers and operators actually get from a
 Signoff lens: **Utility × Reliability × Contract** — does it produce the needed outcome,
 stay honest under failure and concurrency, and tell the truth in its schemas, permissions, and errors.
 
-Shared QA methodology is defined in [qa-core.md](../references/qa-core.md). Read it first.
+Shared QA methodology is defined in [core.md](references/core.md). Read it first.
 This file defines only backend-specific extensions.
 
 ## Domain-Specific Passes
 
-In addition to the 7 core passes defined in qa-core.md:
+In addition to the 7 core passes defined in core.md:
 
 - **State & data emphasis** — retries, deduplication, transactions, concurrent mutation, compensating paths
 - **Resilience emphasis** — poison-message handling, queue replay, partial outage recovery
@@ -30,7 +30,7 @@ In addition to the 7 core passes defined in qa-core.md:
 
 ## References
 
-- [qa-core.md](../references/qa-core.md) — Shared QA methodology
+- [core.md](references/core.md) — Shared QA methodology
 - [Framework](references/framework.md) — Utility × Reliability × Contract in detail
 - [Playbook](references/playbook.md) — Pass execution playbook
 - [Reporting](references/reporting.md) — Findings format and severity classification

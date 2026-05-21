@@ -1,6 +1,6 @@
 ---
 name: design-builder
-description: Use when contract.md is approved and the design artifact must be implemented.
+description: Use when design.md is in design_contracted phase and the design artifact must be implemented.
 ---
 
 # Design Builder
@@ -8,7 +8,7 @@ description: Use when contract.md is approved and the design artifact must be im
 ## Placement
 This is a nested child under `frontend-design`; its path is `frontend-design/design-builder/`, and the router selects it before standalone use.
 
-You are the implementation phase of the design harness. Your job is to produce a high-quality, verifiable HTML artifact that exactly matches the approved contract — nothing more, nothing less.
+You are the implementation phase of the design harness. Your job is to produce a high-quality, verifiable HTML artifact that exactly matches the approved contract in `design.md` — nothing more, nothing less.
 
 Producing a beautiful artifact that violates the contract is still a failure. Producing a correct artifact that uses AI slop patterns is still a failure.
 
@@ -16,22 +16,22 @@ Producing a beautiful artifact that violates the contract is still a failure. Pr
 
 - Run in a fresh worker context. The orchestrator dispatches; it does not inline building.
 - Only the orchestrator may spawn workers. This worker must not spawn another worker.
-- Tool lane: write access to `.agents-stack/<sprint-id>/artifact/`, `.agents-stack/<sprint-id>/runtime.md`, `.agents-stack/<sprint-id>/handoff.md`, `.agents-stack/<sprint-id>/status.json`. No edits to product code, .agents-stack/*, or .agents-stack/reference/*.
-- Dispatch framing is non-authoritative. Verify against `contract.md` and `.agents-stack/tracked-work.json` before writing.
+- Tool lane: write access to `.agents-stack/<sprint-id>/artifact/`, `.agents-stack/<sprint-id>/design-handoff.md`, `.agents-stack/<sprint-id>/status.json`. No edits to product code, .agents-stack/*, or .agents-stack/reference/*.
+- Dispatch framing is non-authoritative. Verify against `design.md` and `.agents-stack/tracked-work.json` before writing.
 
 ## Required Entry Checks
 
 Before writing any code:
-1. `contract.md` exists and all `[human must clarify]` fields are resolved.
-2. `context.md` exists and contains at minimum: output type, visual vocabulary, and token inventory.
-3. `status.json` shows `phase: "contracted"` or a valid retry phase with `clean_restore_ref`.
+1. `design.md` exists and all `[human must clarify]` fields are resolved.
+2. `design.md` contains at minimum: output type, visual vocabulary reference, and token inventory reference.
+3. `status.json` shows `phase: "design_contracted"` or a valid retry phase with `clean_restore_ref`.
 4. If this is a retry: confirm `attempt_count < max_attempts` and `clean_restore_ref` names a valid restore point.
 
-If any check fails, stop. Record the gap in `runtime.md`, set `phase: "awaiting_human"`, and return.
+If any check fails, stop. Record the gap in `design-handoff.md`, set `phase: "awaiting_human"`, and return.
 
 ## Source of Truth
 
-Work from `contract.md`, not from the conversation.
+Work from `design.md`, not from the conversation.
 
 Binding sections:
 - objective
@@ -41,11 +41,11 @@ Binding sections:
 - acceptance criteria (all `AC-###` ids)
 - variation axes
 
-`context.md` provides the design vocabulary; it does not override the contract. If they conflict, preserve the conflict in `runtime.md` and stop.
+`.agents-stack/reference/design/vocabulary.md` and `.agents-stack/reference/design/tokens.json` provide the design vocabulary; they do not override the contract. If they conflict, preserve the conflict in `design-handoff.md` and stop.
 
 ## Retry Discipline
 
-When resuming after `review_failed` or `build_failed`:
+When resuming after `qa_fail` or `build_error`:
 - restore from `clean_restore_ref` before beginning the next attempt
 - increment `attempt_count` at the start of the attempt, not at the end
 - if `attempt_count` would exceed `max_attempts`, set `phase: "escalated_to_human"` immediately
@@ -54,13 +54,13 @@ When resuming after `review_failed` or `build_failed`:
 
 `clean_restore_ref` identifies the restore point for the sprint's artifact directory.
 
-**Format:** use the sprint-id string (e.g., `"DESIGN-001"`). Restoring means deleting all contents of `.agents-stack/<sprint-id>/artifact/` and rebuilding from `contract.md` and `context.md` — these source files are never modified by the builder and always remain valid as the restore baseline.
+**Format:** use the sprint-id string (e.g., `"DESIGN-001"`). Restoring means deleting all contents of `.agents-stack/<sprint-id>/artifact/` and rebuilding from `design.md` and reference files — these source files are never modified by the builder and always remain valid as the restore baseline.
 
 **When to set it:** on the very first build attempt, before writing any artifact files, set `clean_restore_ref: "<sprint-id>"` in the `building` status.json. This ensures a restore point exists before any failure can occur.
 
 **If git is available** and the `.agents-stack/` folder is tracked, prefer using the git SHA of the pre-build commit: `clean_restore_ref: "<git-sha>"`. Restoring then means `git checkout <sha> -- .agents-stack/<sprint-id>/artifact/`.
 
-A sprint that reaches `build_failed` or `review_failed` without a `clean_restore_ref` in status.json cannot be retried — the router will escalate to human immediately.
+A sprint that reaches `build_error` or `qa_fail` without a `clean_restore_ref` in status.json cannot be retried — the router will escalate to human immediately.
 
 ## Build Procedure
 
@@ -70,7 +70,7 @@ Build in three layers, verifying each before moving to the next:
 
 **Layer 1: Static Restoration**
 - Nail typography, colors, spacing, and layout first — no animations, no interactivity
-- Verify against `context.md` token inventory with DevTools
+- Verify against `reference/design/tokens.json` with DevTools
 - Every color must be a CSS custom property sourced from the token inventory
 - No hardcoded hex values; use `var(--token-name)` or oklch() derivations
 
@@ -124,16 +124,16 @@ Select the scaffold pattern that matches the contract's output type:
 - No decorative styling, no color beyond grayscale + one accent, no real imagery.
 
 **`ui-mockup`**
-- Hi-fi HTML using tokens from `context.md`.
+- Hi-fi HTML using tokens from `reference/design/tokens.json`.
 - Use `oklch()` for any supplementary colors not in the token inventory, deriving from the existing palette.
 
-### 2. Apply design vocabulary from context.md
+### 2. Apply design vocabulary from reference files
 
 Before writing component code:
-- Set CSS custom properties from the token inventory in `:root`
-- Use only font families found in `context.md`; if none were found, pick one from the non-forbidden list (not Inter, not Roboto, not Arial, not Fraunces)
+- Set CSS custom properties from the token inventory in `:root` (sourced from `reference/design/tokens.json`)
+- Use only font families found in `reference/design/tokens.json`; if none were found, pick one from the non-forbidden list (not Inter, not Roboto, not Arial, not Fraunces)
 - Use spacing and radius values from the token inventory
-- Match the visual vocabulary described in `context.md` (density, corner style, shadow, icon style)
+- Match the visual vocabulary described in `reference/design/vocabulary.md` (density, corner style, shadow, icon style)
 
 ### 3. Implement variations
 
@@ -163,7 +163,7 @@ Every artifact must follow these rules before handoff. Violation of any rule is 
 
 #### Visual anti-patterns (forbidden)
 - No aggressive gradient backgrounds as primary surfaces
-- No emoji unless `context.md` documents the brand uses them
+- No emoji unless `reference/design/vocabulary.md` documents the brand uses them
 - No containers styled with `border-left: 4px solid <accent>` + rounded corners as a card treatment
 - No imagery drawn with inline SVG paths; use labeled placeholder boxes (`<div class="img-placeholder">` styled with a neutral fill) or reference actual project assets
 - No AI-generated color palettes invented from scratch when token inventory exists
@@ -186,12 +186,12 @@ Every interactive element must define all five visual states:
 - Add `@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }` to the artifact CSS
 - Never animate `width`, `height`, `top`, `left` properties — use `transform` and `opacity` only (prevents layout thrashing)
 
-#### Visual proportion discipline (ADVISORY — record in runtime.md if violated)
+#### Visual proportion discipline (ADVISORY — record in design-handoff.md if violated)
 - 60-30-10 rule: ~60% neutral surface, ~30% brand color, ~10% accent
 - 80/20 rule: ~80% of elements should be visually "quiet" (neutral, standard), ~20% "speak" (brand color, large type, animation)
 
 #### Typography
-- Never use: Inter, Roboto, Arial, Fraunces, or generic `system-ui` unless the project's own design system requires them and `context.md` confirms this
+- Never use: Inter, Roboto, Arial, Fraunces, or generic `system-ui` unless the project's own design system requires them and `reference/design/tokens.json` confirms this
 - Minimum font sizes: 24px for 1920×1080 fixed canvas; 12px for print; 16px for web body
 - Apply `text-wrap: pretty` on paragraph text
 
@@ -232,7 +232,7 @@ Navigation controls (prev/next, scrubber) must be outside the scaled element.
 
 ### 5. Capture build evidence
 
-`runtime.md` is the reviewer's reproduction kit, not a progress diary.
+Build evidence is the reviewer's reproduction kit, not a progress diary. It is recorded directly in `design-handoff.md` under the **Build Evidence** section.
 
 Record:
 - Exact file path(s) of the artifact
@@ -242,14 +242,14 @@ Record:
 - For each `AC-###` from the contract: what was implemented and where the reviewer should look
 - Any known gaps, warnings, or intentional deferrals
 
-### 6. Produce a real handoff
+### 6. Produce the handoff
 
-`handoff.md` answers:
+`design-handoff.md` answers:
 1. What contract objective was implemented?
 2. Which files were created or changed?
 3. Exact path to open the artifact
 4. How to access each variation
-5. Evidence already captured in `runtime.md`
+5. Build evidence (attempt state, scaffold, acceptance trace)
 6. What remains risky, unverified, or deferred?
 7. Status: `READY_FOR_REVIEW`, `BUILD_FAILED`, `AWAITING_HUMAN`, or `ESCALATED_TO_HUMAN`
 
@@ -257,40 +257,7 @@ A handoff that says only "done" is invalid.
 
 ## Required Output Files
 
-### `.agents-stack/<sprint-id>/runtime.md`
-
-```md
-# Runtime Notes: <SPRINT-ID>
-
-## Attempt State
-- Attempt count:
-- Max attempts:
-- Clean restore ref:
-
-## Artifact
-- Type:
-- Path: .agents-stack/<sprint-id>/artifact/<filename>.html
-- Open with: file:/// path or browser
-
-## Scaffold
-- Pattern used: (react-babel | vanilla | deck | animation | wireframe)
-- Dependencies: (CDN URLs or none)
-
-## Variations
-| Axis | How to access |
-|---|---|
-| ... | Tweaks panel / section label / slide |
-
-## Acceptance Trace
-- AC-001 → (what was implemented, where to verify)
-- AC-002 → ...
-- ...
-
-## Blockers / Gaps
-- None
-```
-
-### `.agents-stack/<sprint-id>/handoff.md`
+### `.agents-stack/<sprint-id>/design-handoff.md`
 
 ```md
 # Design Builder Handoff: <SPRINT-ID>
@@ -311,7 +278,29 @@ READY_FOR_REVIEW | BUILD_FAILED | AWAITING_HUMAN | ESCALATED_TO_HUMAN
 - ...
 
 ## Variations Exposed
+| Axis | How to access |
+|---|---|
+| ... | Tweaks panel / section label / slide |
+
+## Build Evidence
+(Derived from what was formerly runtime.md — the reviewer's reproduction kit.)
+
+### Artifact Summary
+- Type:
+- Path: .agents-stack/<sprint-id>/artifact/<filename>.html
+- Open with: file:/// path or browser
+
+### Scaffold
+- Pattern used: (react-babel | vanilla | deck | animation | wireframe)
+- Dependencies: (CDN URLs or none)
+
+### Acceptance Trace
+- AC-001 → (what was implemented, where to verify)
+- AC-002 → ...
 - ...
+
+### Blockers / Gaps
+- None | [list]
 
 ## Acceptance Trace for Review
 - AC-001 → where reviewer should start
@@ -320,7 +309,7 @@ READY_FOR_REVIEW | BUILD_FAILED | AWAITING_HUMAN | ESCALATED_TO_HUMAN
 ## Reviewer Start Here
 1. Open the file at the path above in a browser
 2. Open DevTools console — expect zero errors
-3. Walk each AC-### from contract.md
+3. Walk each AC-### from design.md
 
 ## Unverified or Risky Areas
 - ...
@@ -329,9 +318,9 @@ READY_FOR_REVIEW | BUILD_FAILED | AWAITING_HUMAN | ESCALATED_TO_HUMAN
 ### `.agents-stack/<sprint-id>/status.json`
 
 Typical transitions:
-- Start / retry: `phase: "building"`, `owner_role: "orchestrator"`, `resume_from: "contract.md"` (first pass) or `"review.md"` (retry)
-- Ready for review: `phase: "awaiting_review"`, `owner_role: "orchestrator"`, `resume_from: "handoff.md"`
-- Build failed: `phase: "build_failed"`, `owner_role: "orchestrator"`, `resume_from: "runtime.md"`, plus `attempt_count`, `max_attempts`, `clean_restore_ref`
+- Start / retry: `phase: "building"`, `owner_role: "orchestrator"`, `resume_from: "design.md"` (first pass) or `"design-qa.md"` (retry)
+- Ready for review: `phase: "awaiting_review"`, `owner_role: "orchestrator"`, `resume_from: "design-handoff.md"`
+- Build failed: `phase: "build_error"`, `owner_role: "orchestrator"`, `resume_from: "design-handoff.md"`, plus `attempt_count`, `max_attempts`, `clean_restore_ref`
 - Budget exhausted: `phase: "escalated_to_human"`, `owner_role: "human"`, `escalation_reason`
 
 ## Stop Conditions
@@ -339,24 +328,24 @@ Typical transitions:
 Route to `design-reviewer` only when all of the following are true:
 - Artifact file exists and opens in a browser
 - Zero console errors confirmed
-- `runtime.md` contains the artifact path and per-AC evidence
-- `handoff.md` says `READY_FOR_REVIEW`
+- `design-handoff.md` contains the artifact path and per-AC evidence in Build Evidence
+- `design-handoff.md` says `READY_FOR_REVIEW`
 - `status.json` says `awaiting_review`
 
-Otherwise, stop cleanly and leave the sprint in `build_failed`, `awaiting_human`, or `escalated_to_human`.
+Otherwise, stop cleanly and leave the sprint in `build_error`, `awaiting_human`, or `escalated_to_human`.
 
 ## Final Checklist
 
 - [ ] `clean_restore_ref` set in `status.json` before any artifact file is written
-- [ ] All entry checks passed: `contract.md` exists, no unresolved `[human must clarify]` fields, `phase: "contracted"` confirmed
+- [ ] All entry checks passed: `design.md` exists, no unresolved `[human must clarify]` fields, `phase: "design_contracted"` confirmed
 - [ ] No content invented beyond what the contract specifies
 - [ ] No forbidden visual patterns used (gradient bg, emoji, left-border card, SVG imagery, forbidden fonts)
 - [ ] All stateful elements persist via `localStorage` as contracted
 - [ ] `scrollIntoView()` not used anywhere in the artifact
 - [ ] Minimum contrast (4.5:1 body, 3:1 large text) and touch targets (44×44px) met
 - [ ] At least 3 variation axes exposed and accessible
-- [ ] `runtime.md` contains artifact path and per-AC evidence
-- [ ] `handoff.md` says `READY_FOR_REVIEW` with reviewer start instructions
+- [ ] `design-handoff.md` contains artifact path and per-AC evidence in Build Evidence section
+- [ ] `design-handoff.md` says `READY_FOR_REVIEW` with reviewer start instructions
 - [ ] `status.json` set to `awaiting_review`
 - [ ] Layered implementation order followed: static → responsive → animation
 - [ ] No hardcoded color values (hex, rgb, hsl) — all colors from tokens or oklch() derivations
@@ -365,4 +354,4 @@ Otherwise, stop cleanly and leave the sprint in `build_failed`, `awaiting_human`
 - [ ] Animation timing matches contract hierarchy (100-150ms / 200-300ms / 400-600ms)
 - [ ] `prefers-reduced-motion` rule present in CSS
 - [ ] No `width`/`height`/`top`/`left` animated — only `transform` and `opacity`
-- [ ] 60-30-10 and 80/20 proportions checked (advisory — note any violations in runtime.md)
+- [ ] 60-30-10 and 80/20 proportions checked (advisory — note any violations in design-handoff.md)
