@@ -15,6 +15,15 @@ You are the adversarial gate. Reproduce the build from `handoff.md` instructions
 
 If you are the same agent instance that performed the implement phase, STOP. This violates the adversarial separation invariant. The orchestrator must dispatch you independently.
 
+### Fresh Session Requirement
+
+This QA worker MUST be a **fresh session** with no prior context from implement or development iterations. Reused sessions accumulate context bias — the reviewer can subconsciously accept partial implementations because they "know what was intended." A fresh agent evaluates the final state against the spec with zero knowledge of the improvement trajectory.
+
+- ✅ **DISPATCH**: brand-new agent session, given the full spec + full codebase
+- ❌ **REJECT**: any session that previously reviewed this workstream's code or participated in implement discussions
+
+If you are reading this and you have prior session context on this workstream, STOP and report to orchestrator: "I am biased by accumulated context — dispatch a fresh qa agent."
+
 ## Input
 
 Read from disk:
@@ -115,16 +124,51 @@ If FAIL, trace to layer:
 | API can't support use case, DB schema wrong | L2 — architecture | plan |
 | AC doesn't cover real scenario, edge case missing | L3 — spec | spec |
 
+## Reproduce Gate (Hard Stop)
+
+Before reading any artifact, build and run the system.
+
+| Step | Action | Pass Condition | Fail → |
+|------|--------|---------------|--------|
+| 1 | Run build command (`npm run build` or equivalent) | Exit code 0 | BLOCKED — system doesn't compile |
+| 2 | Start the system (`npm start` or equivalent) | Process stays alive, port responds | BLOCKED — system doesn't boot |
+| 3 | Exercise one basic path (curl, CLI, or test) | Core interaction succeeds | BLOCKED — system starts but doesn't function |
+
+If ANY reproduce step fails, verdict is **BLOCKED**. Do NOT proceed to AC verification against a non-functional system. Write qa-report.md with BLOCKED verdict, document exactly what failed, and route back.
+
+**Why this gate exists**: A code review that never runs the code cannot detect the system being broken. The implementer's handoff may claim everything works — but only independent reproduction confirms it.
+
+### Step 4: Cross-Module Wiring Verification
+
+After the system is running, perform an integration wiring check:
+
+1. **Read `handoff.md` Integration Gate Results** — the implementer should have recorded their zero-caller scan and cross-module interface check
+2. **Independently verify** — do not trust the implementer's results. Run your own scan:
+   ```
+   # Pick 3-5 public API functions from the spec's critical path
+   # Verify each has at least one production caller
+   rg "assemble_prompt\(" --glob '!tests/**'  # should find non-test callers
+   ```
+3. **Cross-check against plan.md** — for every cross-module interface in the plan, verify the production code wiring exists
+4. **If the implementer skipped the integration gate** (no Integration Gate Results section in handoff.md): flag as a process violation in qa-report.md
+
+| Result | Action |
+|--------|--------|
+| All critical-path functions have production callers, all plan interfaces wired | Proceed to AC verification |
+| Zero-caller detected on critical path | **P0 gap** — record in Findings, route to implement |
+| Implementer skipped integration gate entirely | **Process violation** — record in Findings, flag as trust issue
+
 ## Workflow
 
 1. Read `spec.md` for acceptance criteria
 2. Read `handoff.md` for reproduction steps
-3. Independently reproduce the build
-4. Verify each AC from spec.md against real behavior
-5. Assess layer if failure found
-6. Assess deeper insight potential
-7. Write `qa-report.md` with honest verdict
-8. Update `status.json`: `phase: "qa"`, `last_audited_attempt: <current attempt>`
+3. **Run the Reproduce Gate** (above) — system must build, start, and respond
+4. For each AC from spec.md: **exercise the live system**. Code review (reading files) is NOT a substitute for execution. Run the actual system, send real requests, observe real responses.
+5. Verify each AC from spec.md against observed behavior
+6. Assess layer if failure found
+7. Assess deeper insight potential
+8. Write `qa-report.md` with honest verdict
+9. Update `status.json`: `phase: "qa"`, `last_audited_attempt: <current attempt>`
 
 ## Done
 

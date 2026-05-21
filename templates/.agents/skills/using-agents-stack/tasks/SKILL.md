@@ -48,7 +48,7 @@ Decompose the plan into a strictly ordered sequence of verifiable tasks. Each ta
 
 ### 5. Definition of Done
 - Coverage ≥ 80%, all checkpoints green
-- Test infrastructure ready for TDD workflow
+- Test infrastructure ready for RED-GREEN-REFACTOR workflow
 
 ---
 
@@ -70,8 +70,8 @@ Decompose the plan into a strictly ordered sequence of verifiable tasks. Each ta
 - `path/to/test.ts` — [corresponding test file]
 
 ### 4. Verification Checkpoints
-- [ ] [Observable command or condition to verify]
-- [ ] [Observable command or condition to verify]
+- [ ] [Runnable command — `npm test`, `curl localhost:PORT/path`, `python -c "..."`. Must produce observable pass/fail output. "Looks correct" is not a checkpoint.]
+- [ ] [Runnable command — same rule]
 
 ### 5. Definition of Done
 - Coverage ≥ 80% for files in this task
@@ -91,8 +91,10 @@ Decompose the plan into a strictly ordered sequence of verifiable tasks. Each ta
    - **3. Deliverables** — exact file paths from plan.md impact analysis
    - **4. Verification Checkpoints** — observable pass/fail commands
    - **5. Definition of Done** — coverage threshold ≥ 80%, all checkpoints green
-6. Write `tasks.md` to `.agents-stack/<id>/tasks.md`
-7. Update `status.json`: set `phase: "tasks"`
+6. **Run cross-artifact self-consistency check** (see Quality Bar below) — verify that your own output is internally consistent and traceable to spec+plan
+7. If consistency check fails: fix gaps before writing tasks.md
+8. Write `tasks.md` to `.agents-stack/<id>/tasks.md`
+9. Update `status.json`: set `phase: "tasks"`
 
 ## Quality Bar
 
@@ -100,9 +102,26 @@ Decompose the plan into a strictly ordered sequence of verifiable tasks. Each ta
 - Each task is small enough to complete in one AI session (time-box: ~1 AI session)
 - TASK-1 is always scaffold test infrastructure
 - Every task has all five verification dimensions filled in
+- Verification Checkpoints (dimension 4) are all **runnable commands** — no descriptive statements, no "looks correct", no unverifiable conditions
 - Coverage checklist maps to test strategy from plan.md
 - If a task cannot be made verifiable, the plan is insufficient — flag it
 
+### Cross-Artifact Self-Consistency Check
+
+Before declaring done, verify your own output against spec.md and plan.md:
+
+| Check | How to verify |
+|-------|---------------|
+| AC coverage | Every AC in spec.md has at least one task with a matching "Align Spec" reference |
+| Task-to-AC traceability | Every "Align Spec" reference in every task points to a real AC or spec section |
+| Deliverables-traceable | Every file in Deliverables appears in plan.md's Impact Analysis — no phantom files |
+| No dead dependencies | Every "Depends On" task actually exists in the task list |
+| DAG is acyclic | Trace each dependency chain to its root — no loops |
+| First task invariant | TASK-1 is test infrastructure scaffold (not implementation) |
+| No orphaned ACs | Every AC is covered by at least one task |
+
+Run this check **before** writing tasks.md. If you find gaps, fix them by adding/updating tasks. Do not pass inconsistent tasks to implement.
+
 ## Done
 
-`tasks.md` exists with strictly sequential tasks, each having complete 5-dimension verification metadata. First task is scaffold test infrastructure. `status.json` reflects tasks phase.
+`tasks.md` exists with strictly sequential tasks, each having complete 5-dimension verification metadata. Cross-artifact consistency check passed. First task is scaffold test infrastructure. `status.json` reflects tasks phase.

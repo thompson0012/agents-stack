@@ -25,7 +25,7 @@ spec → plan → tasks → implement → qa → release
 
 ### implement
 產出：程式碼 + handoff.md
-方法：TDD — 每個 task 先寫測試再實作，通過後才進行下一個
+方法：RED-GREEN-REFACTOR — 每個 task 先寫測試（RED）、實作（GREEN）、重構（REFACTOR）、驗證（VERIFY）、提交（COMMIT）、回歸檢查（REGRESS）
 核心原則：實作 ≠ 驗收
 
 ### qa

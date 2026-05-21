@@ -97,7 +97,7 @@ Each phase produces a durable file in `.agents-stack/<workstream-id>/`. The orch
 | spec | spec.md | What & Why: goal, stories, edge cases, BDD ACs |
 | plan | plan.md | How: architecture, API, DB, impact analysis, test strategy |
 | tasks | tasks.md | Task breakdown with 5-dimension verification |
-| implement | code + handoff.md | TDD per task, each passes before next |
+| implement | code + handoff.md | RED-GREEN-REFACTOR per task, each passes before next |
 | qa | qa-report.md | Independent verification against SPEC |
 | release | changelog.md | Changelog, reference update, archive |
 

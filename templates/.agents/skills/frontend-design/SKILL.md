@@ -91,7 +91,7 @@ Return one of these forms, then dispatch the selected child as a fresh worker:
 - `Route to frontend-design/design-prototype-lab.`
 - `Route to frontend-design/design-reviewer.`
 - `Route to frontend-design/design-compounder.`
-- `Route to using-agents-stack/orchestrator.` (after review verdict or build failure)
+- `Route to using-agents-stack (root orchestrator).` (after review verdict or build failure)
 - `Escalated to human. No family child fits without human action.`
 - `No family child fits.` (if the work is not a design artifact task)
 

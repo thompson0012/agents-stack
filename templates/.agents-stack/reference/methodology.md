@@ -21,7 +21,7 @@ spec → plan → tasks → implement → qa → release
 核心問題：如何拆解成可獨立執行的小步驟？
 
 ### implement
-產出：程式碼 + handoff.md。方法：TDD，逐 task 進行
+產出：程式碼 + handoff.md。方法：RED-GREEN-REFACTOR，逐 task 進行
 核心原則：實作 ≠ 驗收
 
 ### qa
