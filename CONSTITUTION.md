@@ -40,7 +40,7 @@ qa-report.md > handoff.md > tasks.md > plan.md > spec.md > status.json > .agents
 
 - spec phase 必須產出 BDD 格式的 Acceptance Criteria（Given-When-Then）
 - tasks phase 的每個 task 必須包含 5 維驗收元資料（Align Spec, Coverage, Deliverables, Checkpoints, DoD）
-- implement phase 必須按照 tasks.md 順序執行 TDD，每個 task 通過才能進入下一個
+- implement phase 必須按照 tasks.md 順序執行 RED-GREEN-REFACTOR 循環，每個 task 通過才能進入下一個
 - qa phase 必須獨立重現實作並逐條驗證 SPEC 的 AC
 - 修改需求必須先更新 spec.md，不可直接改 code
 - 發現架構問題必須先更新 plan.md，不可繞過 plan 直接改 tasks

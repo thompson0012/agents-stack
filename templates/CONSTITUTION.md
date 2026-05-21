@@ -14,7 +14,7 @@ This document is the project's technical charter. It defines invariants and rule
 
 - spec phase must produce BDD-format Acceptance Criteria
 - tasks phase: each task must include 5-dimension verification metadata
-- implement must follow TDD per tasks.md, each task passing before the next
+- implement must follow RED-GREEN-REFACTOR cycle per tasks.md, each task passing before the next
 - qa must independently reproduce and verify every AC from SPEC
 - Change requirements → update spec first. Change architecture → update plan first.
 - Project milestones and workstream backlog are defined in `ROADMAP.md`

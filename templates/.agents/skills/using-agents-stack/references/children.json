@@ -23,10 +23,17 @@
       "avoid_when": ["tasks.md already exists and needs implementation"]
     },
     {
+      "name": "analyze",
+      "target": null,
+      "summary": "Cross-artifact consistency gate. Orchestrator checks spec+plan+tasks before implement.",
+      "route_when": ["tasks.md exists, before routing to implement"],
+      "avoid_when": null
+    },
+    {
       "name": "implement",
       "target": "using-agents-stack/implement",
-      "summary": "TDD implementation per task. Each task passes before next. Produces handoff.md.",
-      "route_when": ["tasks.md exists without handoff.md", "Retry after QA Layer 1 (code) rework with attempts remaining"],
+      "summary": "RED-GREEN-REFACTOR implementation per task. Each task passes before next. Produces handoff.md.",
+      "route_when": ["Consistency gate passed", "Retry after QA Layer 1 (code) rework with attempts remaining"],
       "avoid_when": ["handoff.md already exists and needs QA"]
     },
     {

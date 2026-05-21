@@ -29,7 +29,8 @@ When files disagree, higher-precedence artifact wins:
 | uninitialized | Missing or empty tracked-work.json | Create first workstream |
 | spec | spec.md exists | Route to plan |
 | plan | plan.md exists | Route to tasks |
-| tasks | tasks.md exists | Route to implement |
+| tasks | tasks.md exists | Route to analyze (consistency gate) |
+| analyze | Consistency gate passed | Route to implement |
 | implement | handoff.md exists | Route to qa |
 | qa | qa-report.md exists | Evaluate verdict |
 | release | changelog.md exists + archived | Complete |
@@ -39,6 +40,21 @@ When files disagree, higher-precedence artifact wins:
 
 ## Transition Rules
 
+### Contextual Trigger (overrides artifact check at any point)
+
+Before artifact-driven routing, detect user natural language intent:
+- "spec/think through" → route spec (create workstream if needed)
+- "architecture/plan" → route plan
+- "tasks/breakdown" → route tasks
+- "implement/code" → route implement
+- "QA/verify/test" → route qa
+- "release/ship" → route release
+- "review code" → load agentic-engineering-principles skill (non-pipeline)
+- "browser test/UI check" → load frontend-qa skill (non-pipeline)
+- "design review" → load frontend-design skill (non-pipeline)
+- "complexity audit/prune" → dispatch prune-review (non-pipeline)
+- No clear intent → fall through to artifact-driven routing
+
 ### Forward Pipeline
 
 - No spec.md → route spec
@@ -47,10 +63,19 @@ When files disagree, higher-precedence artifact wins:
   - plan worker reads spec, designs architecture, writes plan.md
 - plan.md exists, no tasks.md → route tasks
   - tasks worker reads spec+plan, breaks into tasks with 5D verification, writes tasks.md
-- tasks.md exists, no handoff.md → route implement
-  - implement worker reads tasks, implements each with TDD, writes handoff.md
-   - if build/startup fails: implement_failed, orchestrator may retry
-- handoff.md exists, no qa-report.md → route qa
+- tasks.md exists, no handoff.md → route analyze (consistency gate)
+  - orchestrator checks spec+plan+tasks consistency before dispatching implement
+  - gate passes → set `phase_gates.implement.entry_ok = true`, route implement
+  - minor gaps → route tasks with fix suggestions
+  - major gaps → route analyze (human or automated cleanup)
+  - severe gaps → route back to spec or plan
+- analyze gate passed, no handoff.md → route implement
+  - implement worker reads tasks, implements each with RED-GREEN-REFACTOR cycle, writes handoff.md
+  - each task must clear Inter-Task Gate before next task (see implement/SKILL.md)
+  - all tasks done → set `phase_gates.implement.handoff_written = true`
+  - review agent passes → set `phase_gates.implement.review_approved = true`
+  - if build/startup fails: implement_failed, orchestrator may retry
+- handoff.md exists AND `phase_gates.implement.handoff_written = true` AND `phase_gates.implement.review_approved = true` → route qa
   - qa worker independently reproduces and verifies against SPEC
   - verdict: PASS, FAIL, or BLOCKED
   - on FAIL: trace to layer (L1 code, L2 architecture, L3 spec)
