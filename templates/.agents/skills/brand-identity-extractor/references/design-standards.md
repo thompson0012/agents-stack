@@ -66,7 +66,7 @@ Measurable validation criteria for brand design tokens.
 
 ## Brand Identity YAML Schema (v2.0)
 
-The brand identity specification is stored as a YAML block under `## Visual System` in `docs/reference/design.md`. Validate extracted tokens against this schema:
+The brand identity specification is stored as a YAML block under `## Visual System` in `.agents-stack/reference/design.md`. Validate extracted tokens against this schema:
 
 ### Required Top-Level Keys
 | Key | Purpose |

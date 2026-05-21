@@ -1,6 +1,6 @@
 ---
 name: requirements-writer
-description: Use when a validated blueprint exists and you need actionable requirements, user stories, and acceptance criteria that become docs/records/product/requirements.md.
+description: Use when a validated blueprint exists and you need actionable requirements, user stories, and acceptance criteria that become .agents-stack/reference/product/requirements.md.
 ---
 
 # Requirements Writer
@@ -15,7 +15,7 @@ Use this skill to turn a validated blueprint into testable product requirements.
 - Start only after the blueprint is validated.
 - Stay out of system design and implementation detail.
 - Write requirements that another engineer can build from without guessing.
-- Produce `docs/records/product/requirements.md`.
+- Produce `.agents-stack/reference/product/requirements.md`.
 
 ## Focus
 

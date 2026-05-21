@@ -20,7 +20,7 @@ The user will provide one or more of the following:
 - A brand manifesto, vision, or personality description
 - Keywords about desired mood / industry
 - Competitor or avoidance references
-- A structured brand context document (e.g., `docs/reference/design.md`) from a prior Phase 0 pass, containing answers to the 6 Brand Questions — use these as pre-validated inputs and skip redundant discovery
+- A structured brand context document (e.g., `.agents-stack/reference/design.md`) from a prior Phase 0 pass, containing answers to the 6 Brand Questions — use these as pre-validated inputs and skip redundant discovery
 
 If no images are given, rely on textual input to infer visual direction.
 If the input is too vague to form a consistent identity, ask **no more than 3** targeted clarifying questions before proceeding.
@@ -63,7 +63,7 @@ Produce exactly the following sections. Do not skip any.
 
 #### Section B: Visual Universe (YAML Block)
 
-Output a single structured YAML block that will be embedded under `## Visual System` in `docs/reference/design.md`. Use the v2.0 brand identity schema. The YAML block must include these top-level keys with all sub-fields populated from the brand inputs:
+Output a single structured YAML block that will be embedded under `## Visual System` in `.agents-stack/reference/design.md`. Use the v2.0 brand identity schema. The YAML block must include these top-level keys with all sub-fields populated from the brand inputs:
 
 - `color_policy` — dominant_colors (ice_blue, air_blue, soft_white, mist_lilac or brand-equivalent), accent_colors, text_colors, glass_colors, constraints (hard prohibitions), finish
 - `design_tokens` — spacing (base_unit, scale, token_prefix), radius (sm/md/lg/full with px values), shadow (sm/md/lg with rgba values), blur (glass_panel/modal/ambient_blob), motion (default/slow/glacial/reduced with duration+ms+easing), typography (family_display, family_body, scale with hero/title/heading/body/caption)
@@ -78,7 +78,7 @@ Output a single structured YAML block that will be embedded under `## Visual Sys
 - `prompt_seed` — master_prompt text (English), variable_slots list
 - `rule_severity` — hard/soft/directional tiers with description and sections list
 
-All hex values must use `#RRGGBB` format. All token names must use `--kebab-case` CSS custom property format. Every constraint must carry a `severity` field (hard/soft/directional). See the existing `docs/reference/design.md## Visual System` for the canonical schema reference.
+All hex values must use `#RRGGBB` format. All token names must use `--kebab-case` CSS custom property format. Every constraint must carry a `severity` field (hard/soft/directional). See the existing `.agents-stack/reference/design.md## Visual System` for the canonical schema reference.
 
 #### Section C: Typography & Voice
 - Typeface personality
@@ -379,9 +379,9 @@ Each technique must cite the specific Stage 1 section it derives from. Use the b
 
 ## FILE OUTPUT MODEL
 
-The canonical design reference is `docs/reference/design.md`. All brand identity content lives there or is referenced from it.
+The canonical design reference is `.agents-stack/reference/design.md`. All brand identity content lives there or is referenced from it.
 
-### Write inline to `docs/reference/design.md`:
+### Write inline to `.agents-stack/reference/design.md`:
 
 1. **Visual Universe** (Stage 1, Section B) — as a single YAML block under `## Visual System` following the v2.0 brand identity schema (color_policy, design_tokens, form_language, material_language, scene_density_rules, object_library, ui_translation, negative_prompt_policy, input_variables, application_presets, prompt_seed, rule_severity)
 2. **Brand Soul, Typography & Voice, Brand Rulebook** (Stage 1, Sections A, C, D) — as prose sections
@@ -395,14 +395,14 @@ The canonical design reference is `docs/reference/design.md`. All brand identity
 10. **Image Consistency Validation Checklist**
 11. **Design QA Checklist**
 
-### Write to external files under `docs/records/design/`, reference from `design.md`:
+### Write to external files under `.agents-stack/reference/design/`, reference from `design.md`:
 
-- **Design Tokens JSON** → `docs/records/design/design-tokens.json`
-- **CSS Custom Properties** → `docs/records/design/design-tokens.css`
+- **Design Tokens JSON** → `.agents-stack/reference/design/design-tokens.json`
+- **CSS Custom Properties** → `.agents-stack/reference/design/design-tokens.css`
 - **Tailwind Config Extension** → project Tailwind config file
-- **Figma Variables** → `docs/records/design/figma-variables.json`
-- **Prompt Templates** → `docs/records/design/ai-prompt-templates.md`
-- **Tool-Specific Parameters** → `docs/records/design/ai-prompt-params.md`
+- **Figma Variables** → `.agents-stack/reference/design/figma-variables.json`
+- **Prompt Templates** → `.agents-stack/reference/design/ai-prompt-templates.md`
+- **Tool-Specific Parameters** → `.agents-stack/reference/design/ai-prompt-params.md`
 
 In `design.md`, for each external file, write a one-paragraph summary describing what it contains, then link to it: `See [design-tokens.json](../records/design/design-tokens.json) for the full token set.`
 

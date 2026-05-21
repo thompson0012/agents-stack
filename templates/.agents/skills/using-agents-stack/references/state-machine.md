@@ -49,7 +49,7 @@ When files disagree, higher-precedence artifact wins:
   - tasks worker reads spec+plan, breaks into tasks with 5D verification, writes tasks.md
 - tasks.md exists, no handoff.md → route implement
   - implement worker reads tasks, implements each with TDD, writes handoff.md
-  - if build/startup fails: build_failed, orchestrator may retry
+   - if build/startup fails: implement_failed, orchestrator may retry
 - handoff.md exists, no qa-report.md → route qa
   - qa worker independently reproduces and verifies against SPEC
   - verdict: PASS, FAIL, or BLOCKED

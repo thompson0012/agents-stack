@@ -1,6 +1,6 @@
 ---
 name: design-compounder
-description: Use when state-update has reconciled a design sprint outcome and queued the feature id in compound_pending_feature_ids.
+description: Use when orchestrator has reconciled a design sprint outcome and queued the feature id in compound_pending_feature_ids.
 ---
 
 # Design Compounder
@@ -14,19 +14,19 @@ Compounding is explicit and non-runnable. It does not reopen any phase. It does 
 
 ## Worker Dispatch Contract
 
-- Run in a fresh worker context after `state-update`. Do not fold compounding into state reconciliation.
+- Run in a fresh worker context after `orchestrator`. Do not fold compounding into state reconciliation.
 - Only the orchestrator may spawn workers. This worker must not spawn another worker.
-- Tool lane: read sprint evidence, write `docs/insights/session-log.md` only when durable residue survives with provenance, optionally patch `docs/reference/design.md` and scoped `docs/records/*`, and clear the queue entry in `docs/live/tracked-work.json`. No product-code edits, no `.harness/*/status.json` rewrites, no archive moves.
-- Not parallel-safe against another worker touching `docs/insights/session-log.md` or `docs/reference/design.md`. Process one queued feature at a time.
-- Dispatch framing is non-authoritative. Verify the queued feature against `docs/live/tracked-work.json` before writing.
+- Tool lane: read sprint evidence, write `.agents-stack/insights/session-log.md` only when durable residue survives with provenance, optionally patch `.agents-stack/reference/design.md` and scoped `.agents-stack/reference/*`, and clear the queue entry in `.agents-stack/tracked-work.json`. No product-code edits, no `.agents-stack/*/status.json` rewrites, no archive moves.
+- Not parallel-safe against another worker touching `.agents-stack/insights/session-log.md` or `.agents-stack/reference/design.md`. Process one queued feature at a time.
+- Dispatch framing is non-authoritative. Verify the queued feature against `.agents-stack/tracked-work.json` before writing.
 
 ## Required Reads
 
 Before writing anything:
 1. `AGENTS.md`
-2. `docs/live/tracked-work.json` — confirm the feature is in `compound_pending_feature_ids`
-3. `docs/insights/session-log.md` — current durable learning baseline
-4. `docs/reference/design.md` — current stable reference
+2. `.agents-stack/tracked-work.json` — confirm the feature is in `compound_pending_feature_ids`
+3. `.agents-stack/insights/session-log.md` — current durable learning baseline
+4. `.agents-stack/reference/design.md` — current stable reference
 5. Sprint decisive evidence: `review.md`, `handoff.md`, `context.md`, `contract.md`
 
 ## What Qualifies as Durable Learning
@@ -60,32 +60,32 @@ Extract only lessons that meet all three criteria:
 
 ## Decision: Extract or Skip
 
-Before writing `docs/insights/session-log.md`, decide explicitly:
+Before writing `.agents-stack/insights/session-log.md`, decide explicitly:
 
 **Extract** when: at least one lesson qualifies under all three criteria above.
 
-**Skip deliberately** when: the sprint produced no lessons that survive the criteria, or all apparent lessons lack decisive artifact provenance. Record the skip decision in `docs/insights/session-log.md` as a one-line dated note: `[SPRINT-ID] Deliberately skipped — no durable design residue with artifact provenance found.`
+**Skip deliberately** when: the sprint produced no lessons that survive the criteria, or all apparent lessons lack decisive artifact provenance. Record the skip decision in `.agents-stack/insights/session-log.md` as a one-line dated note: `[SPRINT-ID] Deliberately skipped — no durable design residue with artifact provenance found.`
 
 Skipping is not a failure. Silently inventing lessons is.
 
-## docs/insights/session-log.md Entry Format
+## .agents-stack/insights/session-log.md Entry Format
 
-Append to `docs/insights/session-log.md`. Do not overwrite existing entries.
+Append to `.agents-stack/insights/session-log.md`. Do not overwrite existing entries.
 
 ```md
 ## [SPRINT-ID] <short lesson title> — <ISO date>
 - **Category**: token | typography | component | scaffold | anti-pattern | accessibility | variation-strategy | process
 - **Lesson**: [one clear sentence stating the durable learning]
-- **Evidence**: `.harness/<sprint-id>/review.md` — [exact finding id or section name]
+- **Evidence**: `.agents-stack/<sprint-id>/review.md` — [exact finding id or section name]
 - **Applies to**: all future sprints | sprints using [specific output type] | projects using [specific design system]
 - **Provenance**: [link to decisive artifact: review.md#RV-001, contract.md#AC-002, etc.]
 ```
 
 Multiple distinct lessons from one sprint each get their own entry.
 
-## docs/reference/design.md Update
+## .agents-stack/reference/design.md Update
 
-Update `docs/reference/design.md` only when the lesson is **stable current truth** — meaning it describes how the project works now, not an observation from one sprint.
+Update `.agents-stack/reference/design.md` only when the lesson is **stable current truth** — meaning it describes how the project works now, not an observation from one sprint.
 
 Examples that justify a reference update:
 - A token value was confirmed as the canonical choice and should be documented for all future builders
@@ -97,25 +97,25 @@ Examples that do not justify a reference update:
 - A finding that may change when the design system evolves
 - An advisory observation that hasn't been ratified
 
-When updating `docs/reference/design.md`, make a precise addition or edit — do not rewrite the whole file. Note the sprint id and evidence path in a comment or footnote.
+When updating `.agents-stack/reference/design.md`, make a precise addition or edit — do not rewrite the whole file. Note the sprint id and evidence path in a comment or footnote.
 
-## docs/records/* Scoped Page
+## .agents-stack/reference/* Scoped Page
 
 Create a scoped record page only when:
-- Durable discussion residue is too detailed for a `docs/insights/session-log.md` entry
-- The content is not stable enough for `docs/reference/design.md`
-- The feature already exists in `docs/live/tracked-work.json` with a `record_paths` field
+- Durable discussion residue is too detailed for a `.agents-stack/insights/session-log.md` entry
+- The content is not stable enough for `.agents-stack/reference/design.md`
+- The feature already exists in `.agents-stack/tracked-work.json` with a `record_paths` field
 
-Register the path in the feature's `record_paths` in `tracked-work.json`. Do not create a record as a substitute for `docs/insights/session-log.md` or as a second archive.
+Register the path in the feature's `record_paths` in `tracked-work.json`. Do not create a record as a substitute for `.agents-stack/insights/session-log.md` or as a second archive.
 
 ## Queue Clearance
 
-After writing (or deliberately skipping), remove the feature id from `compound_pending_feature_ids` in `docs/live/tracked-work.json`. This is the only mandatory write — even a skip requires it.
+After writing (or deliberately skipping), remove the feature id from `compound_pending_feature_ids` in `.agents-stack/tracked-work.json`. This is the only mandatory write — even a skip requires it.
 
 ## Done Definition
 
 This phase is complete when:
 - The queue entry is cleared from `compound_pending_feature_ids`
-- `docs/insights/session-log.md` either has new entries with artifact-linked provenance, or records a dated deliberate-skip note
-- Any `docs/reference/design.md` update is a precise, stable-truth addition
+- `.agents-stack/insights/session-log.md` either has new entries with artifact-linked provenance, or records a dated deliberate-skip note
+- Any `.agents-stack/reference/design.md` update is a precise, stable-truth addition
 - No phase is reopened, no runnable sprint slot is claimed

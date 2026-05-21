@@ -1,11 +1,11 @@
 # Design Rationale: session-retro output files
 
 ## Decision
-Split `docs/insights/session-log.md` into three files, each with a single writer.
+Split `.agents-stack/insights/session-log.md` into three files, each with a single writer.
 
 ## Context
 
-Originally, all retro outputs wrote to a single file (`docs/insights/session-log.md`):
+Originally, all retro outputs wrote to a single file (`.agents-stack/insights/session-log.md`):
 - Tier 1 per-session entries
 - Tier 2 consolidation summaries
 - Recursive retro entries (v0.3.0)
@@ -15,7 +15,7 @@ Tier 2 reads ALL entries to find cross-session patterns. With a single file, it 
 ## Architecture
 
 ```
-docs/insights/
+.agents-stack/insights/
 ├── session-log.md        ← writer: Tier 1 only. One entry per session retro.
 ├── consolidation-log.md  ← writer: Tier 2 only. One summary per consolidation run.
 └── meta-log.md           ← writer: recursive retro only. Reflection-on-reflection entries.

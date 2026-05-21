@@ -5,13 +5,13 @@ purpose: Find unnecessary complexity — regardless of cause. Scale mismatch, pa
 trigger: Any time. Orchestrator dispatches when the user says "prune review," "complexity audit," "what should I cut," or similar. Also runs against specific sprints or the entire codebase.
 inputs:
   - AGENTS.md
-  - docs/reference/*
-  - docs/live/tracked-work.json
+  - .agents-stack/reference/*
+  - .agents-stack/tracked-work.json
   - the sprint artifacts or codebase being audited
   - references/complexity-signals.md
   - references/scale-appropriateness-guide.md
 outputs:
-  - .harness/<sprint-id>/prune.md (when auditing a specific sprint)
+  - .agents-stack/<sprint-id>/prune.md (when auditing a specific sprint)
   - or a standalone prune report at a caller-specified path
 boundaries:
   - Do not edit implementation files. Produce recommendations only.

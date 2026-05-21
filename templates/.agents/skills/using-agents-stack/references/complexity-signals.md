@@ -196,11 +196,11 @@ If #1 is vague and #2 is no → the type is safety theater.
 
 ## Using These Signals in Reviews
 
-### For thesis phase
-When forming a claim, scan the proposed approach for these signals. If the approach triggers 3+ signals without strong evidence → the thesis needs simplification before it is ready for challenge.
+### For spec phase
+When forming requirements, scan the proposed approach for these signals. If the approach triggers 3+ signals without strong evidence → the spec needs simplification before it is ready for planning.
 
-### For contract phase
-Scan the contract scope for these signals. A contract that triggers multiple signals at once (e.g., Repository + Factory + async queue for a simple CRUD endpoint) defines over-engineered scope.
+### For plan phase
+Scan the plan scope for these signals. A plan that triggers multiple signals at once (e.g., Repository + Factory + async queue for a simple CRUD endpoint) defines over-engineered scope.
 
 ### For prune-review
 These signals are the primary detection framework. Scale context modifies severity but doesn't replace signal detection. Answer: "Which signals are present? Where? What's the evidence the code they add is earning its keep?"

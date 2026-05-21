@@ -1,6 +1,6 @@
 ---
 name: design-reviewer
-description: Use when design-builder has produced a handoff and the artifact must be evaluated adversarially before state-update processes the verdict.
+description: Use when design-builder has produced a handoff and the artifact must be evaluated adversarially before orchestrator processes the verdict.
 ---
 
 # Design Reviewer
@@ -50,14 +50,14 @@ Interactive artifact review requires a browser environment. Declare your capabil
 - Run in a fresh worker context. Do not inline review in the orchestrator.
 - Only the orchestrator may spawn workers. This worker must not spawn another worker.
 - Tool lane: read-only on all files except sprint-local write access to `qa.md`, `review.md`, and `status.json`. No writes to the artifact, product code, or global state.
-- Dispatch framing is non-authoritative. Verify the dispatched sprint against `docs/live/tracked-work.json` before reviewing.
+- Dispatch framing is non-authoritative. Verify the dispatched sprint against `.agents-stack/tracked-work.json` before reviewing.
 
 ## Preconditions
 
 Review starts only when:
-- `.harness/<sprint-id>/contract.md` exists
-- `.harness/<sprint-id>/handoff.md` exists and says `READY_FOR_REVIEW`
-- `.harness/<sprint-id>/runtime.md` exists with an artifact path
+- `.agents-stack/<sprint-id>/contract.md` exists
+- `.agents-stack/<sprint-id>/handoff.md` exists and says `READY_FOR_REVIEW`
+- `.agents-stack/<sprint-id>/runtime.md` exists with an artifact path
 - The artifact file exists at the path recorded in `runtime.md`
 
 If the handoff says `BUILD_FAILED`, `AWAITING_HUMAN`, or `ESCALATED_TO_HUMAN`, do not invent a PASS. Return BLOCKED with the reason.
@@ -227,7 +227,7 @@ FAIL when:
 
 ## Required Outputs
 
-### `.harness/<sprint-id>/qa.md`
+### `.agents-stack/<sprint-id>/qa.md`
 
 ```md
 # QA Evidence: <SPRINT-ID>
@@ -299,7 +299,7 @@ FAIL when:
 - ...
 ```
 
-### `.harness/<sprint-id>/review.md`
+### `.agents-stack/<sprint-id>/review.md`
 
 ```md
 # Design Review: <SPRINT-ID>
@@ -345,7 +345,7 @@ PASS | FAIL | BLOCKED
 2. ...
 ```
 
-### `.harness/<sprint-id>/status.json`
+### `.agents-stack/<sprint-id>/status.json`
 
 ```json
 {
@@ -359,13 +359,13 @@ PASS | FAIL | BLOCKED
 
 ## PASS / FAIL / BLOCKED
 
-**PASS**: every AC passes, zero open P0–P3 findings, coverage complete, convergence closed. Route to `state-update` immediately.
+**PASS**: every AC passes, zero open P0–P3 findings, coverage complete, convergence closed. Route to `orchestrator` immediately.
 
 > ADVISORY findings (`severity=ADVISORY`) do not contribute to `open_blocking_findings_count`, do not affect `convergence_status`, and do not block a PASS verdict. Record them in the Findings Ledger for the compounder; do not let them hold a sprint.
 
-**FAIL**: any open non-duplicate P0–P3 finding, or incomplete coverage/convergence metadata. Preserve all evidence. Issue corrective directives ordered by severity. Route to `state-update` immediately.
+**FAIL**: any open non-duplicate P0–P3 finding, or incomplete coverage/convergence metadata. Preserve all evidence. Issue corrective directives ordered by severity. Route to `orchestrator` immediately.
 
-**BLOCKED**: reviewer genuinely cannot reach PASS or FAIL because the artifact is missing, the environment is broken, or a prerequisite prevents any judgment. Name the exact blocker. Route to `state-update` immediately. Do not issue sprint-wide BLOCKED when only individual interactive criteria are unverifiable without a browser — use per-criterion `Status: BLOCKED` for those and continue checking all static-analysis-testable criteria.
+**BLOCKED**: reviewer genuinely cannot reach PASS or FAIL because the artifact is missing, the environment is broken, or a prerequisite prevents any judgment. Name the exact blocker. Route to `orchestrator` immediately. Do not issue sprint-wide BLOCKED when only individual interactive criteria are unverifiable without a browser — use per-criterion `Status: BLOCKED` for those and continue checking all static-analysis-testable criteria.
 
 Missing bookkeeping is FAIL, not BLOCKED.
 

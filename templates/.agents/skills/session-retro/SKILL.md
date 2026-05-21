@@ -1,15 +1,15 @@
 ---
 name: session-retro
-description: Use when a session is ending — audits the orchestrator-human conversation against agentic-engineering principles, extracts patterns and insights with causal power over future decisions. Trigger via /retro, extract proposal, or orchestrator closure signals.
+description: Use when a session is ending — audits the orchestrator-human conversation against agentic-engineering principles, extracts patterns and insights with causal power over future decisions. Trigger via /retro, release phase proposal, or orchestrator closure signals.
 version: 0.3.0
 ---
 
 # Session Retro
 
-Closing ritual. Focuses on what the orchestrator-human collaboration taught us. Has write capability — Tier 2 promotes accumulated insights to `docs/reference/` and `docs/records/`.
+Closing ritual. Focuses on what the orchestrator-human collaboration taught us. Has write capability — Tier 2 promotes accumulated insights to `.agents-stack/reference/` and `.agents-stack/reference/`.
 
 **Data source**: the conversation itself (decisions, delegation patterns, tool usage).
-**Contrast with extract**: extract reads `.harness/<ID>/` workstream artifacts. session-retro reads the conversation. extract and session-retro Tier 1 share `docs/insights/session-log.md` as a common output target.
+**Contrast with release**: release phase reads `.agents-stack/<ID>/` workstream artifacts and writes changelog. session-retro reads the conversation. release and session-retro Tier 1 share `.agents-stack/insights/session-log.md` as a common output target.
 
 ## Output Files
 
@@ -17,9 +17,9 @@ One writer per file. The file path IS the category — no parsing needed to clas
 
 | File | Writer | Content |
 |------|--------|---------|
-| `docs/insights/session-log.md` | Tier 1 (and extract) | Per-session retro entries |
-| `docs/insights/consolidation-log.md` | Tier 2 | Consolidation run summaries |
-| `docs/insights/meta-log.md` | Recursive retro | Reflection-on-reflection entries |
+| `.agents-stack/insights/session-log.md` | Tier 1 (and release) | Per-session retro entries |
+| `.agents-stack/insights/consolidation-log.md` | Tier 2 | Consolidation run summaries |
+| `.agents-stack/insights/meta-log.md` | Recursive retro | Reflection-on-reflection entries |
 
 **Why split**: with a single file, Tier 2 reads its own prior consolidation summaries back as input — self-referencing noise. With three files, Tier 2 reads ONLY `session-log.md` (clean per-session input).
 
@@ -29,7 +29,7 @@ Two-tier design:
 
 | Tier | Level | Trigger | Data source | Purpose |
 |------|-------|---------|-------------|---------|
-| 1 | Per-session | `/retro`, orchestrator closure signals, or extract proposal | Conversation context | What did this collaboration session teach us? |
+| 1 | Per-session | `/retro`, orchestrator closure signals, or release proposal | Conversation context | What did this collaboration session teach us? |
 | 2 | Cross-session | Human types `/retro --consolidate` | Accumulated session-log entries | Scan and promote stable patterns to reference/records |
 
 Tier 1 answers: **what did we learn about how we work together?**
@@ -46,8 +46,8 @@ Beyond tiers, retro operates at three depths within a session:
 User types `/retro` → run Tier 1.
 User types `/retro --consolidate` → run Tier 2.
 
-### From extract
-After extract Tier 1 completes, orchestrator asks: "Workstream extracted. Run session retro to capture conversation-level lessons?" If user says yes → run session-retro Tier 1 with extract's workstream context.
+### From release
+After release phase completes, orchestrator asks: "Workstream released. Run session retro to capture conversation-level lessons?" If user says yes → run session-retro Tier 1 with release context.
 
 ### From orchestrator (auto-propose)
 Two or more signals present:
@@ -60,7 +60,7 @@ Ask "Run session retro?" — one line. If yes → run Tier 1. If no → drop.
 
 ## Output Format — Tier 1
 
-Write to `docs/insights/session-log.md`. Each entry (same format also used by recursive retro, written to `meta-log.md`):
+Write to `.agents-stack/insights/session-log.md`. Each entry (same format also used by recursive retro, written to `meta-log.md`):
 
 ```markdown
 ---
@@ -120,33 +120,33 @@ Not all insights are best expressed as bullet lists. Match format to cognitive s
    - Files changed (paths only, not content)
    - Notable discussion themes
    - Any known regrets or second-guesses
-   - If triggered by extract: include workstream ID and key findings from extract Tier 1
+   - If triggered by release: include workstream ID and key findings from release phase
 3. **Orchestrator** delegates to @oracle with the context packet + filtering rule.
 4. **@oracle** audits, returns structured verdict.
-5. **Orchestrator** appends to `docs/insights/session-log.md`.
+5. **Orchestrator** appends to `.agents-stack/insights/session-log.md`.
 6. **Orchestrator** reports: "Retro done. N items recorded."
 7. **Orchestrator** checks entry count: if count % 5 == 0, suggest: "N sessions recorded. Run `/retro --consolidate` to promote patterns?"
-8. **Orchestrator** checks the `### Meta` section: if it contains a concrete reflection structure worth extracting, ask: "This retro surfaced a reflection method itself. Run a recursive retro to capture it?" If yes → run Tier 1 again treating the first retro as the conversation under audit, but write output to `docs/insights/meta-log.md`. Maximum one recursion per session.
+8. **Orchestrator** checks the `### Meta` section: if it contains a concrete reflection structure worth extracting, ask: "This retro surfaced a reflection method itself. Run a recursive retro to capture it?" If yes → run Tier 1 again treating the first retro as the conversation under audit, but write output to `.agents-stack/insights/meta-log.md`. Maximum one recursion per session.
 
 ### Tier 2 — Cross-session consolidation
 
 Human-triggered only (`/retro --consolidate`). Not auto-proposed without human confirmation.
 
-1. **Orchestrator** reads all entries from `docs/insights/session-log.md`.
+1. **Orchestrator** reads all entries from `.agents-stack/insights/session-log.md`.
 2. **Orchestrator** delegates to @oracle with all entries.
 3. **@oracle** returns a consolidation plan:
    - **Emerging patterns** — heuristics surfaced repeatedly across sessions
    - **Chronic violations** — principles that keep being broken
    - **Stable decisions** — decisions made consistently (candidates for reference/records)
    - **Meta-patterns** — patterns about pattern-recognition itself (e.g., recurring cognitive blind spots, dimensions AI output systematically omits, types of insight the human consistently fails to extract)
-   - **Recommended promotions** — which patterns are stable enough for `docs/reference/` or `docs/records/`, with target path and rationale
+   - **Recommended promotions** — which patterns are stable enough for `.agents-stack/reference/` or `.agents-stack/reference/`, with target path and rationale
 4. **Orchestrator** presents the plan to the user:
    - For each promotion candidate: explain why it's stable, where it would go, and what it would change
    - Let user decide which promotions to execute
 5. **User reviews and approves/rejects** each promotion.
 6. For approved promotions:
-   - Write to `docs/reference/` or `docs/records/`
-   - Append a consolidation summary entry to `docs/insights/consolidation-log.md` listing what was promoted and where
+   - Write to `.agents-stack/reference/` or `.agents-stack/reference/`
+   - Append a consolidation summary entry to `.agents-stack/insights/consolidation-log.md` listing what was promoted and where
 7. **Orchestrator** reports: "Consolidation done. X items promoted."
 
 ## Filtering Rule

@@ -1,6 +1,6 @@
 ---
 name: product-blueprint
-description: Use when starting a greenfield product from a raw idea and you need the strategy / blueprint that defines the MVP and becomes docs/reference/design.md.
+description: Use when starting a greenfield product from a raw idea and you need the strategy / blueprint that defines the MVP and becomes .agents-stack/reference/design.md.
 ---
 
 # Product Blueprint
@@ -15,7 +15,7 @@ Use this skill to turn a raw idea into a credible product strategy, MVP boundary
 - Stay at strategy and blueprint level.
 - Do not write PRDs, requirements, or implementation design.
 - If the real question is whether the business survives, route to `greenfield-product/startup-pressure-test` first.
-- Produce a blueprint that can become `docs/reference/design.md`.
+- Produce a blueprint that can become `.agents-stack/reference/design.md`.
 
 ## Focus
 

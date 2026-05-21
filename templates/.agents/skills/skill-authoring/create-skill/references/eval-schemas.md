@@ -61,7 +61,7 @@ fixtures:
     phase_or_artifact_gate: contracted
     before_state:
       required_artifacts:
-        - .harness/WORKSTREAM-001/contract.md
+        - .agents-stack/WORKSTREAM-001/contract.md
       invariants:
         - attempt_count < max_attempts
     guard_action: Decide whether execution may start

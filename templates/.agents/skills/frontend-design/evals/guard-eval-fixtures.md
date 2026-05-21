@@ -4,7 +4,7 @@ fixtures:
     before_state:
       required_artifacts: []
       invariants:
-        - .harness/<sprint-id>/contract.md does not exist
+        - .agents-stack/<sprint-id>/contract.md does not exist
         - status.json shows phase: contracted
     guard_action: design-builder decides whether to begin implementation
     expected_after_state:
@@ -19,7 +19,7 @@ fixtures:
     phase_or_artifact_gate: design-builder entry check
     before_state:
       required_artifacts:
-        - .harness/<sprint-id>/contract.md
+        - .agents-stack/<sprint-id>/contract.md
       invariants:
         - status.json shows phase: awaiting_human (proposal not yet approved)
     guard_action: design-builder decides whether to begin implementation
@@ -35,7 +35,7 @@ fixtures:
     phase_or_artifact_gate: router dispatch at awaiting_human
     before_state:
       required_artifacts:
-        - .harness/<sprint-id>/sprint_proposal.md
+        - .agents-stack/<sprint-id>/sprint_proposal.md
       invariants:
         - status.json shows phase: awaiting_human
         - contract.md does not exist
@@ -51,8 +51,8 @@ fixtures:
     phase_or_artifact_gate: router retry routing
     before_state:
       required_artifacts:
-        - .harness/<sprint-id>/review.md (FAIL verdict)
-        - .harness/<sprint-id>/status.json
+        - .agents-stack/<sprint-id>/review.md (FAIL verdict)
+        - .agents-stack/<sprint-id>/status.json
       invariants:
         - status.json shows phase: reviewed_fail
         - clean_restore_ref is present and non-empty
@@ -70,25 +70,25 @@ fixtures:
     phase_or_artifact_gate: router retry routing
     before_state:
       required_artifacts:
-        - .harness/<sprint-id>/review.md (FAIL verdict)
-        - .harness/<sprint-id>/status.json
+        - .agents-stack/<sprint-id>/review.md (FAIL verdict)
+        - .agents-stack/<sprint-id>/status.json
       invariants:
         - status.json shows phase: reviewed_fail
         - clean_restore_ref is absent or empty string
     guard_action: router decides whether to dispatch design-builder for retry
     expected_after_state:
       outcome: deny
-      next_owner: orchestrator → state-update → escalated_to_human
+      next_owner: orchestrator → escalated_to_human
     fail_closed_expectation:
       missing_or_invalid_state: router must not dispatch design-builder without a valid restore reference
-      evidence_to_record: "Router output: Route to using-agents-stack/state-update. — no clean_restore_ref"
+      evidence_to_record: "Router output: Route to using-agents-stack/orchestrator. — no clean_restore_ref"
 
   - id: retry-denies-when-budget-exhausted
     phase_or_artifact_gate: builder retry entry check
     before_state:
       required_artifacts:
-        - .harness/<sprint-id>/contract.md
-        - .harness/<sprint-id>/status.json
+        - .agents-stack/<sprint-id>/contract.md
+        - .agents-stack/<sprint-id>/status.json
       invariants:
         - status.json shows attempt_count >= max_attempts
         - clean_restore_ref is present
@@ -105,7 +105,7 @@ fixtures:
     phase_or_artifact_gate: router compound-drain check
     before_state:
       required_artifacts:
-        - docs/live/tracked-work.json
+        - .agents-stack/tracked-work.json
       invariants:
         - compound_pending_feature_ids is non-empty
         - no runnable_active_sprint_id is set
@@ -122,7 +122,7 @@ fixtures:
     phase_or_artifact_gate: design-compounder entry check
     before_state:
       required_artifacts:
-        - docs/live/tracked-work.json
+        - .agents-stack/tracked-work.json
       invariants:
         - compound_pending_feature_ids is empty or does not contain the dispatched feature id
     guard_action: design-compounder decides whether to extract learnings

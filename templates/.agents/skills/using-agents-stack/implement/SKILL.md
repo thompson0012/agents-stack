@@ -91,7 +91,7 @@ Before writing handoff:
 - Increment `attempt` in `status.json` when starting a fresh attempt
 - Restore clean state before re-implementing
 - If `attempt >= max_attempts`: stop, set `phase: "escalated_to_human"`
-- If build/startup fails: set `phase: "build_failed"`, preserve evidence
+- If build/startup fails: set `phase: "implement_failed"`, preserve evidence
 
 ## Done
 

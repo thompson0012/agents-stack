@@ -81,6 +81,6 @@ If #3 finds additions without evidence, or #4 finds signals without justificatio
 
 ## Usage
 
-- `thesis` phase: classify the project scale and compare the claim scope against the floor table.
-- `contract` phase: use this guide as the judgment framework for overspecification.
+- `spec` phase: classify the project scale and scope requirements against the floor table.
+- `plan` phase: use this guide as the judgment framework for overspecification.
 - `prune-review`: use the floor concept as the primary lens — everything above-floor gets challenged.

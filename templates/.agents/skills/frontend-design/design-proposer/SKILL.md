@@ -16,17 +16,17 @@ A proposal that is vague about output format, variation count, viewport, or acce
 
 - Run proposal drafting in a fresh worker context. Do not inline this phase in the orchestrator.
 - Only the orchestrator may spawn workers. This worker must not spawn another worker.
-- Tool lane: read-only on repo and context files, plus write access to `.harness/<sprint-id>/sprint_proposal.md`, `.harness/<sprint-id>/contract.md`, and `.harness/<sprint-id>/status.json`.
-- Dispatch framing is non-authoritative. Verify against `docs/live/tracked-work.json` and `context.md` before writing.
+- Tool lane: read-only on repo and context files, plus write access to `.agents-stack/<sprint-id>/sprint_proposal.md`, `.agents-stack/<sprint-id>/contract.md`, and `.agents-stack/<sprint-id>/status.json`.
+- Dispatch framing is non-authoritative. Verify against `.agents-stack/tracked-work.json` and `context.md` before writing.
 
 ## Required Reads
 
 Before writing anything:
 1. `AGENTS.md`
-2. `.harness/<sprint-id>/context.md` — the full design vocabulary inventory
-3. `docs/live/tracked-work.json` — confirm this sprint is the single proposed feature
-4. `docs/live/ideas.md` — carry forward only signals that narrow scope
-5. `docs/insights/session-log.md` — prior design decisions that apply
+2. `.agents-stack/<sprint-id>/context.md` — the full design vocabulary inventory
+3. `.agents-stack/tracked-work.json` — confirm this sprint is the single proposed feature
+4. `.agents-stack/ideas.md` — carry forward only signals that narrow scope
+5. `.agents-stack/insights/session-log.md` — prior design decisions that apply
 
 ## Proposal Inputs to Collect
 
@@ -139,7 +139,7 @@ All animations must support `prefers-reduced-motion: reduce` with a static fallb
 
 ## Required Output
 
-### `.harness/<sprint-id>/sprint_proposal.md`
+### `.agents-stack/<sprint-id>/sprint_proposal.md`
 
 ```md
 # Design Sprint Proposal: <SPRINT-ID>
@@ -182,13 +182,13 @@ All animations must support `prefers-reduced-motion: reduce` with a static fallb
   - ...
 
 ## Allowed Files
-- .harness/<sprint-id>/artifact/<filename>.html
-- .harness/<sprint-id>/artifact/<supporting files>
+- .agents-stack/<sprint-id>/artifact/<filename>.html
+- .agents-stack/<sprint-id>/artifact/<supporting files>
 
 ## Forbidden Areas
 - Product source code
-- docs/live/* (except status updates owned by state-update)
-- docs/reference/*
+- .agents-stack/* (except status updates owned by orchestrator)
+- .agents-stack/reference/*
 
 ## Acceptance Criteria
 [AC-001 through AC-008 required; additional domain criteria from recipe]
@@ -206,7 +206,7 @@ All animations must support `prefers-reduced-motion: reduce` with a static fallb
 - [list any unanswered proposal inputs]
 ```
 
-### `.harness/<sprint-id>/contract.md`
+### `.agents-stack/<sprint-id>/contract.md`
 
 Only write this file when all proposal inputs are answered and the proposal survives self-challenge. If questions remain, write only `sprint_proposal.md` and park at `awaiting_human`.
 
@@ -217,7 +217,7 @@ Only write this file when all proposal inputs are answered and the proposal surv
 - No open questions remain
 - The human's edits to `sprint_proposal.md` (if any) are incorporated
 
-### `.harness/<sprint-id>/status.json`
+### `.agents-stack/<sprint-id>/status.json`
 
 ```json
 {

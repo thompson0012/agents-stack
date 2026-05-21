@@ -16,9 +16,9 @@ Starting design work without understanding the existing system always produces g
 
 - Run scouting in a fresh worker context. The orchestrator dispatches; it does not inline scouting.
 - Only the orchestrator may spawn workers. This worker must not spawn another worker.
-- Tool lane: read-only access to all repo files, plus write access to `.harness/<sprint-id>/context.md` and `.harness/<sprint-id>/status.json`.
+- Tool lane: read-only access to all repo files, plus write access to `.agents-stack/<sprint-id>/context.md` and `.agents-stack/<sprint-id>/status.json`.
 - Parallel-safe for read-only discovery across disjoint file areas. One worker owns the context write.
-- Dispatch framing is non-authoritative. Verify the dispatched sprint against `docs/live/tracked-work.json` and the strongest local artifact before writing.
+- Dispatch framing is non-authoritative. Verify the dispatched sprint against `.agents-stack/tracked-work.json` and the strongest local artifact before writing.
 
 ## Re-Entry Check
 
@@ -38,7 +38,7 @@ Before extracting tokens, define the brand's emotional DNA. This shapes which to
 
 Check for brand personality signals in:
 ```
-├── docs/reference/design.md → brand section (if BIE output exists)
+├── .agents-stack/reference/design.md → brand section (if BIE output exists)
 ├── README.md → project purpose and audience
 ├── Any moodboard, brand brief, or visual reference files attached by the human
 └── Ask: if this brand were a person, what 3-5 emotional keywords describe them? (e.g. "calm, precise, warm" vs "rebellious, fast, neon")
@@ -61,14 +61,14 @@ If the project fits none of these, record "custom" and describe the observed dia
 ### 1. Project-Level Design Reference
 ```
 Check in order:
-0. docs/reference/design.md           → brand identity + visual universe + design tokens + component specs + prompt methodology (BIE canonical output)
-1. docs/reference/architecture.md     → tech stack, rendering targets, constraints
-2. docs/insights/session-log.md                → prior design decisions with provenance
-3. docs/live/ideas.md                 → any design-related brainstorm notes
+0. .agents-stack/reference/design.md           → brand identity + visual universe + design tokens + component specs + prompt methodology (BIE canonical output)
+1. .agents-stack/reference/architecture.md     → tech stack, rendering targets, constraints
+2. .agents-stack/insights/session-log.md                → prior design decisions with provenance
+3. .agents-stack/ideas.md                 → any design-related brainstorm notes
 4. README.md                          → project purpose, audience, screenshot links
 ```
 
-When `docs/reference/design.md` is found, parse its structured sections into the Token Inventory:
+When `.agents-stack/reference/design.md` is found, parse its structured sections into the Token Inventory:
 - **## Visual System YAML block** → Parse the `color_policy`, `design_tokens` (color/spacing/radius/shadow/blur/motion/typography), `form_language`, `material_language`, `scene_density_rules`, `object_library`, `ui_translation`, `negative_prompt_policy`, `input_variables`, `application_presets`, `prompt_seed`, `rule_severity` keys
 - **Colors** → `color_policy.dominant_colors`, `color_policy.accent_colors`, `color_policy.text_colors`, `color_policy.glass_colors`
   - If `design.md` contains a BIE Visual System YAML block, also record:
@@ -87,7 +87,7 @@ Look for:
 - tokens.css / _variables.scss / design-tokens.{js,ts,json}
 - theme.{ts,js} / colors.{ts,js}    → semantic color system
 - globals.css / base.css            → root-level CSS custom properties
-- docs/reference/design.md             → BIE canonical output (already checked in Step 1 if found)
+- .agents-stack/reference/design.md             → BIE canonical output (already checked in Step 1 if found)
 ```
 
 For each token file found, extract:
@@ -129,7 +129,7 @@ If steps 1–4 produce no usable design context:
 
 ## Required Output
 
-### `.harness/<sprint-id>/context.md`
+### `.agents-stack/<sprint-id>/context.md`
 
 ```md
 # Design Context: <SPRINT-ID>
@@ -210,7 +210,7 @@ Describe the overall mood, density, corner style, icon style, copy tone in 3–5
 - gaps or inferences:
 ```
 
-### `.harness/<sprint-id>/status.json`
+### `.agents-stack/<sprint-id>/status.json`
 
 ```json
 {

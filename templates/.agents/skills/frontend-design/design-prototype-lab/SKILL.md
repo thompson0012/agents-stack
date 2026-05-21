@@ -16,9 +16,9 @@ A validated design vocabulary prevents rework. A skipped validation pipeline ris
 
 - Run in a fresh worker context. The orchestrator dispatches; it does not inline validation.
 - Only the orchestrator may spawn workers. This worker must not spawn another worker.
-- Tool lane: read-only on repo and context files, plus write access to `.harness/<sprint-id>/token-validation.md`, `.harness/<sprint-id>/component-tests.md`, `.harness/<sprint-id>/page-slice.md`, `.harness/<sprint-id>/status.json`, and `.harness/<sprint-id>/artifact/` (HTML test fixtures only). No edits to product code, docs/live/*, or docs/reference/*.
+- Tool lane: read-only on repo and context files, plus write access to `.agents-stack/<sprint-id>/token-validation.md`, `.agents-stack/<sprint-id>/component-tests.md`, `.agents-stack/<sprint-id>/page-slice.md`, `.agents-stack/<sprint-id>/status.json`, and `.agents-stack/<sprint-id>/artifact/` (HTML test fixtures only). No edits to product code, .agents-stack/*, or .agents-stack/reference/*.
 - Not parallel-safe. Only one prototype lab may run at a time. Do not dispatch a second lab while one is active.
-- Dispatch framing is non-authoritative. Verify against `contract.md` and `docs/live/tracked-work.json` before writing.
+- Dispatch framing is non-authoritative. Verify against `contract.md` and `.agents-stack/tracked-work.json` before writing.
 
 ## Required Entry Checks
 
@@ -45,7 +45,7 @@ All three validation levels use pre-built skeleton HTML templates located in `re
    → Replace placeholder with the actual CSS value (hex, px, font name, etc.)
 4. If a token is not found in context.md:
    → Leave /*TOKEN:xxx — NOT FOUND*/ as a visible marker for manual review
-5. Save the filled HTML to .harness/<sprint-id>/artifact/<filename>.html
+5. Save the filled HTML to .agents-stack/<sprint-id>/artifact/<filename>.html
 6. Add @font-face or <link> for web fonts if context.md specifies external font sources
 ```
 
@@ -68,7 +68,7 @@ Skeletons contain only structural HTML + the `:root` CSS block with `/*TOKEN:xxx
 **Procedure**:
 1. Load `references/token-lab-skeleton.html`.
 2. Inject tokens from `context.md` into all `/*TOKEN:xxx*/` placeholders in the `:root` block.
-3. Save the filled file to `.harness/<sprint-id>/artifact/token-lab.html`.
+3. Save the filled file to `.agents-stack/<sprint-id>/artifact/token-lab.html`.
 4. The skeleton pre-builds these displays (all driven by injected tokens):
    - Full color palette side-by-side (primary, neutral, semantic — light mode + dark mode toggle)
    - Type scale specimen (all headings + body + caption, in both English and, if applicable, Chinese)
@@ -93,7 +93,7 @@ Skeletons contain only structural HTML + the `:root` CSS block with `/*TOKEN:xxx
 2. Inject tokens from `context.md` into all `/*TOKEN:xxx*/` placeholders.
 3. The skeleton comes pre-built with 4 preset components (Button, Input Field, Card, Modal/Dialog) with state toggle UI. For each additional component in the contract's state matrix, copy the section pattern and add component markup.
 4. For each component, the skeleton provides radio-button toggles for: Default, Hover, Active/Pressed, Focus (keyboard), and Disabled states.
-5. Save the filled file to `.harness/<sprint-id>/artifact/component-theater.html`.
+5. Save the filled file to `.agents-stack/<sprint-id>/artifact/component-theater.html`.
 6. Record findings in `component-tests.md`:
    - Per-component pass/fail with evidence
    - Any missing state
@@ -108,7 +108,7 @@ Skeletons contain only structural HTML + the `:root` CSS block with `/*TOKEN:xxx
 1. Load `references/page-slice-skeleton.html`.
 2. Inject tokens from `context.md` into all `/*TOKEN:xxx*/` placeholders.
 3. The skeleton provides a neutral page structure (header/nav, hero, card grid, content, footer). Apply the contract's layout pattern if the contract specifies one.
-4. Save the filled file to `.harness/<sprint-id>/artifact/page-slice.html`.
+4. Save the filled file to `.agents-stack/<sprint-id>/artifact/page-slice.html`.
 5. The skeleton has a built-in stress test toggle. When ON, content swaps to extreme variants:
    - 50-character strings without spaces (overflow test)
    - Long names (`"Mohammed bin Salman Al Saud"`)
@@ -133,7 +133,7 @@ After all three levels complete:
 
 ## Required Output Files
 
-### `.harness/<sprint-id>/token-validation.md`
+### `.agents-stack/<sprint-id>/token-validation.md`
 
 ```md
 # Token Validation: <SPRINT-ID>
@@ -183,11 +183,11 @@ After all three levels complete:
 TOKENS_VALID | TOKENS_NEEDS_ADJUSTMENT
 
 ## Evidence
-- Test fixture: `.harness/<sprint-id>/artifact/token-lab.html`
+- Test fixture: `.agents-stack/<sprint-id>/artifact/token-lab.html`
 - Screenshots / measurements: (paths or inline descriptions)
 ```
 
-### `.harness/<sprint-id>/component-tests.md`
+### `.agents-stack/<sprint-id>/component-tests.md`
 
 ```md
 # Component Tests: <SPRINT-ID>
@@ -233,10 +233,10 @@ TOKENS_VALID | TOKENS_NEEDS_ADJUSTMENT
 COMPONENTS_VALID | COMPONENTS_NEEDS_ADJUSTMENT
 
 ## Evidence
-- Test fixture: `.harness/<sprint-id>/artifact/component-theater.html`
+- Test fixture: `.agents-stack/<sprint-id>/artifact/component-theater.html`
 ```
 
-### `.harness/<sprint-id>/page-slice.md`
+### `.agents-stack/<sprint-id>/page-slice.md`
 
 ```md
 # Page Slice Validation: <SPRINT-ID>
@@ -276,10 +276,10 @@ COMPONENTS_VALID | COMPONENTS_NEEDS_ADJUSTMENT
 SLICE_VALID | SLICE_NEEDS_ADJUSTMENT
 
 ## Evidence
-- Test fixture: `.harness/<sprint-id>/artifact/page-slice.html`
+- Test fixture: `.agents-stack/<sprint-id>/artifact/page-slice.html`
 ```
 
-### `.harness/<sprint-id>/status.json`
+### `.agents-stack/<sprint-id>/status.json`
 
 ```json
 {
@@ -297,9 +297,9 @@ For `validating_failed`, add:
 {
   "escalation_reason": "<summary of critical findings>",
   "affected_fixtures": [
-    ".harness/<sprint-id>/artifact/token-lab.html",
-    ".harness/<sprint-id>/artifact/component-theater.html",
-    ".harness/<sprint-id>/artifact/page-slice.html"
+    ".agents-stack/<sprint-id>/artifact/token-lab.html",
+    ".agents-stack/<sprint-id>/artifact/component-theater.html",
+    ".agents-stack/<sprint-id>/artifact/page-slice.html"
   ]
 }
 ```

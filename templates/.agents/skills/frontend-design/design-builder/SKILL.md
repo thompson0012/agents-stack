@@ -16,8 +16,8 @@ Producing a beautiful artifact that violates the contract is still a failure. Pr
 
 - Run in a fresh worker context. The orchestrator dispatches; it does not inline building.
 - Only the orchestrator may spawn workers. This worker must not spawn another worker.
-- Tool lane: write access to `.harness/<sprint-id>/artifact/`, `.harness/<sprint-id>/runtime.md`, `.harness/<sprint-id>/handoff.md`, `.harness/<sprint-id>/status.json`. No edits to product code, docs/live/*, or docs/reference/*.
-- Dispatch framing is non-authoritative. Verify against `contract.md` and `docs/live/tracked-work.json` before writing.
+- Tool lane: write access to `.agents-stack/<sprint-id>/artifact/`, `.agents-stack/<sprint-id>/runtime.md`, `.agents-stack/<sprint-id>/handoff.md`, `.agents-stack/<sprint-id>/status.json`. No edits to product code, .agents-stack/*, or .agents-stack/reference/*.
+- Dispatch framing is non-authoritative. Verify against `contract.md` and `.agents-stack/tracked-work.json` before writing.
 
 ## Required Entry Checks
 
@@ -54,11 +54,11 @@ When resuming after `review_failed` or `build_failed`:
 
 `clean_restore_ref` identifies the restore point for the sprint's artifact directory.
 
-**Format:** use the sprint-id string (e.g., `"DESIGN-001"`). Restoring means deleting all contents of `.harness/<sprint-id>/artifact/` and rebuilding from `contract.md` and `context.md` — these source files are never modified by the builder and always remain valid as the restore baseline.
+**Format:** use the sprint-id string (e.g., `"DESIGN-001"`). Restoring means deleting all contents of `.agents-stack/<sprint-id>/artifact/` and rebuilding from `contract.md` and `context.md` — these source files are never modified by the builder and always remain valid as the restore baseline.
 
 **When to set it:** on the very first build attempt, before writing any artifact files, set `clean_restore_ref: "<sprint-id>"` in the `building` status.json. This ensures a restore point exists before any failure can occur.
 
-**If git is available** and the `.harness/` folder is tracked, prefer using the git SHA of the pre-build commit: `clean_restore_ref: "<git-sha>"`. Restoring then means `git checkout <sha> -- .harness/<sprint-id>/artifact/`.
+**If git is available** and the `.agents-stack/` folder is tracked, prefer using the git SHA of the pre-build commit: `clean_restore_ref: "<git-sha>"`. Restoring then means `git checkout <sha> -- .agents-stack/<sprint-id>/artifact/`.
 
 A sprint that reaches `build_failed` or `review_failed` without a `clean_restore_ref` in status.json cannot be retried — the router will escalate to human immediately.
 
@@ -257,7 +257,7 @@ A handoff that says only "done" is invalid.
 
 ## Required Output Files
 
-### `.harness/<sprint-id>/runtime.md`
+### `.agents-stack/<sprint-id>/runtime.md`
 
 ```md
 # Runtime Notes: <SPRINT-ID>
@@ -269,7 +269,7 @@ A handoff that says only "done" is invalid.
 
 ## Artifact
 - Type:
-- Path: .harness/<sprint-id>/artifact/<filename>.html
+- Path: .agents-stack/<sprint-id>/artifact/<filename>.html
 - Open with: file:/// path or browser
 
 ## Scaffold
@@ -290,7 +290,7 @@ A handoff that says only "done" is invalid.
 - None
 ```
 
-### `.harness/<sprint-id>/handoff.md`
+### `.agents-stack/<sprint-id>/handoff.md`
 
 ```md
 # Design Builder Handoff: <SPRINT-ID>
@@ -304,7 +304,7 @@ READY_FOR_REVIEW | BUILD_FAILED | AWAITING_HUMAN | ESCALATED_TO_HUMAN
 - Clean restore ref:
 
 ## Artifact
-- Path: .harness/<sprint-id>/artifact/<filename>.html
+- Path: .agents-stack/<sprint-id>/artifact/<filename>.html
 - Open with: (browser, file://)
 
 ## Completed Work
@@ -326,7 +326,7 @@ READY_FOR_REVIEW | BUILD_FAILED | AWAITING_HUMAN | ESCALATED_TO_HUMAN
 - ...
 ```
 
-### `.harness/<sprint-id>/status.json`
+### `.agents-stack/<sprint-id>/status.json`
 
 Typical transitions:
 - Start / retry: `phase: "building"`, `owner_role: "orchestrator"`, `resume_from: "contract.md"` (first pass) or `"review.md"` (retry)

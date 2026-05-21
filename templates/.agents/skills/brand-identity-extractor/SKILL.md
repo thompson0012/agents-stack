@@ -22,15 +22,15 @@ Three stages: **Define → Handoff → Generate**
 
 ## Phase 0: Brand Discovery & Conflict Resolution
 
-Before extraction begins, establish the brand's foundational context. Skip this phase only if all 6 Brand Questions are already answered in provided inputs, or if the user is extending an existing brand with a pre-validated `docs/reference/design.md`.
+Before extraction begins, establish the brand's foundational context. Skip this phase only if all 6 Brand Questions are already answered in provided inputs, or if the user is extending an existing brand with a pre-validated `.agents-stack/reference/design.md`.
 
 ### 0.1 Source Discovery (Do This Before Asking Any Question)
 
 Scan existing project documents for brand inputs before asking the user anything:
 
 Check in order:
-1. `docs/reference/design.md`     → product intent, behavior, brand direction
-2. `docs/insights/session-log.md`          → durable decisions, brand notes
+1. `.agents-stack/reference/design.md`     → product intent, behavior, brand direction
+2. `.agents-stack/insights/session-log.md`          → durable decisions, brand notes
 3. `docs/` or product/ folders    → roadmap docs, vision docs, brand briefs
 4. `README.md`                    → project purpose, audience
 
@@ -153,25 +153,25 @@ For extracted hex values and numeric tokens, verify against [design-standards](r
 - Spacing scale (systematic, not arbitrary)
 - AI prompt negative keywords match Stage 1 forbidden lists
 
-### Step 5: Write to `docs/reference/design.md`
+### Step 5: Write to `.agents-stack/reference/design.md`
 
 `design.md` is the **single canonical design reference** for the project (per `AGENTS.md`). All brand identity content goes here. External artifacts are referenced from it — never duplicated.
 
 **Write the Visual Universe as a YAML block under `## Visual System`:**
-Stage 1 B.1–B.5 (Color Philosophy, Form Language, Material Library, Composition DNA, Object Library) must be written as a single structured YAML block inside `## Visual System`, following the v2.0 brand identity schema. The YAML block must include: `color_policy`, `design_tokens` (spacing, radius, shadow, blur, motion, typography), `form_language`, `material_language`, `scene_density_rules`, `object_library`, `ui_translation`, `negative_prompt_policy`, `input_variables`, `application_presets`, `prompt_seed`, and `rule_severity`. See `docs/reference/design.md` for the canonical schema structure.
+Stage 1 B.1–B.5 (Color Philosophy, Form Language, Material Library, Composition DNA, Object Library) must be written as a single structured YAML block inside `## Visual System`, following the v2.0 brand identity schema. The YAML block must include: `color_policy`, `design_tokens` (spacing, radius, shadow, blur, motion, typography), `form_language`, `material_language`, `scene_density_rules`, `object_library`, `ui_translation`, `negative_prompt_policy`, `input_variables`, `application_presets`, `prompt_seed`, and `rule_severity`. See `.agents-stack/reference/design.md` for the canonical schema structure.
 
 **Write inline to `design.md` (prose sections):**
 - Stage 1: Brand Soul, Typography & Voice, Brand Rulebook
 - Stage 2: Component Specifications, Responsive Behaviour, Motion & Interaction Design, Accessibility Implementation Guide, Design QA Checklist
 - Stage 3: Core Style Prompt, Negative Prompt Bank, Prompt Design Technique Methodology, Image Consistency Validation Checklist
 
-**Write to external files under `docs/records/design/`, reference from `design.md` with a relative link:**
-- Design Tokens → `docs/records/design/design-tokens.json` (JSON block from Stage 2.1)
-- CSS Custom Properties → `docs/records/design/design-tokens.css` (from Stage 2.7)
+**Write to external files under `.agents-stack/reference/design/`, reference from `design.md` with a relative link:**
+- Design Tokens → `.agents-stack/reference/design/design-tokens.json` (JSON block from Stage 2.1)
+- CSS Custom Properties → `.agents-stack/reference/design/design-tokens.css` (from Stage 2.7)
 - Tailwind Config → project Tailwind config file (extension snippet from Stage 2.7)
-- Figma Variables → `docs/records/design/figma-variables.json` (from Stage 2.7)
-- Prompt Templates → `docs/records/design/ai-prompt-templates.md` (5 templates from Stage 3.4)
-- Tool-Specific Parameters → `docs/records/design/ai-prompt-params.md` (from Stage 3.3)
+- Figma Variables → `.agents-stack/reference/design/figma-variables.json` (from Stage 2.7)
+- Prompt Templates → `.agents-stack/reference/design/ai-prompt-templates.md` (5 templates from Stage 3.4)
+- Tool-Specific Parameters → `.agents-stack/reference/design/ai-prompt-params.md` (from Stage 3.3)
 Mark any inferential gaps. If a section's content is entirely covered by an external file, write a one-paragraph summary in `design.md` with the reference link.
 
 ## Cross-Skill Integration
@@ -181,7 +181,7 @@ These skills work well with BIE in a loose pipeline — no hard dependency, just
 | Skill | Role | When to route |
 |---|---|---|
 | [`prompt-augmentation`](../prompt-augmentation/SKILL.md) | **Stage 3 enrichment** | Feed BIE's AI prompt output (Core Style, Negative Bank, templates) into `prompt-augmentation` with `text-to-image` mode for domain-specific term substitution (optics, lighting, composition, materials). |
-| [`frontend-design/design-context-scout`](../frontend-design/design-context-scout/SKILL.md) | **Downstream consumer** | BIE's output in `docs/reference/design.md` (YAML block under `## Visual System` for machine-readable tokens, prose sections for human context) is consumed by `design-context-scout` as a design system source for UI sprint planning. |
+| [`frontend-design/design-context-scout`](../frontend-design/design-context-scout/SKILL.md) | **Downstream consumer** | BIE's output in `.agents-stack/reference/design.md` (YAML block under `## Visual System` for machine-readable tokens, prose sections for human context) is consumed by `design-context-scout` as a design system source for UI sprint planning. |
 
 ## Bundled Resources
 
@@ -218,5 +218,5 @@ These skills work well with BIE in a loose pipeline — no hard dependency, just
 - [ ] Inferred values are explicitly marked as inferences
 - [ ] Output ready for designer, front-end dev, content creator, and QA
 
-- [ ] All inline content is written to `docs/reference/design.md` as the single canonical entry point
+- [ ] All inline content is written to `.agents-stack/reference/design.md` as the single canonical entry point
 - [ ] External artifacts (tokens JSON, CSS, Tailwind config, prompt templates) are written to separate files and referenced from `design.md`

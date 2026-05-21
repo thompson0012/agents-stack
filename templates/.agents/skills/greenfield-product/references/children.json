@@ -34,7 +34,7 @@
       "name": "product-blueprint",
       "target": "greenfield-product/product-blueprint",
       "relationship": "routes_to",
-      "summary": "Turns raw ideas into product strategy, MVP framing, and the blueprint that becomes `docs/reference/design.md`.",
+      "summary": "Turns raw ideas into product strategy, MVP framing, and the blueprint that becomes `.agents-stack/reference/design.md`.",
       "route_when": [
         "The user is starting from a raw idea and needs the first strategic blueprint or MVP shape.",
         "The work is product strategy rather than commercial pressure testing, requirements, or system design."
@@ -55,7 +55,7 @@
       "name": "requirements-writer",
       "target": "greenfield-product/requirements-writer",
       "relationship": "routes_to",
-      "summary": "Turns a validated blueprint into actionable requirements, user stories, and acceptance criteria in `docs/records/product/requirements.md`.",
+      "summary": "Turns a validated blueprint into actionable requirements, user stories, and acceptance criteria in `.agents-stack/reference/product/requirements.md`.",
       "route_when": [
         "A validated blueprint exists and the work is turning it into a PRD / requirements document.",
         "The user needs user stories, acceptance criteria, or edge cases for an approved direction."
