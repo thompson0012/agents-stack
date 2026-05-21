@@ -1,21 +1,22 @@
 # Constitution
 
-這份文件是專案的技術章程，定義所有工作流必須遵守的不變量與規則。
+This document is the project's technical charter. It defines invariants and rules that all workstreams must follow.
 
-## 核心不變量
+## Core Invariants
 
-1. **文件即狀態** — 所有 durable state 存放在 `.agents-stack/`
-2. **單一活躍工作流** — 同一時間最多一個 non-parked workstream
-3. **實作者 ≠ 驗收者** — implement 和 qa 必須分派給不同 worker
-4. **Cold start 必須可用** — 從檔案即可恢復完整狀態
-5. **迭代 ≠ 重試** — retry 修正執行，iteration 質疑前提
+1. **Files are state** — all durable state lives in `.agents-stack/`
+2. **One active workstream** — at most one non-parked workstream at a time
+3. **Implementer ≠ Verifier** — implement and qa must be dispatched to different workers
+4. **Cold start must work** — a new agent recovers full state from files alone
+5. **Iteration ≠ Retry** — retry fixes execution, iteration questions premises
 
-## 工作流規則
+## Workflow Rules
 
-- spec phase 必須產出 BDD 格式的 Acceptance Criteria
-- tasks phase 每個 task 必須包含 5 維驗收元資料
-- implement 必須按 tasks.md 順序執行 TDD
-- qa 必須獨立重現並逐條驗證 SPEC 的 AC
-- 修改需求→先更新 spec，修改架構→先更新 plan
+- spec phase must produce BDD-format Acceptance Criteria
+- tasks phase: each task must include 5-dimension verification metadata
+- implement must follow TDD per tasks.md, each task passing before the next
+- qa must independently reproduce and verify every AC from SPEC
+- Change requirements → update spec first. Change architecture → update plan first.
+- Project milestones and workstream backlog are defined in `ROADMAP.md`
 
-<!-- 在此添加專案特定的技術棧、編碼規範、架構約束 -->
+<!-- Add project-specific tech stack, coding standards, and architectural constraints below -->

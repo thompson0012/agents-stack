@@ -32,7 +32,7 @@ spec → plan → tasks → implement → qa → release
 
 ## Quick Resume
 
-1. Read CONSTITUTION.md, AGENTS.md, .agents-stack/tracked-work.json
+1. Read CONSTITUTION.md, AGENTS.md, ROADMAP.md, .agents-stack/tracked-work.json
 2. Read .agents-stack/<ID>/status.json and strongest artifact
 3. Verify checkpoint matches disk state, continue from strongest valid checkpoint
 
