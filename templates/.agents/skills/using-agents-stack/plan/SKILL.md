@@ -84,10 +84,57 @@ Impact analysis must name real files found by inspecting the codebase. No guessw
 - [Module X depends on changed interface Y — mitigation plan]
 - [Config/env changes needed — list them]
 
+### Impact Analysis Models
+
+Analyze impact across three dimensions:
+
+**追溯性分析 (Traceability)** — Trace each change back to its originating requirement:
+| Change | Source (SPEC §) | If this change is wrong, what else breaks? |
+|--------|-----------------|-------------------------------------------|
+| [e.g., new API endpoint] | §2.1 / AC-003 | Frontend form, mobile notification handler |
+
+**相依性分析 (Dependency)** — Classify module relationships by coupling strength:
+| Upstream Module | Downstream Module | Coupling | Mitigation if downstream fails |
+|-----------------|-------------------|----------|-------------------------------|
+| [e.g., OrderService] | PaymentGateway | Strong (sync call) | Circuit breaker + fallback response |
+| [e.g., OrderService] | EmailNotifier | Weak (async queue) | Queue retry, no upstream impact |
+
+Coupling types:
+- **Strong**: Synchronous call, upstream blocked on downstream response → needs fault isolation
+- **Weak**: Async/event-driven, upstream proceeds regardless → isolated blast radius
+
+**經驗型分析 (Experiential)** — Apply historical failure patterns to this change:
+| Known failure pattern | Has this happened before? | Preventative measure in this plan |
+|-----------------------|--------------------------|----------------------------------|
+| [e.g., DB migration locked table in prod] | Yes — 2024-03 incident | Run migration in staging first, have rollback script |
+
 ### Files NOT Touched
 | File Path | Reason Excluded |
 |-----------|-----------------|
 | `src/...` | Out of scope per spec |
+
+## Dependency Graph
+
+Define the task execution order as a DAG (Directed Acyclic Graph). Tasks with no mutual dependencies may execute in parallel.
+
+### Task Dependency Table
+| Task ID | Name | Depends On | Parallel Group |
+|---------|------|------------|----------------|
+| TASK-01 | [first task] | None | Group A |
+| TASK-02 | [dependent task] | TASK-01 | Group B |
+| TASK-03 | [parallel task] | None | Group A |
+
+### Parallel Groups
+- **Group A**: TASK-01, TASK-03 — can execute concurrently
+- **Group B**: TASK-02 — depends on Group A completion
+- ...
+
+### DAG (Text Representation)
+```
+Group A (parallel)     Group B (sequential)
+    TASK-01 ──────────────→ TASK-02
+    TASK-03 ─┘
+```
 
 ## Test Strategy
 

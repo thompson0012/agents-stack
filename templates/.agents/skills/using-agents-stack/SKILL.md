@@ -14,6 +14,19 @@ Read durable state from .agents-stack/, decide the next phase, dispatch a fresh 
 - Only this orchestrator may delegate workers. Workers must not spawn nested workers.
 - Tool walls are hard: qa is read-only except qa-report.md; implement writes only task-defined files.
 
+## Pacing Discipline
+
+When guiding through phases, add exactly one structural dimension per round. Do not mix concerns within a single round:
+
+| Round | Dimension | Output |
+|-------|-----------|--------|
+| 1 | **Alignment** — confirm understanding of the spec | Spec coverage checklist, boundary confirmation |
+| 2 | **Structure** — order of work, dependency relationships | Phase ordering, dependency graph |
+| 3 | **Contract** — verification terms, deliverables, checkpoints | 5-dimension task verification matrix |
+| 4+ | **Execution** — implement one task at a time | Code, passing tests |
+
+Never merge rounds. Round 1 must not produce architecture. Round 2 must not produce verification checkpoints. Round 3 must not produce code. This prevents the confusion that comes from addressing scope, order, quality, and implementation simultaneously.
+
 ## Decision Order (details in references/state-machine.md)
 
 1. Read `.agents-stack/tracked-work.json`, `.agents-stack/<ID>/status.json`, and strongest artifact

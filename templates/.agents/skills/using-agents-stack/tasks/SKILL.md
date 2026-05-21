@@ -19,13 +19,14 @@ Decompose the plan into a strictly ordered sequence of verifiable tasks. Each ta
 **Workstream ID:** `<id>`
 **Plan Referenced:** [date or version]
 **Total Tasks:** `<N>`
-**Execution Order:** Strictly sequential — each task depends on the prior.
+**Execution Order:** DAG-based — tasks with no mutual dependencies may execute in parallel. Groups execute sequentially.
 
 ---
 
 ## TASK-1: Scaffold Test Infrastructure
 
-**Depends On:** None (first task)
+**Depends On:** None
+**Parallel Group:** Group A
 
 ### 1. Align Spec
 - SPEC.md — overall quality bar: all ACs must be testable
@@ -53,7 +54,8 @@ Decompose the plan into a strictly ordered sequence of verifiable tasks. Each ta
 
 ## TASK-N: [Task Name]
 
-**Depends On:** TASK-(N-1)
+**Depends On:** TASK-01, TASK-03 (or None if independent)
+**Parallel Group:** Group B (or same group if parallel with other tasks)
 
 ### 1. Align Spec
 - SPEC.md §X — [specific requirement reference]
@@ -81,8 +83,8 @@ Decompose the plan into a strictly ordered sequence of verifiable tasks. Each ta
 
 1. Read `spec.md` — understand user stories, edge cases, and acceptance criteria
 2. Read `plan.md` — understand architecture, files to touch, and test strategy
-3. Break the plan into strictly sequential tasks
-4. Verify sequential dependencies — each task builds on the prior, no parallel tasks
+3. Break the plan into tasks and organize them into a DAG: identify dependencies, group independent tasks into parallel groups
+4. Verify DAG dependencies — each task lists its real predecessors. Tasks with no mutual dependencies are grouped for parallel execution. Groups execute sequentially.
 5. For every task, complete all five dimensions of verification:
    - **1. Align Spec** — trace to specific ACs and spec sections
    - **2. Coverage Checklist** — what test scenarios are required
@@ -94,8 +96,8 @@ Decompose the plan into a strictly ordered sequence of verifiable tasks. Each ta
 
 ## Quality Bar
 
-- Tasks are strictly sequential — no two tasks can run in parallel
-- Each task is small enough to complete in one AI session
+- Tasks follow a DAG — independent tasks share a Parallel Group; groups execute sequentially
+- Each task is small enough to complete in one AI session (time-box: ~1 AI session)
 - TASK-1 is always scaffold test infrastructure
 - Every task has all five verification dimensions filled in
 - Coverage checklist maps to test strategy from plan.md

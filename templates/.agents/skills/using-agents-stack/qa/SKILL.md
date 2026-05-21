@@ -76,6 +76,7 @@ For each AC from SPEC.md:
 ALL of:
 - Every AC from spec.md verified with real state transitions
 - No hardcoded or static-pass conditions accepted
+- Every checkpoint that passed is falsifiable — a failure scenario exists and was tested for
 - System builds and runs as described
 - No undisclosed side effects
 
@@ -89,6 +90,12 @@ ALL of:
 - Environment, dependency, or missing evidence prevents judgment
 - Specify exactly what unblocks
 
+## Falsifiable Verification
+
+Every verification checkpoint must be falsifiable — if you cannot design a test that would make it FAIL, it is not a valid condition and must be rewritten.
+
+A valid checkpoint answers: "What would I observe if this were broken?"
+
 ## Invalid Evidence
 
 Reject these as proof:
@@ -96,6 +103,7 @@ Reject these as proof:
 - Pre-seeded data that skips the real code path
 - "Looks correct now" without before/action/after for stateful ACs
 - Canned API responses without exercising the real handler
+- Checkpoints that cannot fail (e.g., "system is running" without defining what "not running" looks like)
 
 ## Rework Routing
 

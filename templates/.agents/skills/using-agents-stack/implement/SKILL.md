@@ -33,20 +33,35 @@ Track task status in TASKS.md with these markers:
 
 ## Workflow
 
-For each task in TASKS.md order:
+Tasks execute by Parallel Group, as defined in TASKS.md and PLAN.md.
 
+### Per-Group Execution
+
+For each Parallel Group in dependency order:
+
+1. Identify all tasks in the current group
+2. Execute tasks within the group concurrently (they have no mutual dependencies):
+   - For each task: read its 5-dimension verification metadata
+   - For each task: write failing test(s) matching its Verification Checkpoints
+   - For each task: implement the code to pass its tests
+   - For each task: run all checkpoints — must all pass
+3. Once ALL tasks in the group pass: proceed to the next group
+
+### Per-Task Within Group
+
+Within a group, each task:
 1. Read task description with its 5-dimension verification metadata
 2. Write failing test(s) matching the Verification Checkpoints
 3. Implement the code to pass the tests
 4. Run all checkpoints — must all pass
 5. Mark task `[✅] done`
 6. Commit or save state
-7. Proceed to next task
 
 On failure:
 - If code error only → mark task `[↩] reworking`, fix, re-run checkpoints
 - If architecture blocker → mark task `[⚠️] needs_plan`, stop, update status.json with blocked_reason
 - If spec gap → mark task `[🚨] needs_spec`, stop, update status.json with blocked_reason
+- If one task in a parallel group fails → mark it, fix it. Other tasks in the same group that depend on the shared state unaffected by the failed task may continue. Tasks that share state with the failed task must pause and re-verify after the fix.
 
 ## Output: handoff.md
 
