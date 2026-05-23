@@ -205,6 +205,16 @@ Each claim below is backed by a command executed in this session:
 ## Deviations from Plan
 - [What was done differently than plan.md specified, and why]
 
+## Combinatorial Risks
+
+Tasks were checked for emergent interactions — conditions where two tasks independently correct can trigger a failure when combined.
+
+| Risk ID | Tasks Involved | Hypothesis | Trigger Condition |
+|---------|---------------|------------|-------------------|
+| CR-001 | T3, T7 | T3 changes schema → T7's query may miss new fields | If T3 lands before T7 adapts |
+| CR-002 | T5, T6 | Both write to shared-cache with different key formats → silent overwrite | If cache prefix convention isn't agreed |
+- [Add rows per identified risk. If none found, state: "No combinatorial risks identified — tasks operate on disjoint files/resources."]
+
 ## Rework Notes (if applicable)
 - Prior failure: [what failed]
 - What changed: [fix applied]
@@ -301,6 +311,40 @@ Record the integration gate results in handoff.md under a dedicated section:
 ```
 
 This ensures qa can see the wiring check was performed, even if it was skipped.
+
+## Combinatorial Risk Scan (Cross-Task Interaction Check)
+
+Before the independent review, scan tasks for emergent interaction risks — conditions where two independently correct tasks can trigger a failure when combined.
+
+### Why
+
+Single-task verification cannot catch A+B→C defects. The most common failure patterns are:
+- **Shared resource conflict**: Two tasks modify the same file/resource with incompatible assumptions
+- **Ordering dependency inversion**: Task A assumes Task B's output format X, but Task B changed it to Y after A was verified
+- **Implicit contract violation**: Task A relies on a behavior that Task B changes (e.g., function signature, error type, state shape)
+- **Global state pollution**: Task A sets a global/config that Task B reads, and the combination produces unexpected behavior
+
+### Scan: Cross-Task Dependency Matrix
+
+Review all tasks and identify pairs that share any resource:
+
+| Shared Resource | Tasks | Risk |
+|----------------|-------|------|
+| Same file (read/write) | T3, T7 | Merge conflict or silent overwrite |
+| Same function/module | T2, T5 | Interface change breaks caller |
+| Same config/global state | T4, T6 | State assumption mismatch |
+| Same data schema | T1, T8 | Schema evolution breaks consumer |
+
+### Action
+
+For each identified shared-resource pair, assess:
+1. Does one task's output flow into another's input? → **Ordering dependency**
+2. Do both tasks write to the same location without coordination? → **Race condition**
+3. Does one task change a contract the other depends on? → **Contract violation**
+
+### Results Go Into Handoff
+
+Record findings in handoff.md's `## Combinatorial Risks` section. If no risks found, explicitly state so — this proves the scan was performed, not skipped.
 
 ## Independent Review Gate (Before Handoff Finalization)
 

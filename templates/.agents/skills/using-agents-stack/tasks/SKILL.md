@@ -27,6 +27,7 @@ Decompose the plan into a strictly ordered sequence of verifiable tasks. Each ta
 
 **Depends On:** None
 **Parallel Group:** Group A
+**Shared Resources:** None (scaffold only)
 
 ### 1. Align Spec
 - SPEC.md — overall quality bar: all ACs must be testable
@@ -56,6 +57,7 @@ Decompose the plan into a strictly ordered sequence of verifiable tasks. Each ta
 
 **Depends On:** TASK-01, TASK-03 (or None if independent)
 **Parallel Group:** Group B (or same group if parallel with other tasks)
+**Shared Resources:** `src/schema.ts`, `prisma/schema.prisma` (or None if no overlap)
 
 ### 1. Align Spec
 - SPEC.md §X — [specific requirement reference]

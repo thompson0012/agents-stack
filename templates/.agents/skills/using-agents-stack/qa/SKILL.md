@@ -158,6 +158,25 @@ After the system is running, perform an integration wiring check:
 | Zero-caller detected on critical path | **P0 gap** — record in Findings, route to implement |
 | Implementer skipped integration gate entirely | **Process violation** — record in Findings, flag as trust issue
 
+### Step 5: Combinatorial Risk Reproduction
+
+After wiring verification, attempt to reproduce each risk listed in handoff.md's `## Combinatorial Risks` section:
+
+| Risk ID | Reproduction Method |
+|---------|-------------------|
+| CR-001 (schema change breaks query) | Checkout T3's code without T7's fix, run the affected query — does it fail? |
+| CR-002 (cache key collision) | Verify both tasks use the same cache key convention in production code |
+
+For each CR:
+- If the hypothesized failure reproduces: record as **P1 finding** in qa-report.md — the emergent interaction is real.
+- If the hypothesized failure does NOT reproduce (test passes, risk mitigated or hypothesis wrong): record "CR-001 not reproducible — risk confirmed resolved or hypothesis invalid."
+- **If implementer skipped the combinatorial risk scan** (no Combinatorial Risks section in handoff.md): flag as advisory in qa-report.md (process gap, not functional gap).
+
+| Result | Action |
+|--------|--------|
+| All CRs not reproducible | Proceed to AC verification |
+| Any CR reproducible | Record as P1 finding, continue AC verification (non-blocking to QA process) |
+
 ## Workflow
 
 1. Read `spec.md` for acceptance criteria
