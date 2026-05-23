@@ -1,7 +1,7 @@
 ---
 name: reflect
 description: On-demand mistake/learning logger. Records errors, corrections, and insights to `.agents-stack/learnings/` for cross-session recall. Also queries past learnings on request.
-trigger: On demand. User says "記得這個錯誤," "記住這個," "remember this mistake," "log this error," or "show me past learnings" / "之前的教訓" / "recall."
+trigger: On demand. User says "remember this mistake," "log this error," "show me past learnings," "recall," or similar.
 inputs: [user's natural language description of the mistake or learning]
 outputs: [.agents-stack/learnings/<date>--<slug>.md (record), or printed recall results (query)]
 boundaries: Read and write `.agents-stack/learnings/` only. No code changes. No pipeline integration.
@@ -13,7 +13,7 @@ Record a learning or recall past learnings — on demand, when the user says so.
 
 ## Record a Learning
 
-When the user says something like "remember this mistake" or "記住這個錯誤":
+When the user says something like "remember this mistake" or similar:
 
 1. Extract the learning from context (what went wrong, why, what to do instead)
 2. Write to `.agents-stack/learnings/<YYYY-MM-DD>--<slug>.md`
@@ -55,7 +55,7 @@ Optional: workstream IDs, phase, or file paths.
 
 ## Recall Past Learnings
 
-When the user says "show me past learnings" / "之前的教訓" / "recall" or similar:
+When the user says "show me past learnings," "recall," or similar:
 
 1. Read all files from `.agents-stack/learnings/`
 2. Filter by any keywords or type the user specifies
