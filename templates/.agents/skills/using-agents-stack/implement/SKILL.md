@@ -119,6 +119,8 @@ Each task follows exactly this 7-phase cycle. No phase can be skipped or merged.
 #### Phase 1 — RED: Write a Failing Test
 1. Read the task's 5-dimension verification metadata
 2. Write test(s) that match the Verification Checkpoints
+   - **At least one test must cover a negative path:** invalid/missing input → expected error output, or dependency failure → expected degradation
+   - If the task's Coverage Checklist includes edge case scenarios, at least one RED test must cover an edge case before GREEN begins
 3. **Run the test(s) — they MUST fail.** If they pass, the test is invalid (either not testing the right thing, or the feature already exists)
 4. If the test framework reports a runtime error (not a test failure), fix the test infrastructure first and repeat from step 2
 
@@ -169,6 +171,22 @@ Beyond code errors:
 - **Spec gap** → mark task `[🚨] needs_spec`, stop, update status.json with blocked_reason
 - **Parallel group failure** → mark failed task `[↩] reworking`, fix it. Other tasks in the same group that depend on shared state unaffected by the failed task may continue. Tasks that share state with the failed task must pause and re-verify after the fix.
 
+## Status Derivation Rule (Hard Gate)
+
+No status, success, or result field may be assigned a constant value. Every such field MUST be computed from actual state. This is checked at RED phase and re-verified by QA.
+
+**Violations (auto-reject):**
+
+Any status field assigned a literal constant regardless of input. For example:
+- `status ← "completed"` — always returns the same string
+- `success ← true` — always returns the same boolean
+- `return Result(status: "completed")` — function always returns same status
+- Any field named `*_status` or `*_success` that never varies across test inputs
+
+**Correct pattern:**
+
+Status and result fields must be a function of actual computation — derived from errors collected, output parsed, or guard evaluated — never a bare literal. The RED test must exercise at least two distinct input paths that produce different status values.
+
 ## Output: handoff.md
 
 ```markdown
@@ -199,8 +217,8 @@ Each claim below is backed by a command executed in this session:
 - Core path: [end-to-end flow verified] — specific command + output
 - Pre-handoff checklist: all items passed
 
-## Known Issues
-- [Warnings, limitations the QA worker should know]
+## Risks & Limitations
+- [Warnings, limitations, and unresolved edge cases the QA worker should know — the Known Workarounds table above captures implementation shortcuts separately]
 
 ## Deviations from Plan
 - [What was done differently than plan.md specified, and why]
@@ -214,6 +232,15 @@ Tasks were checked for emergent interactions — conditions where two tasks inde
 | CR-001 | T3, T7 | T3 changes schema → T7's query may miss new fields | If T3 lands before T7 adapts |
 | CR-002 | T5, T6 | Both write to shared-cache with different key formats → silent overwrite | If cache prefix convention isn't agreed |
 - [Add rows per identified risk. If none found, state: "No combinatorial risks identified — tasks operate on disjoint files/resources."]
+
+## Known Workarounds
+
+Any implementation decision made to pass tests without full correctness MUST be recorded here. QA will scan for undeclared workarounds and flag them.
+
+| Workaround ID | What was simplified/stubbed | Breaking condition | Resolution plan |
+|---------------|---------------------------|--------------------|-----------------|
+| W-001 | [description] | [under what input/scenario it fails] | [TODO reference or follow-up task] |
+- [If none, state: "No workarounds — all implementations are complete and correct."]
 
 ## Rework Notes (if applicable)
 - Prior failure: [what failed]

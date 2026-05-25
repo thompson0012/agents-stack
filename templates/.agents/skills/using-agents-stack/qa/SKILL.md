@@ -177,12 +177,65 @@ For each CR:
 | All CRs not reproducible | Proceed to AC verification |
 | Any CR reproducible | Record as P1 finding, continue AC verification (non-blocking to QA process) |
 
+### Step 6: Error Propagation Verification
+
+Before AC verification, verify that cross-phase error states flow correctly through the system:
+
+1. Read spec.md — identify all error output contracts (EC with "Error output format" and "Consumed by")
+2. For each error contract:
+   - Identify the producing phase/task
+   - Identify the consuming phase/task
+   - Inject the error state into the producer
+   - Verify the consumer correctly reads and reacts to the error state (NOT hardcoded success)
+3. If spec.md defines no error contracts: record as P2 advisory (spec gap — error states undefined)
+
+| Result | Action |
+|--------|--------|
+| All error contracts verified — consumer reacts correctly to injected error | Proceed to AC verification |
+| Error state ignored or hardcoded success returned by consumer | **P1 finding** — route to implement |
+| No error contracts defined in spec.md | **P2 finding** — route to spec (spec gap)
+
+### Step 7: Workaround & Hardcode Audit
+
+Scan the implementation for undeclared shortcuts and hardcoded status values:
+
+1. **Hardcoded status scan** — construct grep patterns for the project's language.
+   Adapt the regex to the language's assignment syntax (`=`, `:=`, `:`):
+
+   ```
+   # Status fields assigned literal strings
+   rg 'status\s*[=:]\s*["'\''][^"'\'']*["'\'']'
+   # Success/result fields assigned literal booleans
+   rg '(success|ok|passed)\s*[=:]\s*(true|True|TRUE)'
+   # Common patterns to narrow down (adapt to project's conventions):
+   #   rg '"completed"' in status-producing modules
+   #   rg 'success\s*[=:]\s*(true|True)' in result-returning functions
+   ```
+
+   The intent: find any status/result field whose value never changes regardless of input. If a function always returns `"completed"` or always returns `true`, flag it.
+2. **Workaround scan** — grep for undeclared stubs and TODOs in production code:
+   ```
+   rg '(TODO|STUB|HACK|FIXME)' --glob '!tests/**'
+   ```
+3. **Cross-check against handoff.md** — compare found workarounds against the `## Known Workarounds` table. Undeclared workarounds are a process violation.
+4. **Constant-return scan** — identify functions that always return the same value regardless of input.
+
+| Finding | Severity | Action |
+|---------|----------|--------|
+| Hardcoded status in status-producing function | **P1** | Route to implement |
+| TODO/STUB/HACK in critical execution path | **P1** | Route to implement |
+| Workaround found but not declared in handoff.md | **P1** (process violation) | Route to implement |
+| Function with only one return value in all paths | **P2** | Flag, investigate |
+| No known workarounds section in handoff.md | **P2** (process gap) | Advisory only |
+
 ## Workflow
 
 1. Read `spec.md` for acceptance criteria
 2. Read `handoff.md` for reproduction steps
 3. **Run the Reproduce Gate** (above) — system must build, start, and respond
 4. For each AC from spec.md: **exercise the live system**. Code review (reading files) is NOT a substitute for execution. Run the actual system, send real requests, observe real responses.
+   - **For each happy-path AC that passes, also verify its corresponding failure-path AC** from spec.md.
+   - If spec.md has no failure-path AC for a critical user flow, record as **P3 advisory** ("spec gap — no failure-path AC defined") and continue.
 5. Verify each AC from spec.md against observed behavior
 6. Assess layer if failure found
 7. Assess deeper insight potential

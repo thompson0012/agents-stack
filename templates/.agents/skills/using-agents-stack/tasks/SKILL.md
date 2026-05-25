@@ -108,6 +108,14 @@ Decompose the plan into a strictly ordered sequence of verifiable tasks. Each ta
 - Coverage checklist maps to test strategy from plan.md
 - If a task cannot be made verifiable, the plan is insufficient — flag it
 
+### Edge Case Coverage Rule
+For every task that implements a function producing an error state, the Coverage Checklist MUST include at least one test scenario where:
+- The function receives invalid or empty input
+- The function's dependency fails
+- The function's output is consumed by a downstream task in error state
+
+A Coverage Checklist without edge case scenarios is incomplete.
+
 ### Cross-Artifact Self-Consistency Check
 
 Before declaring done, verify your own output against spec.md and plan.md:
@@ -121,6 +129,8 @@ Before declaring done, verify your own output against spec.md and plan.md:
 | DAG is acyclic | Trace each dependency chain to its root — no loops |
 | First task invariant | TASK-1 is test infrastructure scaffold (not implementation) |
 | No orphaned ACs | Every AC is covered by at least one task |
+| Error output coverage | Every EC error output format in spec.md has at least one downstream task referencing it in "Align Spec" |
+| Failure-path AC coverage | Every failure-path AC in spec.md maps to at least one task |
 
 Run this check **before** writing tasks.md. If you find gaps, fix them by adding/updating tasks. Do not pass inconsistent tasks to implement.
 
