@@ -55,5 +55,6 @@ Single source of truth for routing user intent. Check this table on every messag
 | **Frontend QA** — "檢查前端" / "UI check" / "browser test" / "前端測試" | `frontend-qa` | Direct skill dispatch |
 | **Frontend design** — "設計看看" / "design review" / "UI/UX" / "這個設計好不好" / "design" | `frontend-design` | Direct skill dispatch |
 | **Complexity audit** — "over-engineered" / "prune" / "複雜度 audit" / "這坨 code 太複雜" | `prune-review` | Dispatch prune specialist |
+| **Adversarial QA** — "red team" / "adversarial testing" / "edge case hunt" / "break this system" / "stability test" / "攻擊測試" | `adversarial-qa` | Direct skill dispatch |
 | **Reflect/learn** — "記得這個錯誤" / "log this error" / "之前的教訓" / "show past learnings" | `reflect` | Record or query learnings |
 | **Ad-hoc development** (one-off bugfix, feature, refactor, question, exploration — no workstream context) | **Direct execution** | No pipeline routing. Implement directly or load domain skill. |
