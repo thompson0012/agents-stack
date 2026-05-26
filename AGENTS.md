@@ -32,6 +32,7 @@ Each phase has a corresponding SKILL.md in `.agents/skills/using-agents-stack/<p
 3. Implementer ≠ Verifier (Generator ≠ Auditor)
 4. Cold start must work
 5. Iteration ≠ Retry
+6. **Speed ≤ Quality** — when speed and discipline conflict, discipline wins. Fast but wrong is worse than correct but slow.
 
 ## Quick Resume
 
