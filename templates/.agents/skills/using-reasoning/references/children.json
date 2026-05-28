@@ -1,82 +1,29 @@
 {
   "router_name": "using-reasoning",
-  "purpose": "Route structured reasoning requests to the narrowest reasoning child: integrated reasoning, scenario planning, or hidden-rule survivability checks.",
+  "purpose": "Route structured reasoning requests to integrated reasoning with optional reality-check or scenario-planning templates.",
   "selection_order": [
-    "Integrated reasoning (calibrate/frame/analyze/recommend/verify) beats specialized children when the need spans multiple phases.",
-    "Concrete external-signal scenario work beats hidden-rule survivability checks.",
-    "Hidden-rule survivability checks are the last resort when the user mainly needs to see what real-world incentives, gatekeepers, or ceilings they are missing."
+    "Integrated reasoning for any analytical need.",
+    "Quick-start templates (reality-check / scenario-planning) are reference files within reasoning, not separate children."
   ],
   "children": [
     {
       "name": "reasoning",
       "target": "using-reasoning/reasoning",
       "relationship": "routes_to",
-      "summary": "Integrated 5-phase reasoning workflow: calibrate state (0), frame problem (1), analyze with lenses (2), recommend with evidence (3), verify before acting (4). Run only the needed phases.",
+      "summary": "Integrated 5-phase reasoning workflow: calibrate state (0), frame problem (1), analyze with lenses (2), recommend with evidence (3), verify before acting (4). Run only the needed phases. Includes quick-start templates for reality checks (references/archetypes.md) and scenario planning (references/scenarios.md).",
       "route_when": [
         "The situation needs any combination of state calibration, problem framing, multi-lens analysis, structured advisory, or verification.",
-        "Multiple needs are present — state check, then problem definition, then analysis, then recommendation, then verification."
+        "Multiple needs are present — state check, then problem definition, then analysis, then recommendation, then verification.",
+        "The user needs a survivability audit (reality check) or scenario planning (strategic foresight) — use quick-start templates from references/."
       ],
       "avoid_when": [
-        "The user only needs a concrete external-signal scenario analysis — use strategic-foresight.",
-        "The user only needs a hidden-rule survivability check — use reality-check.",
         "The request is purely factual or operational with no analytical dimension."
       ],
       "requires": [],
-      "recommends": [
-        "using-reasoning/reality-check",
-        "using-reasoning/strategic-foresight"
-      ],
+      "recommends": [],
       "fallbacks_to": [],
       "install_if_missing": {
         "package": "using-reasoning/reasoning",
-        "notes": "Install this nested child path before routing when the runtime cannot discover reasoning children automatically."
-      }
-    },
-    {
-      "name": "strategic-foresight",
-      "target": "using-reasoning/strategic-foresight",
-      "relationship": "routes_to",
-      "summary": "Runs scenarios and implication analysis when a concrete external signal or threshold creates uncertainty about downstream effects.",
-      "route_when": [
-        "The prompt includes a concrete external signal, threshold, launch, policy move, pricing shift, or scientific result and asks what it means or what happens next.",
-        "The main need is implications under uncertainty, scenarios, winners and losers, or indicators to watch."
-      ],
-      "avoid_when": [
-        "There is no concrete triggering signal and the user simply wants broad advisory support.",
-        "The request is only for a summary or explanation of an announcement."
-      ],
-      "requires": [],
-      "recommends": [
-        "using-reasoning/reasoning"
-      ],
-      "fallbacks_to": [],
-      "install_if_missing": {
-        "package": "using-reasoning/strategic-foresight",
-        "notes": "Install this nested child path before routing when the runtime cannot discover reasoning children automatically."
-      }
-    },
-    {
-      "name": "reality-check",
-      "target": "using-reasoning/reality-check",
-      "relationship": "routes_to",
-      "summary": "Surfaces hidden rules, information asymmetries, survivability limits, resource mismatches, and platform ceilings when the user wants to know what they are not seeing.",
-      "route_when": [
-        "The user asks for a blunt reality check or asks what hidden rules, asymmetries, or survivability risks they are missing in a career, education, business, investment, or life decision.",
-        "The main output should be an honest hidden-rule or downside check rather than a generic memo, sourced research packet, or multi-lens operating analysis."
-      ],
-      "avoid_when": [
-        "The real task is startup viability, GTM, CAC, churn, runway, pricing, or unit-economics pressure testing that belongs in greenfield-product/startup-pressure-test.",
-        "The problem is still vague, emotionally defended, or solution-contaminated — route to reasoning Phase 0 or 1 first.",
-        "The user mainly needs sourced evidence, market mapping, or external fact gathering rather than a hidden-rule assessment.",
-        "The request is a clear operational diagnosis or structured advisory memo on a problem that is already framed — route to reasoning Phase 2 or 3."
-      ],
-      "requires": [],
-      "recommends": [
-        "using-reasoning/reasoning"
-      ],
-      "fallbacks_to": [],
-      "install_if_missing": {
-        "package": "using-reasoning/reality-check",
         "notes": "Install this nested child path before routing when the runtime cannot discover reasoning children automatically."
       }
     }

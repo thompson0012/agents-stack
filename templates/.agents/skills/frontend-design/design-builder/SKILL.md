@@ -87,6 +87,38 @@ Build in three layers, verifying each before moving to the next:
 - All animations must use the single easing family specified in the contract
 - All animations must respect `prefers-reduced-motion: reduce`
 
+### 0. Prototype Validation (Optional — Pre-Build Verification)
+
+When prototyping is required, run this pre-build pipeline to validate design vocabulary before committing to full artifact construction.
+
+**Purpose**: Verify that colors, typography, spacing, shadows, and components from the design reference work correctly in a real browser — catching token mismatches, state gaps, and layout stress failures early.
+
+**Procedure**:
+
+1. **Token Lab** — Build a minimal HTML page that displays:
+   - Full color palette side-by-side with light/dark mode toggle
+   - Type scale specimen (all headings + body)
+   - Spacing rhythm display (visual bars at each step)
+   - Shadow/elevation showcase applied to sample cards
+   - Border radius showcase
+
+   Verify tokens render as expected. No decorative styling — just the token inventory.
+
+2. **Component Spot-Check** — Build a second minimal HTML page showing key components (Button, Input, Card) with all five interaction states (default, hover, active, focus, disabled). Verify each state renders correctly.
+
+3. **Layout Stress Test** — Build a third minimal page with one representative section from the design, then stress-test with:
+   - Long unbroken strings (overflow test)
+   - Emoji-rich content
+   - Missing image fallbacks
+   - Extreme numeric values
+   - 320px viewport width
+
+Each step is optional — run only the level needed to de-risk the build. Record findings in `design-handoff.md` under Build Evidence. Only the full artifact in subsequent steps must follow all quality rules.
+
+**Skeleton templates** are available in `references/` (token-lab-skeleton.html, component-theater-skeleton.html, page-slice-skeleton.html) — use these to skip boilerplate. They use `/*TOKEN:xxx*/` placeholders; replace each with the matching value from the design reference.
+
+**Do NOT** run this pipeline unless prototyping adds clear value (new design system, risky tokens, first use of this vocabulary). Skip it for routine builds.
+
 ### 1. Determine the scaffold
 
 Select the scaffold pattern that matches the contract's output type:

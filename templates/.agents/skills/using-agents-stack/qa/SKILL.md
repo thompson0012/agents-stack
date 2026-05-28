@@ -24,6 +24,10 @@ This QA worker MUST be a **fresh session** with no prior context from implement 
 
 If you are reading this and you have prior session context on this workstream, STOP and report to orchestrator: "I am biased by accumulated context — dispatch a fresh qa agent."
 
+## QA Focus
+
+QA verifies against SPEC acceptance criteria and finds adversarial edge cases. It does NOT re-run implement's self-checks (wiring integrity, combinatorial risk, hardcoded status scan — implement already validated these). QA's job: exercise the live system against every AC, find what implement missed.
+
 ## Input
 
 Read from disk:
@@ -138,46 +142,7 @@ If ANY reproduce step fails, verdict is **BLOCKED**. Do NOT proceed to AC verifi
 
 **Why this gate exists**: A code review that never runs the code cannot detect the system being broken. The implementer's handoff may claim everything works — but only independent reproduction confirms it.
 
-### Step 4: Cross-Module Wiring Verification
-
-After the system is running, perform an integration wiring check:
-
-1. **Read `handoff.md` Integration Gate Results** — the implementer should have recorded their zero-caller scan and cross-module interface check
-2. **Independently verify** — do not trust the implementer's results. Run your own scan:
-   ```
-   # Pick 3-5 public API functions from the spec's critical path
-   # Verify each has at least one production caller
-   rg "assemble_prompt\(" --glob '!tests/**'  # should find non-test callers
-   ```
-3. **Cross-check against plan.md** — for every cross-module interface in the plan, verify the production code wiring exists
-4. **If the implementer skipped the integration gate** (no Integration Gate Results section in handoff.md): flag as a process violation in qa-report.md
-
-| Result | Action |
-|--------|--------|
-| All critical-path functions have production callers, all plan interfaces wired | Proceed to AC verification |
-| Zero-caller detected on critical path | **P0 gap** — record in Findings, route to implement |
-| Implementer skipped integration gate entirely | **Process violation** — record in Findings, flag as trust issue
-
-### Step 5: Combinatorial Risk Reproduction
-
-After wiring verification, attempt to reproduce each risk listed in handoff.md's `## Combinatorial Risks` section:
-
-| Risk ID | Reproduction Method |
-|---------|-------------------|
-| CR-001 (schema change breaks query) | Checkout T3's code without T7's fix, run the affected query — does it fail? |
-| CR-002 (cache key collision) | Verify both tasks use the same cache key convention in production code |
-
-For each CR:
-- If the hypothesized failure reproduces: record as **P1 finding** in qa-report.md — the emergent interaction is real.
-- If the hypothesized failure does NOT reproduce (test passes, risk mitigated or hypothesis wrong): record "CR-001 not reproducible — risk confirmed resolved or hypothesis invalid."
-- **If implementer skipped the combinatorial risk scan** (no Combinatorial Risks section in handoff.md): flag as advisory in qa-report.md (process gap, not functional gap).
-
-| Result | Action |
-|--------|--------|
-| All CRs not reproducible | Proceed to AC verification |
-| Any CR reproducible | Record as P1 finding, continue AC verification (non-blocking to QA process) |
-
-### Step 6: Error Propagation Verification
+### Step 4: Error Propagation Verification
 
 Before AC verification, verify that cross-phase error states flow correctly through the system:
 
@@ -195,38 +160,19 @@ Before AC verification, verify that cross-phase error states flow correctly thro
 | Error state ignored or hardcoded success returned by consumer | **P1 finding** — route to implement |
 | No error contracts defined in spec.md | **P2 finding** — route to spec (spec gap)
 
-### Step 7: Workaround & Hardcode Audit
+### Step 5: Workaround & Hardcode Spot-Check
 
-Scan the implementation for undeclared shortcuts and hardcoded status values:
+Quick scan to catch anything implement missed:
 
-1. **Hardcoded status scan** — construct grep patterns for the project's language.
-   Adapt the regex to the language's assignment syntax (`=`, `:=`, `:`):
-
-   ```
-   # Status fields assigned literal strings
-   rg 'status\s*[=:]\s*["'\''][^"'\'']*["'\'']'
-   # Success/result fields assigned literal booleans
-   rg '(success|ok|passed)\s*[=:]\s*(true|True|TRUE)'
-   # Common patterns to narrow down (adapt to project's conventions):
-   #   rg '"completed"' in status-producing modules
-   #   rg 'success\s*[=:]\s*(true|True)' in result-returning functions
-   ```
-
-   The intent: find any status/result field whose value never changes regardless of input. If a function always returns `"completed"` or always returns `true`, flag it.
-2. **Workaround scan** — grep for undeclared stubs and TODOs in production code:
-   ```
-   rg '(TODO|STUB|HACK|FIXME)' --glob '!tests/**'
-   ```
-3. **Cross-check against handoff.md** — compare found workarounds against the `## Known Workarounds` table. Undeclared workarounds are a process violation.
-4. **Constant-return scan** — identify functions that always return the same value regardless of input.
+1. **Workaround scan** — grep for `(TODO|STUB|HACK|FIXME)` in non-test code
+2. **Cross-check** — compare found workarounds against handoff.md's `## Known Workarounds` table
+3. **Hardcode sample** — spot-check 2-3 status-returning functions for hardcoded values
 
 | Finding | Severity | Action |
 |---------|----------|--------|
-| Hardcoded status in status-producing function | **P1** | Route to implement |
-| TODO/STUB/HACK in critical execution path | **P1** | Route to implement |
-| Workaround found but not declared in handoff.md | **P1** (process violation) | Route to implement |
-| Function with only one return value in all paths | **P2** | Flag, investigate |
-| No known workarounds section in handoff.md | **P2** (process gap) | Advisory only |
+| TODO/STUB/HACK in critical execution path | P2 | Advisory — record in findings |
+| Undeclared workaround | P2 | Process gap — record in findings |
+| Hardcoded status found | P1 | Route to implement |
 
 ## Workflow
 

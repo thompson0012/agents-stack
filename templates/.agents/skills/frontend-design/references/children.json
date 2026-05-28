@@ -81,23 +81,5 @@
     "phase_in": "post-orchestrator (compound queued)",
     "phase_out": "compound cleared",
     "fallback": "If no durable learning survives the 3-criteria filter, records a dated deliberate-skip note. Never invents lessons without artifact-linked provenance."
-  },
-  {
-    "name": "design-prototype-lab",
-    "description": "Progressive validation pipeline: Token Lab → Component Theater → Page Slice. Verifies that the design vocabulary works in real browsers before full artifact build.",
-    "skill_path": "frontend-design/design-prototype-lab",
-    "prerequisite_artifacts": [
-      ".agents-stack/<sprint-id>/contract.md (phase: contracted, prototyping_required: true)",
-      ".agents-stack/<sprint-id>/context.md"
-    ],
-    "produces_artifacts": [
-      ".agents-stack/<sprint-id>/token-validation.md",
-      ".agents-stack/<sprint-id>/component-tests.md",
-      ".agents-stack/<sprint-id>/page-slice.md",
-      ".agents-stack/<sprint-id>/status.json"
-    ],
-    "phase_in": "contracted",
-    "phase_out": "validated | validating_failed",
-    "fallback": "If token validation reveals critical gaps, routes to orchestrator for escalation to human."
   }
 ]

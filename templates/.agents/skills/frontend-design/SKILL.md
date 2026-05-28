@@ -32,8 +32,7 @@ Each child lives under `frontend-design/<child-name>/`, and child SKILL.md files
 5. Phase routing from strongest local artifact — in order:
    - `design-qa.md` exists and is unreconciled → route to `orchestrator` (harness) before next step
    - `design-handoff.md` with `READY_FOR_REVIEW` and no `design-qa.md` → `design-reviewer`
-   - `design.md` with `phase: "design_contracted"` AND `prototyping_required: true` → `design-prototype-lab`
-   - `design.md` with `phase: "design_contracted"` AND `prototyping_required: false` or absent → `design-builder`
+    - `design.md` with `phase: "design_contracted"` → `design-builder` (prototype validation is now an optional pre-build step within builder)
    - `design.md` exists and `phase: "approved"` (human-approved, contract not yet finalized) → `design-proposer` to formalize the contract
    - `design.md` exists and `phase: "awaiting_human"` → surface to human; do not auto-dispatch
    - `design.md` exists with `no_design_system_found: true` and `phase: "awaiting_human"` → surface to human; do not advance to proposer until human provides design reference
@@ -45,10 +44,9 @@ Each child lives under `frontend-design/<child-name>/`, and child SKILL.md files
 7. `qa_fail` with valid `clean_restore_ref` and remaining budget → `design-builder` retry.
 8. `qa_blocked` → route to `orchestrator` (harness) to record the blocker, then surface to human. Do not auto-retry a BLOCKED verdict.
 9. `build_error` or `qa_fail` without `clean_restore_ref`, or budget exhausted → `orchestrator` → `escalated_to_human`.
-10. `validating_failed` → route to `orchestrator` → `escalated_to_human`.
-11. `design-qa.md` PASS → route to `orchestrator` (harness) to reconcile verdict and queue compound.
-12. After `orchestrator` confirms `compound_pending_feature_ids` is non-empty → route to `design-compounder`.
-13. After `design-compounder` clears the queue → sprint is complete; open next sprint if pending.
+10. `design-qa.md` PASS → route to `orchestrator` (harness) to reconcile verdict and queue compound.
+11. After `orchestrator` confirms `compound_pending_feature_ids` is non-empty → route to `design-compounder`.
+12. After `design-compounder` clears the queue → sprint is complete; open next sprint if pending.
 
 ## Phase Model
 
@@ -58,14 +56,12 @@ Each child lives under `frontend-design/<child-name>/`, and child SKILL.md files
 | `design_spec` | `design.md` | `design-proposer` |
 | `awaiting_human` | `design.md` | human |
 | `design_contracted` | `design.md` | `design-builder` |
-| `validating` | `token-validation.md`, `component-tests.md`, `page-slice.md` | `design-prototype-lab` |
 | `building` | in-progress HTML, `design-handoff.md` | `design-builder` |
 | `awaiting_review` | `design-handoff.md` | `design-reviewer` |
 | `qa_pass` | `design-qa.md` PASS | `orchestrator` → `design-compounder` |
 | `qa_fail` | `design-qa.md` FAIL | `design-builder` retry |
 | `qa_blocked` | `design-qa.md` BLOCKED | `orchestrator` → human |
 | `build_error` | `design-handoff.md` with failure | `orchestrator` |
-| `validating_failed` | `token-validation.md` with failures | `orchestrator` |
 | `escalated_to_human` | `status.json` | human |
 
 ## Family Workflow Boundary
@@ -76,7 +72,6 @@ This router owns:
 - HTML artifact implementation
 - adversarial design quality review
 - design learning compound capture
-- progressive design validation (token labs, component theater, page slices)
 
 This router does not own general harness lifecycle management. After `design-qa.md` is written, route through `orchestrator` (from `using-agents-stack`) for archive, live-state reconciliation, and progress ledger updates. This family's state machine is a domain layer on top of the harness, not a replacement for it.
 
@@ -88,7 +83,6 @@ Return one of these forms, then dispatch the selected child as a fresh worker:
 - `Route to frontend-design/design-proposer.`
 - `Parked at awaiting_human. Surface design.md to human for approval.`
 - `Route to frontend-design/design-builder.`
-- `Route to frontend-design/design-prototype-lab.`
 - `Route to frontend-design/design-reviewer.`
 - `Route to frontend-design/design-compounder.`
 - `Route to using-agents-stack (root orchestrator).` (after review verdict or build failure)

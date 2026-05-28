@@ -190,8 +190,40 @@ Pattern: [optional — reusable rule or guardrail]
 - `references/lens-library.md` — 14 analytical lenses with use cases
 - `references/bias-inventory.md` — cognitive bias reference
 - `references/artifacts.json` — optional structured artifact schema
+- `references/archetypes.md` — reality check (survivability audit) template
+- `references/scenarios.md` — scenario planning (strategic foresight) template
 - `assets/quick-invoke-template.md` — quick-start template
 - `assets/worked-example.md` — full worked example
+
+## Quick-Start Templates
+
+When the situation maps to one of these patterns, start with the named template instead of running the full 5-phase workflow from scratch.
+
+### Reality Check (Survivability Audit)
+
+Best for: career, education, business, or life decisions where hidden rules and survivability matter more than optimization.
+
+1. **State the bet** — name what the user is staking (money, time, reputation, optionality)
+2. **Hidden rules** — gatekeepers, information asymmetries, selection filters, incentive distortions
+3. **Survivability** — assume optimistic narrative is partly wrong; can they survive the downside?
+4. **Resource match** — compare path requirements against actual position
+5. **Bottom line** — proceed / proceed with conditions / stop
+
+See `references/archetypes.md` for the full template with quality bar and output format.
+
+### Strategic Foresight (Scenario Planning)
+
+Best for: concrete external signals, thresholds, launches, or policy shifts where the user wants implications under uncertainty.
+
+1. **Define the signal** — what changed and what type of shift is it?
+2. **Strategic hinge** — which assumption may no longer hold?
+3. **Three scenarios** — base case / upside / failure (with time horizons)
+4. **War-game actors** — winners, losers, pivoters
+5. **Higher-order effects** — 1st, 2nd, 3rd order consequences
+6. **Bottlenecks and risks** — what could kill the thesis
+7. **Decision support** — indicators to watch
+
+See `references/scenarios.md` for the full template with output format and quality bar.
 
 ## Failure Modes to Avoid
 
