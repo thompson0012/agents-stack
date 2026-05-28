@@ -13,11 +13,11 @@ Each child lives under `greenfield-product/<child-name>/`, and child SKILL.md fi
 ## Stage Order
 
 1. **Startup pressure test** — `startup-pressure-test` (raw idea, GTM realism, CAC/churn/runway, whether the thesis survives contact with the market)
-2. **Strategy / blueprint** — `product-blueprint` (raw ideas, MVP framing, blueprint -> `.agents-stack/reference/design.md`)
-3. **Requirements** — `requirements-writer` (validated blueprint -> `.agents-stack/reference/product/requirements.md`)
-4. **System design** — `system-architect` (validated requirements -> `.agents-stack/reference/architecture/implementation.md`)
+2. **Product spec pipeline** — `spec-pipeline` (strategic blueprint → requirements → system design; three stages in one child)
 
-If the request would skip a prerequisite stage, route to the prerequisite child first and surface the gap.
+The `spec-pipeline` child consolidates three formerly separate stages (product-blueprint, requirements-writer, system-architect) into a single pipeline that produces `.agents-stack/reference/design.md`, `.agents-stack/reference/product/requirements.md`, and `.agents-stack/reference/architecture/implementation.md`.
+
+If the request would skip a prerequisite stage, route to the prerequisite stage within the pipeline or to `startup-pressure-test` first.
 
 ## Boundary
 

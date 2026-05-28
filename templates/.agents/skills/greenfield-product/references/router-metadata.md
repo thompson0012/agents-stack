@@ -17,12 +17,10 @@ Keep `SKILL.md` focused on the router contract. Keep child inventory details her
 ```json
 {
   "router_name": "greenfield-product",
-  "purpose": "Route greenfield product requests through startup pressure testing, strategy, requirements, and system-design stages without skipping prerequisites.",
+  "purpose": "Route greenfield product requests through startup pressure testing and a unified spec-pipeline stage without skipping prerequisites.",
   "selection_order": [
     "If the real question is whether the thesis survives, route to startup-pressure-test first.",
-    "If the user needs MVP framing or a first strategy / blueprint, route to product-blueprint.",
-    "If a validated blueprint exists and the work is turning it into requirements, route to requirements-writer.",
-    "If a validated PRD exists and the work is system design, route to system-architect."
+    "If the product direction is already validated and the work is moving toward a spec (blueprint \u2192 requirements \u2192 system design), route to spec-pipeline."
   ],
   "children": [
     {

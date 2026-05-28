@@ -10,7 +10,7 @@
     {
       "id": "router-skill-creation",
       "prompt": "I need to package a skill family with discoverable children, install hints, and fallback behavior. Which skill should I use?",
-      "expected_output": "Routes to skill-authoring/create-router-skill because the task is to build a router family, not a leaf skill.",
+      "expected_output": "Routes to skill-authoring/create-skill (router variant) because create-skill covers both leaf and router creation via its decision tree.",
       "files": []
     }
   ]

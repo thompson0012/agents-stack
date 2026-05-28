@@ -1,50 +1,28 @@
 {
   "router_name": "skill-authoring",
-  "purpose": "Route skill-package authoring requests to leaf skill creation or router-family creation.",
+  "purpose": "Route skill-package authoring requests to leaf/ruler skill creation or agent manifest creation.",
   "selection_order": [
-    "Leaf skill or single-job package -> create-skill",
-    "Router family with nested children and install-or-fallback behavior -> create-router-skill"
+    "Skill package (leaf or router) -> create-skill",
+    "Agent manifest -> create-agents"
   ],
   "children": [
     {
       "name": "create-skill",
       "target": "skill-authoring/create-skill",
       "relationship": "routes_to",
-      "summary": "Creates or upgrades reusable leaf skill packages.",
+      "summary": "Creates or upgrades reusable skill packages — covers both leaf skills and router families via a single decision tree.",
       "route_when": [
-        "The package is a single repeatable job rather than a family router.",
-        "The work needs portable leaf guidance, references, scripts, assets, or evals but not child selection."
+        "The package is a single repeatable job (leaf).",
+        "The package needs to select among 3+ related child skills (router)."
       ],
       "avoid_when": [
-        "The package's main job is routing among children.",
-        "The work needs explicit child metadata, install hints, or fallback behavior."
+        "The package is an agent manifest, not a skill package."
       ],
       "requires": [],
       "recommends": [],
       "fallbacks_to": [],
       "install_if_missing": {
         "package": "skill-authoring/create-skill",
-        "notes": "Install this nested child path before routing if the runtime cannot discover bundled children automatically."
-      }
-    },
-    {
-      "name": "create-router-skill",
-      "target": "skill-authoring/create-router-skill",
-      "relationship": "routes_to",
-      "summary": "Creates or upgrades discoverable router skills with explicit child inventories.",
-      "route_when": [
-        "The package's main job is choosing among child skills.",
-        "The family boundary, child order, or install-or-fallback behavior must be explicit."
-      ],
-      "avoid_when": [
-        "The work is a leaf skill with one repeatable job.",
-        "The package would only be a category label or umbrella without decision logic."
-      ],
-      "requires": [],
-      "recommends": [],
-      "fallbacks_to": [],
-      "install_if_missing": {
-        "package": "skill-authoring/create-router-skill",
         "notes": "Install this nested child path before routing if the runtime cannot discover bundled children automatically."
       }
     },

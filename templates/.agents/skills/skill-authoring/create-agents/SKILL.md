@@ -16,7 +16,7 @@ The job is to make a specialist agent loadable, narrow, and honest about its sco
 - Keep the agent role narrow enough that another agent can tell when to use it.
 - Use harness-style language: file-backed truth, explicit uncertainty, and no silent fallback.
 - Use `meta-prompting` as the prompt-architecture lens when shaping the agent body.
-- If the request is really a skill package, use `create-skill` or `create-router-skill` instead.
+- If the request is really a skill package (leaf or router), use `create-skill` instead.
 
 ## Role Set
 

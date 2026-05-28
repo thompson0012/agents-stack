@@ -9,7 +9,7 @@
     "id": "create-router-skill-triggers",
     "query": "I need a discoverable router skill with explicit child metadata and install-or-fallback behavior.",
     "should_trigger": true,
-    "rationale": "Router family creation belongs in skill-authoring/create-router-skill."
+    "rationale": "Router family creation is now handled by skill-authoring/create-skill (router variant)."
   },
   {
     "id": "ordinary-work-does-not-trigger",

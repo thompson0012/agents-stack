@@ -10,12 +10,10 @@ Use this family when you are building or revising reusable skill packages or reu
 ## Core contract
 
 - Route to exactly one child.
-- Use `create-skill` for leaf skills and single-job packages.
-- Use `create-router-skill` for family routers that need discoverable children and install-or-fallback behavior.
+- Use `create-skill` for leaf skills **or** router families (it covers both; see its decision tree).
 - Use `create-agents` for reusable agent manifests or small coding-focused agent teams.
 - Keep the portable core first; add runtime-specific packaging only after the core works without vendor assumptions.
-- Keep leaf and router responsibilities separate.
-- When truth can be machine-checked, prefer code/schema/eval artifacts; see `create-skill`, `create-router-skill`, and `create-agents`.
+- When truth can be machine-checked, prefer code/schema/eval artifacts; see `create-skill` and `create-agents`.
 - Router children should self-identify as nested children of the router family in their own SKILL.md.
 
 ## Output
@@ -23,7 +21,6 @@ Use this family when you are building or revising reusable skill packages or reu
 Return one of these forms:
 
 - `Route to skill-authoring/create-skill.`
-- `Route to skill-authoring/create-router-skill.`
 - `Route to skill-authoring/create-agents.`
 - `No family child fits; answer directly.`
 

@@ -1,12 +1,10 @@
 {
   "router_name": "greenfield-product",
-  "purpose": "Route greenfield product requests through startup pressure testing, strategy, requirements, and system-design stages without skipping prerequisites.",
+  "purpose": "Route greenfield product requests through startup pressure testing and a unified spec-pipeline stage without skipping prerequisites.",
   "selection_order": [
     "If the real question is whether the thesis survives, route to startup-pressure-test first.",
-    "If the user needs MVP framing or a first strategy / blueprint, route to product-blueprint.",
-    "If a validated blueprint exists and the work is turning it into requirements, route to requirements-writer.",
-    "If a validated PRD exists and the work is system design, route to system-architect.",
-    "If the request would skip a prerequisite stage, route to the prerequisite child first."
+    "If the product direction is already validated and the work is moving toward a spec (blueprint → requirements → system design), route to spec-pipeline.",
+    "If the request would skip a prerequisite stage, route to the prerequisite first — within the pipeline if appropriate, or to startup-pressure-test if viability hasn't been assessed."
   ],
   "children": [
     {
@@ -20,7 +18,7 @@
       ],
       "avoid_when": [
         "The direction is already validated and the work is strategy / blueprint creation.",
-        "The user already asked for requirements or system design downstream of a validated blueprint."
+        "The user already asked for spec pipeline work downstream of viability assessment."
       ],
       "requires": [],
       "recommends": [],
@@ -31,65 +29,23 @@
       }
     },
     {
-      "name": "product-blueprint",
-      "target": "greenfield-product/product-blueprint",
+      "name": "spec-pipeline",
+      "target": "greenfield-product/spec-pipeline",
       "relationship": "routes_to",
-      "summary": "Turns raw ideas into product strategy, MVP framing, and the blueprint that becomes `.agents-stack/reference/design.md`.",
+      "summary": "Runs the full product spec pipeline: strategic blueprint → requirements → system design, producing .agents-stack/reference/design.md, requirements.md, and architecture/implementation.md.",
       "route_when": [
-        "The user is starting from a raw idea and needs the first strategic blueprint or MVP shape.",
-        "The work is product strategy rather than commercial pressure testing, requirements, or system design."
+        "The product direction is validated and the work is creating the product spec (blueprint, requirements, or system design).",
+        "The user needs any combination of MVP strategy, PRD, user stories, acceptance criteria, schemas, API contracts, or infrastructure decisions."
       ],
       "avoid_when": [
         "The main need is startup viability teardown.",
-        "A validated blueprint already exists and the remaining work is requirements or system design."
+        "The output needed is purely implementation work that already has spec artifacts."
       ],
       "requires": [],
       "recommends": [],
       "fallbacks_to": [],
       "install_if_missing": {
-        "package": "greenfield-product/product-blueprint",
-        "notes": "Install this nested child path before routing if the runtime cannot discover bundled children automatically."
-      }
-    },
-    {
-      "name": "requirements-writer",
-      "target": "greenfield-product/requirements-writer",
-      "relationship": "routes_to",
-      "summary": "Turns a validated blueprint into actionable requirements, user stories, and acceptance criteria in `.agents-stack/reference/product/requirements.md`.",
-      "route_when": [
-        "A validated blueprint exists and the work is turning it into a PRD / requirements document.",
-        "The user needs user stories, acceptance criteria, or edge cases for an approved direction."
-      ],
-      "avoid_when": [
-        "No validated blueprint exists yet.",
-        "A validated PRD already exists and the work is system design."
-      ],
-      "requires": ["product-blueprint"],
-      "recommends": [],
-      "fallbacks_to": [],
-      "install_if_missing": {
-        "package": "greenfield-product/requirements-writer",
-        "notes": "Install this nested child path before routing if the runtime cannot discover bundled children automatically."
-      }
-    },
-    {
-      "name": "system-architect",
-      "target": "greenfield-product/system-architect",
-      "relationship": "routes_to",
-      "summary": "Turns a validated PRD into concrete schemas, APIs, state flows, and infrastructure decisions for v1.",
-      "route_when": [
-        "A validated PRD exists and the work is system design.",
-        "The user needs schema, API contract, state-flow, or infrastructure decisions."
-      ],
-      "avoid_when": [
-        "No validated PRD exists yet.",
-        "The product direction is still being shaped at strategy or PRD level."
-      ],
-      "requires": ["requirements-writer"],
-      "recommends": [],
-      "fallbacks_to": [],
-      "install_if_missing": {
-        "package": "greenfield-product/system-architect",
+        "package": "greenfield-product/spec-pipeline",
         "notes": "Install this nested child path before routing if the runtime cannot discover bundled children automatically."
       }
     }
