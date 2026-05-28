@@ -49,7 +49,7 @@ Before artifact-driven routing, detect user natural language intent:
 - "implement/code" → route implement
 - "QA/verify/test" → route qa
 - "release/ship" → route release
-- "review code" → load agentic-engineering-principles skill (non-pipeline)
+- "review code" → load clean-philosophy skill (non-pipeline)
 - "browser test/UI check" → load frontend-qa skill (non-pipeline)
 - "design review" → load frontend-design skill (non-pipeline)
 - "complexity audit/prune" → dispatch prune-review (non-pipeline)

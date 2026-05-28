@@ -50,7 +50,7 @@ Single source of truth for routing user intent. Check this table on every messag
 |-------------|----------|--------|
 | **Pipeline phase** — "spec this" / "think through this" / "plan the architecture" / "design the system" / "break this down" / "task list" / "analyze this" / "对齐检查" / "implement this" / "code it" / "QA this" / "verify" / "test" / "release" / "ship it" | `using-agents-stack` | Load orchestrator; it routes to the correct phase based on artifact state |
 | **Active workstream** — `.agents-stack/tracked-work.json` has active entry + development intent | `using-agents-stack` | Resume workstream from strongest checkpoint |
-| **Code review** — "code review" / "review this code" / "幫我 review" | `agentic-engineering-principles` | Direct skill dispatch |
+| **Code review** — "code review" / "review this code" / "幫我 review" | `clean-philosophy` | Direct skill dispatch |
 | **Frontend QA** — "browser test" / "UI check" / "check frontend" | `frontend-qa` | Direct skill dispatch |
 | **Frontend design** — "design review" / "UI/UX" / "design this" | `frontend-design` | Direct skill dispatch |
 | **Complexity audit** — "complexity audit" / "prune" / "over-engineered" | `prune-review` | Dispatch prune-review specialist |

@@ -51,7 +51,7 @@ Single source of truth for routing user intent. Check this table on every messag
 |-------------|----------|--------|
 | **Pipeline phase** — "spec this" / "幫我想清楚" / "plan the architecture" / "設計系統" / "拆任務" / "break this down" / "analyze this" / "對齊檢查" / "implement this" / "開始實作" / "verify it" / "QA this" / "release it" | `using-agents-stack` | Load orchestrator; it routes to the correct phase based on artifact state |
 | **Active workstream** — `.agents-stack/tracked-work.json` has active entry + development intent | `using-agents-stack` | Resume from strongest checkpoint |
-| **Code review** — "review code" / "幫我 review" / "code review" / "看一下這段 code" | `agentic-engineering-principles` | Direct skill dispatch |
+| **Code review** — "review code" / "幫我 review" / "code review" / "看一下這段 code" | `clean-philosophy` | Direct skill dispatch |
 | **Frontend QA** — "檢查前端" / "UI check" / "browser test" / "前端測試" | `frontend-qa` | Direct skill dispatch |
 | **Frontend design** — "設計看看" / "design review" / "UI/UX" / "這個設計好不好" / "design" | `frontend-design` | Direct skill dispatch |
 | **Complexity audit** — "over-engineered" / "prune" / "複雜度 audit" / "這坨 code 太複雜" | `prune-review` | Dispatch prune specialist |
